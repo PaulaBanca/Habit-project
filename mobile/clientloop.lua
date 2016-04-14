@@ -78,7 +78,7 @@ function createClientLoop(server)
 end
 
 function start(server)
-  local stop=createClientLoop(server)
+  return createClientLoop(server)
 end
 
 function sendEvent(event)

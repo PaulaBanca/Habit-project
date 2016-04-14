@@ -21,7 +21,7 @@ function start()
     native.setActivityIndicator(false)
     local composer=require "composer"
     -- composer.gotoScene("scenes.pleasure",{params={melody=1}})
-    composer.gotoScene("scenes.schedule")
+    composer.gotoScene("scenes.setup")
   end)
 end
 
@@ -31,7 +31,14 @@ function login(force)
     local func=newUser and logger.create or logger.login
     func(user.getID(),user.getPassword(),function (ok,err)
       if not ok then
-        native.showAlert("Problem creating user", "Error: " .. err .. " Enter new user id?", {"OK","No"}, function(event)
+        if type(err) == "table" then
+          err=err.error
+          if err == "network error" then
+            start()
+            return 
+          end
+        end
+        native.showAlert("Problem creating user", "Error: " .. err .. ". Enter new user id?", {"OK","No"}, function(event)
           if event.action == "clicked" then
             login(event.index==1)
           end

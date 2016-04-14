@@ -111,5 +111,20 @@ function clearQsUpTo(id)
   database.runSQLQuery(removeSentQsCmd:format(id))
 end
 
+function hasDataToSend()
+  local total=0
+  database.runSQLQuery(countQCmd,function(udata,cols,values,names)
+    local count=math.min(50,values[1])
+    total=total+count
+    return 0
+  end)
+  database.runSQLQuery(countCmd,function(udata,cols,values,names)
+    local count=math.min(50,values[1])
+    total=total+count
+    return 0
+  end)
+
+  return total~=0
+end
 
 return M

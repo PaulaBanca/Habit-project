@@ -5,6 +5,7 @@ settings={
   },
   iphone={
     plist={
+      ITSAppUsesNonExemptEncryption=false,
       CFBundleIconFiles={
         "Icon-72.png",
         "Icon-72@2x.png",

@@ -15,6 +15,7 @@ local tostring=tostring
 local error=error
 local pairs=pairs
 local ipairs=ipairs
+local display=display
 
 setfenv(1,M)
 
@@ -41,7 +42,6 @@ function create(userid,password,callback)
 end
 
 function login(userid,password,callback)
-  print (password)
   parse.request(parse.User.login)
     :options({username=userid, password=password})
     :response(createLoginCallback(callback))
@@ -90,10 +90,13 @@ function log(t)
 end
 
 local catchUp
+local syncMessage
 function startCatchUp()
   catchUp=timer.performWithDelay(1000, function()
     local b
+    local nothingToSync=true
     unsent.get(function(col,done)
+      nothingToSync=false
       if not b then 
         b=parse.batch.new()
       end
@@ -112,6 +115,7 @@ function startCatchUp()
 
     b=nil
     unsent.getQs(function(col,done)
+      nothingToSync=false
       if not b then 
         b=parse.batch.new()
       end
@@ -134,6 +138,21 @@ function startCatchUp()
         end)
       end
     end)
+    if nothingToSync then 
+      if syncMessage then
+        syncMessage:removeSelf()
+        syncMessage=nil
+      end
+    elseif not syncMessage and unsent.hasDataToSend() then
+      syncMessage=display.newText({
+        text="Background syncing...",
+        fontSize=15,
+      })
+      syncMessage.anchorX=0
+      syncMessage.anchorY=0
+      syncMessage.x=10
+      syncMessage.y=10
+    end
   end,-1)
 end
 

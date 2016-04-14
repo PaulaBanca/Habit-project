@@ -75,8 +75,8 @@ function create(eventFunc,networked,noLogging)
     end
     img.touch=function(self,event) 
       if event.phase=="began" then
+        wasCorrect=targetKeys[i] and not currentlyPressedKeys[i] or networked
         currentlyPressedKeys[i]=true    
-        wasCorrect=targetKeys[i] or networked
         if keyInstance.onPress then
           keyInstance.onPress(wasCorrect)
         end

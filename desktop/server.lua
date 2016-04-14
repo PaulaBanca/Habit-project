@@ -4,6 +4,7 @@ server=M
 local socket=require "socket" 
 local json=require "json"
 local events=require "events"
+local appconfig=require "appconfig"
 local print=print
 local timer=timer
 local pairs=pairs
@@ -28,10 +29,9 @@ function advertiseServer(whenDone)
 
   local stop
   local function broadcast(event)
-    print ("Broadcasting")
     local msg = "AwesomeGameServer"
     --multicast IP range from 224.0.0.0 to 239.255.255.255
-    send:sendto( msg, "226.192.1.1", 11111 )
+    send:sendto( msg, appconfig.multicastAddress, 11111 )
     --not all devices can multicast so it's a good idea to broadcast too
     --however, for broadcast to work, the network has to allow it
     send:setoption( "broadcast", true )  --turn on broadcast
@@ -61,7 +61,8 @@ local function handleData(event)
 end
 
 function create(hasClient)
-  local tcp, err = socket.bind("*" or getIP(), 22222)  --create a server object
+  -- "*" or 
+  local tcp, err = socket.bind(getIP(), 22222)  --create a server object
   if err then
     error(err)
   end

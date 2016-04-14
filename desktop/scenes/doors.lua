@@ -7,53 +7,45 @@ local servertest=require "servertest"
 local tunedetector=require "tunedetector"
 local serpent=require "serpent"
 local tunes=require "tunes"
+local tunemanager=require "tunemanager"
 local stimuli=require "stimuli"
+local winnings=require "winnings"
+local keyeventslisteners=require "util.keyeventslisteners"
+local vischedule=require "util.vischedule"
+local jsonreader=require "util.jsonreader"
+local logger=require "util.logger"
+local _=require "util.moses"
 local transition=transition
 local display=display
+local system=system
 local table=table
 local pairs=pairs
+local math=math
 local print=print
-local next=next
-local NUM_KEYS=NUM_KEYS
+local os=os
 
 setfenv(1,scene)
 
-local round=0
-local schedule={
-  {tunes={1,2}},
-  {tunes={2,1}},
-  {tunes={1,2}},
-  {tunes={1,2}},
-  {tunes={2,2}},
-  {tunes={1,2}},
-  {tunes={2,2}}
-}
-
-local tns=tunes.getTunes()
-local stim={}
-for i=1,#tns do
-  stim[i]=tunes.getStimulus(tns[i])
-end
 
 function nextRound()
-  round=round+1
-  local setup=schedule[round]
-  if not setup then
-    return
-  end
 
-  local left=stimuli.getStimulus(stim[setup.tunes[1]])
+  local left=tunemanager.getImg(setup.tunes[1])
   left.anchorX=1
   left.x=display.contentCenterX-10
   left.y=display.contentCenterY
-  left.tune=setup.tunes[1]
-  local right=stimuli.getStimulus(stim[setup.tunes[2]])
+  left.tune=tunemanager.getID(setup.tunes[1])
+  local right=tunemanager.getImg(setup.tunes[2])
   right.anchorX=0
   right.x=display.contentCenterX+10
   right.y=display.contentCenterY
-  right.tune=setup.tunes[2]
+  right.tune=tunemanager.getID(setup.tunes[2])
   scene.view:insert(left)
   scene.view:insert(right)
+
+  if setup.rewards then
+    left.reward=setup.rewards[1]
+    right.reward=setup.rewards[2]
+  end
   return left,right
 end
 
@@ -61,51 +53,113 @@ function scene:show(event)
   if event.phase=="did" then
     return
   end
-  local circles={}
-  for i=1, NUM_KEYS do
-    circles[i]=display.newCircle(scene.view,display.contentWidth/2*i/NUM_KEYS+display.contentWidth/8+20,display.contentCenterY,20)
-    circles[i]:setFillColor(0)
-    circles[i].alpha=0.2
+  
+  if not schedule then
+    vischedule.setup(#schedule[1].tunes,30000,1000)
+    vischedule.start()
   end
 
   local left,right=nextRound()
+  if not left then
+    winnings.add(event.params.total)
+    composer.gotoScene("scenes.doorstotal",{params={winnings=event.params.total,nextScene=event.params.nextScene,nextParams=event.params.nextParams}})
+    return
+  end
 
-  local matches=0
-  local keysDown={}
-  events.addEventListener("key played",function(event) 
-    if keysDown[event.note] then
+  local logField=logger.create("doorsselections",{"date","sequence selected","round","input time","mistakes","left choice","right choice"})
+
+  local steps=0
+
+  local presses=0
+  local start=system.getTimer()
+  local function tuneCompleted(tune)
+    local matched,notMatched
+    if tune==left.tune or left.tune<0 and right.tune~=tune then
+      matched=left
+      notMatched=right
+    else
+      matched=right
+      notMatched=left
+    end
+
+    logField("date",os.date())
+    logField("sequence selected",tune)
+    logField("round",round)
+    logField("input time",system.getTimer()-start)
+    logField("mistakes",mistakes)
+    logField("left choice",left.tune)
+    logField("right choice",right.tune)
+ 
+    transition.to(notMatched,{alpha=0,onComplete=function(obj) obj:removeSelf() end})
+    transition.to(matched,{anchorX=0.5,x=display.contentCenterX,alpha=0,xScale=2,yScale=2,onComplete=function(obj)
+      obj:removeSelf()
+      composer.gotoScene("scenes.doorresult",{params={reward=matched.reward,track=matched.tune,side=matched==left and 1 or 2,nextScene=event.params.nextScene,nextParams=event.params.nextParams}})
+    end})
+  end
+
+  local function noWildCard()
+    return left.tune>0 and right.tune>0
+  end
+
+  local function numberOfSteps()
+    if left.tune==-3 or right.tune==-3 then 
+      return 3
+    end 
+    return 6
+  end
+
+  local completeChain=0
+  local onPlay,onRelease=keyeventslisteners.create("doors",function(tune)
+    if not left then
+      return
+    end
+    if noWildCard() and tune~=left.tune and tune~=right.tune then
+      madeMistake()
+    else
+      tuneCompleted(tune)
+    end
+    left,right=nil,nil
+  end,function()
+    if not left then
       return
     end
     
-    keysDown[event.note]=true
-    circles[event.note].alpha=1
-
-    local tune=tunedetector.matchAgainstTunes(keysDown)
-    if tune then
-      local matched
-      local notMatched
-      if tune==left.tune then
-        matched=left
-        notMatched=right
-      elseif tune==right.tune then
-        matched=right
-        notMatched=left
-      end
-      transition.to(matched, {anchorX=0.5,x=display.contentCenterX,xScale=1.2,yScale=1.2,onComplete=function() 
-        left:removeSelf()
-        right:removeSelf()
-        composer.gotoScene("scenes.score",{params={winnings=10,track=matched.tune}})
-      end})
-      transition.to(notMatched, {alpha=0})
+   end ,function(event)
+    if not left then 
+      return
     end
-  end)
+    if event.phase=="released" and event.allReleased then
+      if not noWildCard() then
+        if event.complete then
+          completeChain=completeChain+1
+          if completeChain==numberOfSteps() then
+            steps=-1
+            completeChain=1
+          end
+        end
+        steps=steps+1
+        if steps==numberOfSteps() then
+          tuneCompleted(left.tune<right.tune and left.tune or right.tune)
+        end
+      end
+    end
+  end,nil,not noWildCard())
 
-  events.addEventListener("key released",function(event)
-    keysDown[event.note]=false
-    circles[event.note].alpha=0.2
-  end)
+  events.addEventListener("key played",onPlay)
+  events.addEventListener("key released",onRelease)
+  self.onRelease=onRelease
+  self.onPlay=onPlay
 end
 
 scene:addEventListener("show")
+
+function scene:hide(event)
+  if event.phase=="will" then
+    events.removeEventListener("key played",self.onPlay)
+    events.removeEventListener("key released",self.onRelease)
+  end
+end
+
+scene:addEventListener("hide")
 
 return scene

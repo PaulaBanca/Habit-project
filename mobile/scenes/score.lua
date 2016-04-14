@@ -4,6 +4,7 @@ local scene=composer.newScene()
 local stimuli=require "stimuli"
 local jsonreader=require "jsonreader"
 local daycounter=require "daycounter"
+local user=require "user"
 local display=display
 local system=system
 local native=native
@@ -78,8 +79,23 @@ function scene:show(event)
   }):translate(bg.x, bg.y)
 
   bg:addEventListener("tap", function()
-    local practiced=daycounter.getPracticed(daycounter.getPracticeDay())
-    composer.gotoScene((practiced[1]==2 or practiced[2]==2) and "scenes.pleasure" or "scenes.schedule",{params={melody=(practiced[1]==2 and 1 or 2),rounds=1}})
+    local d=daycounter.getPracticeDay()
+    local practiced=daycounter.getPracticed(d)
+    local quizzed=user.get("quizzed") or {}
+    local qd=quizzed[d] or {}
+    local candiate
+    for i=1,2 do 
+      if not qd[i] and practiced[i]==2 then
+        candiate=i
+        break
+      end
+    end
+    if candiate then
+      qd[candiate]=true
+      quizzed[d]=qd
+      user.store("quizzed",quizzed)
+    end
+    composer.gotoScene(candiate and "scenes.pleasure" or "scenes.schedule",{params={melody=candiate,rounds=1}})
   end)
 end
 

@@ -3,7 +3,7 @@ local scene=composer.newScene()
 
 local display=display
 local print=print
-
+local tunemanager=require "tunemanager"
 local server=require "server"
 
 setfenv(1,scene)
@@ -28,7 +28,8 @@ function scene:show(event)
       return false
     end
     done=true
-    composer.gotoScene("scenes.doors")
+
+    composer.gotoScene("scenes.practiceintro")
     if cancel then
       cancel()
     end
@@ -41,7 +42,7 @@ function scene:show(event)
   ipText.anchorX=0
   ipText.anchorY=0
 
-  ipText:translate(10,10)
+  ipText:translate(10+display.screenOriginX,10+display.screenOriginY)
   ipText:setFillColor(0)
 
   function button:tap()

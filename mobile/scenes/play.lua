@@ -309,6 +309,10 @@ function scene:create(event)
   cross:scale(0.5,0.5)
 
   cross:addEventListener("tap",function() 
+    if self.onClose then
+      self.onClose()
+      self.onClose=nil
+    end
     composer.gotoScene("scenes.schedule")
   end)
 
@@ -364,6 +368,7 @@ function scene:show(event)
     logger.stopCatchUp()
     isStart=event.params and event.params.intro
     headless=event.params and event.params.headless
+    self.onClose=event.params and event.params.onClose
     rewardType=event.params and event.params.rewardType or "none"
     if headless then
       rewardType="none"

@@ -26,6 +26,17 @@ function scene:show(event)
     composer.gotoScene("scenes.schedule")
   end)
 
+   local ipText=display.newText({
+    text="IP: " ..client.getIP(),
+    fontSize=48,
+    parent=scene.view
+  })
+  ipText.anchorX=0
+  ipText.anchorY=0
+
+  ipText:translate(10,10)
+  
+
   local button=display.newCircle(scene.view,display.contentCenterX, display.contentCenterY, 100)
   button:setFillColor(0, 0.59, 1)
   local circleText=display.newText({
@@ -53,8 +64,8 @@ function scene:show(event)
         transition.to(button, {alpha=0,onComplete=function (obj)
           obj:removeSelf()
           circleText:removeSelf()
-          clientloop.start(server)
-          composer.gotoScene("scenes.play",{effect="fade",params={headless=true}})
+          local stop=clientloop.start(server)
+          composer.gotoScene("scenes.play",{effect="fade",params={headless=true,onClose=stop}})
         end})
       end
     end)
@@ -65,5 +76,15 @@ function scene:show(event)
 end
 
 scene:addEventListener("show")
+
+function scene:hide(event)
+  if event.phase=="will" then
+    return
+  end
+  for i=self.view.numChildren,1,-1 do
+    self.view[i]:removeSelf()
+  end
+end
+scene:addEventListener("hide")
 
 return scene

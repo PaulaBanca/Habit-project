@@ -1,0 +1,8 @@
+settings = {
+    window = {
+        -- Settings for the desktop window; applies to both OS X and Win32 desktop apps
+        defaultMode = "fullscreen",
+        resizable = true,
+        enableMinimizeButton = true,
+    },
+}
