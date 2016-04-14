@@ -81,10 +81,20 @@ local short2={
   "c4"
 }
 
+local short3={
+  "f4",
+  {chord={"none","f4","a4","c3"},forceLayout=true},
+  {chord={"d4","none","b4","none"},forceLayout=true},
+  "a4",
+  "g4",
+  {chord={"c4","g4"}},
+}
+
+
 local config={
   {tune=short1,stimulus=1},
   {tune=short2,stimulus=2},
-  {tune=paula2,stimulus=3},
+  {tune=short3,stimulus=3},
 }
 
 local maxLength=6
@@ -101,7 +111,10 @@ local function createClippedCopy(tune)
 end
 
 function getTunes()
-  local tunes={createClippedCopy(short1),createClippedCopy(short2),createClippedCopy(gotter)}
+  local tunes={}
+  for i=1,#config do
+    tunes[i]=createClippedCopy(config[i].tune)
+  end
   return tunes
 end
 
