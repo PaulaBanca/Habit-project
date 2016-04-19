@@ -183,13 +183,17 @@ function scene:show(event)
 
       local steps=0
       local reset
+      local inMistakeStreak
       local function madeMistake(notunes)
         steps=0
         self.meter:reset()
         reset()
         sound.playSound("wrong")
         
-        mistakes=mistakes+1
+        if not inMistakeStreak then
+          mistakes=mistakes+1
+          inMistakeStreak=true
+        end
         local t=display.newText({
           text=notunes and "Do not play moon or star!" or "Mistake, start again!",
           fontSize=120,
@@ -231,6 +235,7 @@ function scene:show(event)
         if tune~=tunePracticing then
           madeMistake(MAX_ITER~=nil)
         else
+          inMistakeStreak=false
           self.meter:mark(6,true)
           markCompleted() 
           if MAX_ITER==tonumber(count.text) then
@@ -251,6 +256,7 @@ function scene:show(event)
           if event.complete then
             local completed=event.matchingTunes[tunePracticing].step
             self.meter:mark(completed,true)
+            inMistakeStreak=false
           end
         elseif tunePracticing<1 then 
           steps=steps+1
@@ -262,6 +268,7 @@ function scene:show(event)
               end
             end
           end
+          inMistakeStreak=false
           self.meter:mark(steps,good)
         elseif event.allReleased and event.complete then
           transition.cancel("mistake")

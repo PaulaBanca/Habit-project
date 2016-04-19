@@ -324,13 +324,17 @@ function scene:show(event)
     local mistakes=0
     local reset
     local tuneSelected
+    local inMistakeStreak
     local function madeMistake()
       if tuneSelected and tuneSelected<0 then
         return
       end
       sound.playSound("wrong")
       reset()
-      mistakes=mistakes+1
+      if not inMistakeStreak then
+        mistakes=mistakes+1
+        inMistakeStreak=true
+      end
       local t=display.newText({
         text=not tuneSelected and "Select side first" or "Mistake, start again!",
         fontSize=120,
@@ -349,6 +353,7 @@ function scene:show(event)
     local function tuneCompleted(tune)
       steps=0
       reset()
+      inMistakeStreak=false
       sound.playSound("correct")
       if event.params.onTuneComplete then
         events.removeEventListener("key played",self.onPlay)
@@ -448,6 +453,7 @@ function scene:show(event)
             for i=1,leftMatch.step do
               self.leftMeter:mark(i,true)
             end
+            inMistakeStreak=false
           else
             self.leftMeter:reset()
           end
@@ -459,6 +465,7 @@ function scene:show(event)
             for i=1,rightMatch.step do
               self.rightMeter:mark(i,true)
             end
+            inMistakeStreak=false
           else 
             self.rightMeter:reset()
           end
@@ -491,6 +498,7 @@ function scene:show(event)
       local wildMeter=left.tune<0 and self.leftMeter or self.rightMeter
       if steps>0 then
         wildMeter:mark(steps,good)
+        inMistakeStreak=false
       else
         wildMeter:reset()
       end
