@@ -378,6 +378,8 @@ function scene:show(event)
         end
         self.leftMeter:reset()
         self.rightMeter:reset()
+        left:unselect()
+        right:unselect()
         if event.params.onTuneComplete then
           event.params.onTuneComplete(matched,notMatched,side)
         end
@@ -392,8 +394,7 @@ function scene:show(event)
       logField("right choice",right.tune)
       start=system.getTimer()
      
-      matched.strokeWidth=16
-      matched:setStrokeColor(0, 1, 0)
+      matched:setSelected()
       transition.to(matched, {strokeWidth=0})
       if matched.door then
         transition.to(notMatched.door, {alpha=0})
