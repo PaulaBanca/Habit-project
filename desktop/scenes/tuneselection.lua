@@ -191,14 +191,7 @@ function scene:show(event)
     local ly=left.y+left.contentHeight/2-(left.contentHeight*left.anchorY)+left.contentHeight/2
     local ry=right.y+right.contentHeight/2-(right.contentHeight*right.anchorY)+right.contentHeight/2
     local y=math.max(ly,ry)+50
-    -- local line=display.newLine(self.view,lx,y,rx,y)
-    -- line.strokeWidth=8
-    -- line:setStrokeColor(0)
-    -- local c=display.newCircle(self.view,display.contentCenterX,y,20)
-    -- c:setFillColor(1,0,0)
-    -- c.strokeWidth=8
-    -- c:setStrokeColor(0)
-
+   
     local rightReward,leftReward=event.params.rightReward,event.params.leftReward
     local lr=display.newText({
       parent=self.view,
@@ -219,22 +212,6 @@ function scene:show(event)
     rr.anchorX=0
     rr.x=rx+10
     rr.y=y
-
-    -- local function currentReward(percent)
-    --   local dr=rightReward-leftReward
-    --   return leftReward+dr*percent/100
-    -- end
-
-    -- local cr=display.newText({
-    --   parent=self.view,
-    --   text=rewardtext.create(currentReward(50)),
-    --   fontSize=32
-    -- })
-    -- cr:setFillColor(0)
-    -- cr.x=c.x
-    -- cr.anchorY=0
-    -- cr.y=c.y+c.contentHeight/2+10
-    -- c:toFront()
 
     local total=display.newText({
       parent=self.view,
@@ -289,18 +266,6 @@ function scene:show(event)
           end
         end
       end
-
-      -- local r=1-leftTally/total
-      -- cr.text=rewardtext.create(currentReward(r*100))
-      -- local dx=rx-lx
-      -- local nx=lx+dx*r
-      -- transition.cancel("slide")
-      -- transition.to(c,{tag="slide",x=nx,onCancel=function()
-      --   c.x=nx
-      -- end})
-      -- transition.to(cr,{tag="slide",x=nx,onCancel=function()
-      --   cr.x=nx
-      -- end})
     end
   end
 
