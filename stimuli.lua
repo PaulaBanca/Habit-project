@@ -2,13 +2,17 @@ local M={}
 stimuli=M
 
 local display=display
+require "palstyleshapes.init"
+local palstyleshapes=require "palstyleshapes.palstyleshapes"
+local math=math
+local os=os
 
 setfenv(1,M)
 
-local img={
-  "img/stimuli/1.png",
-  "img/stimuli/2.png",
-  "img/stimuli/3.png",
+local seeds={
+  math.random(0xFFFFFFF),
+  math.random(0xFFFFFFF),
+  math.random(0xFFFFFFF),
 }
 
 local wildImg={
@@ -17,7 +21,15 @@ local wildImg={
 }
 
 function getStimulus(n)
-  return display.newImage(img[n])
+  math.randomseed(seeds[n])
+  local group=display.newGroup()
+  local bg=display.newRect(group,0, 0, 200, 200)
+  bg.strokeWidth=8
+  bg:setFillColor(0.3)
+  local shape=palstyleshapes.create(200,200)
+  group:insert(shape)
+  math.randomseed(os.time())
+  return group 
 end
 
 function getWildcardSimuli(presses)

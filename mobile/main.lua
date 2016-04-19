@@ -9,7 +9,7 @@ system.activate( "multitouch" )
 
 local user=require "user"
 
-math.randomseed(1)
+-- math.randomseed(1)
 
 local logger=require "logger"
 logger.startCatchUp()
