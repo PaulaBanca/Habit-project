@@ -3,7 +3,6 @@ local composer=require "composer"
 local logger=require "util.logger"
 logger.setUserID("test")
 display.setDefault("background", 1, 1, 1)
-local tunemanager=require "tunemanager"
 local function start()
   -- local doorschedule=require "doorschedule"
   -- doorschedule.start()
@@ -24,10 +23,14 @@ local function start()
   -- vischedule.start()
 
   -- run()
-
-  composer.gotoScene("scenes.setup")
-  local tunedetector=require "tunedetector"
-
+  local seed=require "scenes.seed"
+  seed.setup(function()
+    composer.gotoScene("scenes.setup")
+    local stimuli=require "stimuli"
+    local tunemanager=require "tunemanager"
+    tunemanager.setPreferred(1)
+    tunemanager.setDiscarded(2)
+  end)
   local page=1
   Runtime:addEventListener("key",function(event)
     if event.phase=="up" and event.keyName=="=" then
@@ -43,15 +46,10 @@ Runtime:addEventListener("resize", function (event)
   end
   timer.performWithDelay(500,start)
   start=nil
-  tunemanager.setPreferred(1)
-  tunemanager.setDiscarded(2)
 end)
 if system.getInfo("environment")=="simulator" then
-  local servertest=require "servertest"
-  local tunemanager=require "tunemanager"
-  tunemanager.setPreferred(1)
-  tunemanager.setDiscarded(2)
   start()
   start=nil
+  local servertest=require "servertest"
 end
 
