@@ -8,9 +8,6 @@ display.setStatusBar(display.HiddenStatusBar)
 system.activate( "multitouch" )
 
 local user=require "user"
-
--- math.randomseed(1)
-
 local logger=require "logger"
 logger.startCatchUp()
 
@@ -27,25 +24,28 @@ end
 
 function login(force)
   user.setup(function(newUser)
-    local logger=require "logger"
-    local func=newUser and logger.create or logger.login
-    func(user.getID(),user.getPassword(),function (ok,err)
-      if not ok then
-        if type(err) == "table" then
-          err=err.error
-          if err == "network error" then
-            start()
-            return 
+    local seet=require "seed"
+    seed.setup(function()
+      local logger=require "logger"
+      local func=newUser and logger.create or logger.login
+      func(user.getID(),user.getPassword(),function (ok,err)
+        if not ok then
+          if type(err) == "table" then
+            err=err.error
+            if err == "network error" then
+              start()
+              return 
+            end
           end
+          native.showAlert("Problem creating user", "Error: " .. err .. ". Enter new user id?", {"OK","No"}, function(event)
+            if event.action == "clicked" then
+              login(event.index==1)
+            end
+          end)
+        else
+          start()
         end
-        native.showAlert("Problem creating user", "Error: " .. err .. ". Enter new user id?", {"OK","No"}, function(event)
-          if event.action == "clicked" then
-            login(event.index==1)
-          end
-        end)
-      else
-        start()
-      end
+      end)
     end)
   end,force)
 end
