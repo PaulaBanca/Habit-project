@@ -2,7 +2,6 @@ local M={}
 stimuli=M
 
 local display=display
-require "palstyleshapes.init"
 local palstyleshapes=require "palstyleshapes.palstyleshapes"
 local math=math
 local os=os
