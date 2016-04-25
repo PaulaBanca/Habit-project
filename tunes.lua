@@ -1,11 +1,16 @@
 local M={}
 tunes=M
 
+local tunegenerator=require "tunegenerator"
+local keylayout=require "keylayout"
+local _=require "util.moses"
+local serpent=require "serpent"
 local math=math
 local type=type
 local table=table
+local NUM_KEYS=NUM_KEYS
 local system=system
-local tunegenerator=require "tunegenerator"
+local print=print
 
 setfenv(1,M)
 
@@ -36,15 +41,75 @@ local short3={
   {chord={"c4","g4"}},
 }
 
-local recipe={
-  length=6,
-  multipleTouches={2,2,3}
-}
-local config={
-  {tune=tunegenerator.create(recipe),stimulus=1},
-  {tune=tunegenerator.create(recipe),stimulus=2},
-  {tune=tunegenerator.create(recipe),stimulus=3},
-}
+local config
+do
+  local function findLongestOverlap(a,b)
+    local longest=0
+    for offset=-#a+1,0 do
+      local streak=0
+      for i=1,#b do
+        local bkeys=b[i]
+        local akeys=a[(offset+i)%#a+1]
+        if _.sameKeys(akeys,bkeys) then
+          streak=streak+1
+          longest=math.max(streak,longest)
+        else
+          streak=0
+        end
+      end
+    end
+    return longest
+  end
+
+  local function keyPattern(instruction)
+    local pattern={}
+    for i=1, NUM_KEYS do
+      pattern[i]=instruction[i] and "X" or "_"
+    end
+    return table.concat(pattern, "") 
+  end
+
+  local function passesTest(tuneKeys)
+    -- for i=1,#tuneKeys do
+    --   print (_(tuneKeys[i]):map(function(k,v) return keyPattern(v) end):concat(" "):value())
+    -- end
+    for i=1, #tuneKeys do
+      local keys=tuneKeys[i]
+      for k=i+1, #tuneKeys do
+        local overlap=findLongestOverlap(keys,tuneKeys[k])
+        if overlap>1 then
+          return false
+        end
+      end
+    end
+    return true 
+  end
+
+  local recipe={
+    length=6,
+    multipleTouches={2,2,3}
+  }
+  
+  while true do
+    config={}
+    local tuneKeys={}
+    for i=1,3 do
+      local instructions=tunegenerator.create(recipe)
+      config[i]={tune=instructions,stimulus=i}
+      
+      keylayout.reset()
+      local keys={}
+      for k=1, #instructions do
+        keys[k]=keylayout.layout(instructions[k])
+      end 
+      tuneKeys[i]=keys
+    end
+
+    if passesTest(tuneKeys) then
+      break
+    end
+  end
+end
 
 local maxLength=6
 function setMaxLength(len)

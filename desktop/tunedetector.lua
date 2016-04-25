@@ -27,31 +27,6 @@ do
     end 
     tuneKeys[i]=keys
   end
-
-  local function findLongestOverlap(a,b)
-    local longest=0
-    for offset=-#a+1,0 do
-      local streak=0
-      for i=1,#b do
-        local bkeys=b[i]
-        local akeys=a[(offset+i)%#a+1]
-        if _.sameKeys(akeys,bkeys) then
-          streak=streak+1
-          longest=math.max(streak,longest)
-        else
-          streak=0
-        end
-      end
-    end
-    return longest
-  end
-
-  for i=1, #tuneKeys do
-    local keys=tuneKeys[i]
-    for k=i+1, #tuneKeys do
-      assert(findLongestOverlap(keys,tuneKeys[k])==1)
-    end
-  end
 end
 
 local function pressedWrongKey(keysPressed,keysRequired)
@@ -69,7 +44,6 @@ local function missingCorrectKey(keysPressed,keysRequired)
     end
   end 
 end
-
 
 local function matchesTuneStart(keysDown)
   local candidates={}
