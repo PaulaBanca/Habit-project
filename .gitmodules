@@ -1,3 +1,6 @@
 [submodule "palstyleshapes"]
 	path = palstyleshapes
 	url = file:///Users/tap32/Programming/palstyleshapes
+[submodule "moses"]
+	path = moses
+	url = https://personalnadir@github.com/Yonaba/Moses.git
