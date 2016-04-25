@@ -22,10 +22,11 @@ local wildImg={
 function getStimulus(n)
   math.randomseed(seeds[n])
   local group=display.newGroup()
+  local strokeWidth=8
   local bg=display.newRect(group,0, 0, 238, 238)
   bg.strokeWidth=8
   bg:setFillColor(0.3)
-  local shape=palstyleshapes.create(238,238)
+  local shape=palstyleshapes.create(238-strokeWidth/2,238-strokeWidth/2)
   group:insert(shape)
   group.anchorChildren=true
   math.randomseed(os.time())
@@ -34,7 +35,7 @@ function getStimulus(n)
     bg:setStrokeColor(0,1,0)
   end
   function group:unselect()
-    bg.strokeWidth=8
+    bg.strokeWidth=strokeWidth
     bg:setStrokeColor(1,1,1)
   end
   return group 
