@@ -5,63 +5,9 @@ local math=math
 local type=type
 local table=table
 local system=system
+local tunegenerator=require "tunegenerator"
 
 setfenv(1,M)
-
-local paula={
-  "a3",
-  {chord={"c4","d4","a4"}},
-  "d4",
-  {chord={"c4","d4","g4"}},
-  {chord={"d4","g4"}},
-  {chord={ "c4","d4","a4"}},
-  "c5",
-  {chord={"d4","b5"}}, --octave on one
-  {chord={"a5","b5"}},-- octave on all
-  "g4",
-  "b5", -- octave
-  {chord={"d4","g4","b4"}}
-}
-local twinkle={
-  "c4", "c4", "g4", "g4", "a4", "a4", "g4", "f4", "f4", "d4", "d4", "d4", "d4", "c4",
-}
-local morning={
-  "g4","d4","d4","c4","d4","d4","g4","d4","d4","c4","d4","d4","d4","d4","g4","d4","g4","a4","d4","a4","g4","d4","d4","c4"
-}
-
-local gotter={
-  {chord={"d4","c3"}},
-  "d4",
-  "f4",
-  "g4",
-  {chord={"g4","g3"}},
-  "f4",
-  "d4",
-  "d4",
-  {chord={"c4","c3"}},
-  "c4",
-  "d4",
-  "d4",
-  {chord={"d4","g3"}},
-  "d4",
-  "d4",
-  
- }
-
-local paula2={
-  "a3",
-  {chord={"a3","c4","e4"}},
-  "d4",
-  {chord={"c4","e4"}},
-  {chord={"e4","g4"}},
-  {chord={"e3","a3","c4","e4"}},
-  "c5",
-  {chord={"e4","b5"}},
-  {chord={"a5","b5"}},
-  "g4",
-  "b5",
-  {chord={"e3","e4","g4"}}
-} 
 
 local short1={
    "a4",
@@ -90,11 +36,14 @@ local short3={
   {chord={"c4","g4"}},
 }
 
-
+local recipe={
+  length=6,
+  multipleTouches={2,2,3}
+}
 local config={
-  {tune=short1,stimulus=1},
-  {tune=short2,stimulus=2},
-  {tune=short3,stimulus=3},
+  {tune=tunegenerator.create(recipe),stimulus=1},
+  {tune=tunegenerator.create(recipe),stimulus=2},
+  {tune=tunegenerator.create(recipe),stimulus=3},
 }
 
 local maxLength=6
