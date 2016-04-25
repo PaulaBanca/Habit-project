@@ -5,7 +5,7 @@ parse.config:restApiKey("4CruXhgcY3K5PXJGbfJh7CZKHPl4ODAGctPceVA8")
 require "constants"
 require "effects.effects"
 display.setStatusBar(display.HiddenStatusBar)
-system.activate( "multitouch" )
+system.activate("multitouch")
 
 local user=require "user"
 local logger=require "logger"
