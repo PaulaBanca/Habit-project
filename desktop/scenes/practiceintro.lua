@@ -8,9 +8,11 @@ local tunemanager=require "tunemanager"
 local doorschedule=require "doorschedule"
 local vischedule=require "util.vischedule"
 local winnings=require "winnings"
+local stimuli=require "stimuli"
 local _=require "util.moses"
 local math=math
 local timer=timer
+local type=type
 local print=print
 
 setfenv(1,scene)
@@ -94,7 +96,9 @@ local pageSetup={
       end
       composer.gotoScene("scenes.tuneselection",{params={timed=30*1000,logChoicesFilename="preferencetest-choices-4",logInputFilename="preferencetest-inputs-4",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="wildcard6",page=11}}) end
   },
-  {text="Now you will learn a new sequence called Venus.\n\nFollow the lights, memorize it, and play yourself!",img="img/stimuli/3.png",onKeyPress=function() composer.gotoScene("scenes.learntune", {params={tune=tunemanager.getID(3),page=12}})
+  {text="Now you will learn a new sequence called Venus.\n\nFollow the lights, memorize it, and play yourself!",img=function()
+    return stimuli.getStimulus(3)
+  end,onKeyPress=function() composer.gotoScene("scenes.learntune", {params={tune=tunemanager.getID(3),page=12}})
   end},
   {text="In the following task, you will need to choose between 2 chests. You open chests by selecting it using the arrows keys and playing the sequence that matches the symbol on it.\n\nFeel free to open the chests you prefer.\n\nThere are rewards in some of them. You will receive your winnings by the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
@@ -188,7 +192,12 @@ function scene:show(event)
   end
   local img
   if setup.img then
-    img=display.newImage(self.view,setup.img)
+    if type(setup.img)=="string" then
+      img=display.newImage(self.view,setup.img)
+    else
+      img=setup.img()
+      self.view:insert(img)
+    end
     img.x=display.contentCenterX
   end
   local text=display.newText({
