@@ -45,12 +45,12 @@ function create(filename,headers)
     return line
   end
 
-  local set=function (k,v)
+  local set=function (k,v,force)
     assert(addLine,"logger.lua: Call create before set")
     line=line or blankLine()
 
     assert(line[k]~=nil,"logger.lua: No key '"..k.."' expected"..serpent.line(line,{comment=false}))
-    assert(line[k]=="","logger.lua: Key '"..k.."' already has value")
+    assert(line[k]=="" and not force,"logger.lua: Key '"..k.."' already has value")
     line[k]=v
     local full=true
     for k,v in pairs(line) do
