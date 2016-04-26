@@ -61,18 +61,7 @@ do
     return longest
   end
 
-  local function keyPattern(instruction)
-    local pattern={}
-    for i=1, NUM_KEYS do
-      pattern[i]=instruction[i] and "X" or "_"
-    end
-    return table.concat(pattern, "") 
-  end
-
   local function passesTest(tuneKeys)
-    -- for i=1,#tuneKeys do
-    --   print (_(tuneKeys[i]):map(function(k,v) return keyPattern(v) end):concat(" "):value())
-    -- end
     for i=1, #tuneKeys do
       local keys=tuneKeys[i]
       for k=i+1, #tuneKeys do
@@ -189,6 +178,20 @@ function isSong(sequence)
       return i
     end
   end
+end
+
+function printKeys()
+  local function keyPattern(instruction)
+    local pattern={}
+    for i=1, NUM_KEYS do
+      pattern[i]=instruction[i]~="none" and "X" or "_"
+    end
+    return table.concat(pattern, "") 
+  end
+  
+  _.eachi(config,function(k,v)
+     print (_(v.tune):map(function(k,v) return keyPattern(v.chord) end):concat(" "):value())
+  end)
 end
 
 return M
