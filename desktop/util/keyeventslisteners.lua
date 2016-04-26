@@ -15,7 +15,7 @@ setfenv(1,M)
 
 function create(logName,onTuneComplete,onMistake,onFine,restrictedToTune,allowWildCard,getWildCardLength)
   local keysDown={}
-
+  getWildCardLength=getWildCardLength or function() end
   local function keyPattern()
     local pattern={}
     for i=1, NUM_KEYS do
