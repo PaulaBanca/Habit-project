@@ -58,8 +58,9 @@ function scene:show(event)
       font=native.systemFont,
       parent=scene.view
     })
+    text.strokeWidth=4
     text.anchorY=0
-    text:setFillColor(1)
+    text:setFillColor(amount>0 and 0 or 1)
     text.x=display.contentCenterX
     text.y=chest.y-chest.height-20
   end
@@ -78,7 +79,7 @@ function scene:show(event)
         sound.playSound("win small")
       end
       
-      chest:open()
+      chest:open(amount>0)
       createPayoutText(matched,true)
     end})
   end

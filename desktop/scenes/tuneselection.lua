@@ -39,7 +39,7 @@ function setup(leftTune,rightTune,leftReward,rightReward,chests)
   local lx,rx=display.contentCenterX-50,display.contentCenterX+50
   local leftChest,rightChest
   if chests then 
-    local function open(chest)
+    local function open(chest,treasure)
       local group=display.newGroup()
       chest.parent:insert(group)
       local top=display.newImage(group,"img/chest_open_top.png")
@@ -48,6 +48,13 @@ function setup(leftTune,rightTune,leftReward,rightReward,chests)
       bottom:scale(2,2)
       bottom.anchorY=1
       top.y=-bottom.contentHeight-top.contentHeight/2
+
+      if treasure then
+        local treasure=display.newImage(group,"img/chest_open_treasure.png")
+        treasure:scale(2,2)
+        treasure.anchorY=1
+        treasure.y=-bottom.contentHeight
+      end
 
       group.x,group.y=chest.x,chest.y+chest.contentHeight/2
       group.anchorX=chest.anchorX
