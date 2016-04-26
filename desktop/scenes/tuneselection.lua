@@ -390,7 +390,7 @@ function scene:show(event)
         return
       end
       local normalMeter=left.tune==tune and self.leftMeter or self.rightMeter
-      normalMeter:mark(6,true)
+      normalMeter:mark(numberOfSteps(),true)
       tuneCompleted(tune)
     end,madeMistake,function(event)
       if not left or not tuneSelected then
