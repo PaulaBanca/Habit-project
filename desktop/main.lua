@@ -28,6 +28,8 @@ local function start()
     composer.gotoScene("scenes.setup")
     local stimuli=require "stimuli"
     local tunemanager=require "tunemanager"
+    local tunes=require "tunes"
+    tunes.printKeys()
     tunemanager.setPreferred(1)
     tunemanager.setDiscarded(2)
   end)
