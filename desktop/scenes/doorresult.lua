@@ -6,16 +6,19 @@ local vischedule=require "util.vischedule"
 local winnings=require "winnings"
 local rewardtext=require "util.rewardtext"
 local sound=require "sound"
+local logger=require "util.logger"
 local transition=transition
 local display=display
 local native=native
 local timer=timer
 local math=math
+local os=os
 
 setfenv(1,scene)
 
 function scene:create()
-  scene.total=0
+  self.total=0
+  self.logger=logger.create("winnings",{"date","won","selected","not selected"})
 end
 scene:addEventListener("create")
 
@@ -31,6 +34,10 @@ function scene:show(event)
   
   local payout=vischedule.reward(event.params.side)
   local amount= payout and matched.reward or 0
+  self.logger("date",os.date())
+  self.logger("won",amount)
+  self.logger("selected",matched.tune)
+  self.logger("not selected",notMatched.tune)
   
   local function createPayoutText(icon,wasChosen)
     local msg=(wasChosen  and "You got: " or "Not Chosen: ")
