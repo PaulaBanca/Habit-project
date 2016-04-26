@@ -313,6 +313,7 @@ function scene:show(event)
       transition.to(t, {tag="mistake",alpha=0,onComplete=delete,onCancel=delete})
     end
 
+    local resetSelection
     local start=system.getTimer()
     local meterResetTimer
     local function tuneCompleted(tune)
@@ -336,6 +337,7 @@ function scene:show(event)
       if markTune then
         markTune(side)
       end
+      resetSelection()
       meterResetTimer=timer.performWithDelay(500, function()
         meterResetTimer=nil
         if not self.leftMeter.numChildren then
@@ -497,7 +499,7 @@ function scene:show(event)
     local yMax=math.min(left.contentBounds.yMax,right.contentBounds.yMax)
     
     local padding=30
-    local selection=display.newRect(self.view,display.contentCenterX,(yMax-yMin)/2+yMin,maxWidth+padding,yMax-yMin+padding)
+    selection=display.newRect(self.view,display.contentCenterX,(yMax-yMin)/2+yMin,maxWidth+padding,yMax-yMin+padding)
     selection:setFillColor(0,0,1, 0.4)
     selection:setStrokeColor(0,0,1)
     selection.strokeWidth=16
@@ -545,6 +547,16 @@ function scene:show(event)
       left=left.tune,
       right=right.tune
     }
+
+    resetSelection=function()
+      transition.to(selection, {alpha=0,x=display.contentCenterX})
+      tuneSelected=nil
+      validKeys.left=true
+      validKeys.right=true
+      arrows.left.alpha=1
+      arrows.right.alpha=1
+    end
+
     self.keyListener=function(event)
       if event.phase=="down" and validKeys[event.keyName] then
         tuneSelected=tunes[event.keyName]
@@ -552,12 +564,11 @@ function scene:show(event)
         validKeys[opposite[event.keyName]]=true
         arrows[event.keyName].alpha=0.3
         arrows[opposite[event.keyName]].alpha=1
-        transition.to(selection,{x=xpos[event.keyName]})
         if not selection.isVisible then
           selection.isVisible=true
           selection.alpha=0
-          transition.to(selection,{alpha=1})
         end
+        transition.to(selection,{alpha=1,x=xpos[event.keyName]})
       end
     end
     Runtime:addEventListener("key",self.keyListener)
