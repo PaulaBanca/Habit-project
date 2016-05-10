@@ -4,6 +4,7 @@ local scene=composer.newScene()
 local widget=require "widget"
 local stimuli=require "stimuli"
 local daycounter=require "daycounter"
+local user=require "user"
 local display=display
 local native=native
 local math=math
@@ -37,6 +38,17 @@ function scene:show(event)
     fontSize=20
   })
   title.anchorY=1
+
+  local seed=display.newText({
+    parent=scene.view,
+    x=10,
+    y=10,
+    text=user.get("seed"),
+    align="right",
+    fontSize=20
+  })
+  seed.anchorX=0
+  seed.anchorY=0
 
   local dates=daycounter.getDayCount()
   local step=60
