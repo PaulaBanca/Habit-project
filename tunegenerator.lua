@@ -105,6 +105,11 @@ function create(recipe)
     end
     tune[i]=createStep(keys)
   end
+  for i=1,4 do
+    if summary[i]==0 then
+      return create(recipe)
+    end
+  end
   return tune
 end
 
