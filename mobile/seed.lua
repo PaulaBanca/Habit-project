@@ -3,6 +3,8 @@ seed=M
 
 local jsonreader=require "jsonreader"
 local user=require "user"
+local stimuli=require "stimuli"
+local button=require "ui.button"
 local tonumber=tonumber
 local display=display
 local native=native
@@ -36,7 +38,34 @@ function setup(whenDone)
           elseif i == 2 then
             user.store("seed",tonumber(text))
             math.randomseed(user.get("seed"))
-            whenDone(true)
+            stimuli.generateSeeds()
+            local group=display.newGroup()
+            for i=1, 3 do
+              local s=stimuli.getStimulus(i)
+              group:insert(s)
+              s:scale(0.5,0.5)
+              s.y=display.contentCenterY
+              s.x=display.contentCenterX+(s.contentWidth+20)*(i-2)
+            end
+
+            local back,okay
+            function close()
+              group:removeSelf()
+              back:removeSelf()
+              okay:removeSelf()
+            end
+            back=button.create("Back","abort",function()
+              close()
+              setup(whenDone)
+            end)
+            okay=button.create("Okay","use",function()
+              close()
+              whenDone(true)
+            end)
+            back.y=group[1].y+group[1].contentHeight/2+20+back.height/2
+            back.x=display.contentCenterX-back.width/2-20
+            okay.y=back.y
+            okay.x=display.contentCenterX+okay.width/2+20
           end
         end
       end

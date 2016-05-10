@@ -8,16 +8,20 @@ local os=os
 
 setfenv(1,M)
 
-local seeds={
-  math.random(0xFFFFFFF),
-  math.random(0xFFFFFFF),
-  math.random(0xFFFFFFF),
-}
+local seeds={}
 
 local wildImg={
   [3]="img/stimuli/wildcard3.png",
   [6]="img/stimuli/wildcard6.png",
 }
+
+function generateSeeds()
+  seeds={
+    math.random(0xFFFFFFF),
+    math.random(0xFFFFFFF),
+    math.random(0xFFFFFFF),
+  }
+end
 
 function getStimulus(n)
   math.randomseed(seeds[n])
