@@ -42,7 +42,7 @@ local short3={
 }
 
 local config
-do
+function generateTunes()
   local function findLongestOverlap(a,b)
     local longest=0
     for offset=-#a+1,0 do

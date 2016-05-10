@@ -25,10 +25,12 @@ local function start()
   -- run()
   local seed=require "scenes.seed"
   seed.setup(function()
-    composer.gotoScene("scenes.setup")
     local stimuli=require "stimuli"
-    local tunemanager=require "tunemanager"
     local tunes=require "tunes"
+    stimuli.generateSeeds()
+    tunes.generateTunes()
+    composer.gotoScene("scenes.setup")
+    local tunemanager=require "tunemanager"
     tunes.printKeys()
     tunemanager.setPreferred(1)
     tunemanager.setDiscarded(2)

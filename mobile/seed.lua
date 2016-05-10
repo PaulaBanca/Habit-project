@@ -4,6 +4,7 @@ seed=M
 local jsonreader=require "jsonreader"
 local user=require "user"
 local stimuli=require "stimuli"
+local tunes=require "tunes"
 local button=require "ui.button"
 local tonumber=tonumber
 local display=display
@@ -17,6 +18,8 @@ setfenv(1,M)
 function setup(whenDone)
   if false and user.get("seed") then
     math.randomseed(user.get("seed"))
+    stimuli.generateSeeds()
+    tunes.generateTunes()
     return whenDone()
   end
 
@@ -39,6 +42,8 @@ function setup(whenDone)
             user.store("seed",tonumber(text))
             math.randomseed(user.get("seed"))
             stimuli.generateSeeds()
+            tunes.generateTunes()
+    
             local group=display.newGroup()
             for i=1, 3 do
               local s=stimuli.getStimulus(i)
