@@ -11,6 +11,7 @@ setfenv(1,M)
 
 local badCombos={
   {false,true,false,true},
+  {true,false,true,true},
   {true,true,false,true},
 }
 local iters={
