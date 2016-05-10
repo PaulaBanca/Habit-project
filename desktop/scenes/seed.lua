@@ -36,7 +36,7 @@ function setup(whenDone)
       end
 
       -- Show alert with two buttons
-      local alert = native.showAlert("Confirm", "Set User Seed to " .. text .. ". This controlls the symbols and melodies the user will see", { "Cancel", "Okay" }, onComplete )
+      local alert = native.showAlert("Confirm", "Set User Seed to " .. text .. ". This controlls the symbols and melodies the user will see", { "Cancel", "Okay" }, onComplete)
       bg:removeSelf()
       instruction:removeSelf()
       textField:removeSelf()
