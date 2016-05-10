@@ -76,7 +76,7 @@ do
 
   local recipe={
     length=6,
-    multipleTouches={2,2,3}
+    multipleTouches={2,2,2,3}
   }
   
   while true do
