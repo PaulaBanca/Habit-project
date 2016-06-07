@@ -137,6 +137,7 @@ local function madeMistake(bg)
     state.increment("mistakes")
     lastMistakeTime=time
   end
+  state.startTimer()
   bg:toFront()
   bg.alpha=1
   transition.to(bg,{alpha=0})
@@ -166,6 +167,7 @@ function nextKey()
         end
      
         logger.setScore(tonumber(scene.points.text)+earned)
+        logger.setSequenceTime(state.getTime())
         local t=display.newText({
           parent=scene.view,
           text=earned,

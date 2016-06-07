@@ -1,6 +1,8 @@
 local M={}
 playstate=M
 
+local system=system
+
 setfenv(1,M)
 
 local function blankState()
@@ -11,6 +13,7 @@ local function blankState()
     prevState,
     iterations=0,
     rounds=0,
+    timerStart=0
   }
 end
 
@@ -39,8 +42,17 @@ function create()
     return state[key]
   end
 
+  function t.getTime()
+    return system.getTimer()-state.startTimer
+  end
+  
   function t.restart()
     state.count=-1
+    t.startTimer()
+  end
+
+  function t.startTimer()
+    state.startTimer=system.getTimer()
   end
 
   function t.clear(key)

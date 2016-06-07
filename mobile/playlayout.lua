@@ -15,6 +15,4 @@ function layout(i)
   return math.cos(t)*RADIUS*ELIPSE_XSCALE+CX,math.sin(t)*RADIUS+CY
 end
    
-
-
 return M

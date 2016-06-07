@@ -68,6 +68,10 @@ function setBank(bank)
   additionalData["bank"]=bank
 end
 
+function setSequenceTime(timeIntoSequence)
+  additionalData["timeIntoSequence"]=timeIntoSequence
+end
+
 function setPractices(practices)
   additionalData["practices"]=practices
 end
