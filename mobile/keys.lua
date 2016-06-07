@@ -125,10 +125,7 @@ function create(eventFunc,networked,noLogging)
           clientloop.sendEvent({type="key released",note=keyInstance. 
             index})
         end
-  
-        if logData then
-          logger.log({touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,key=keyInstance.index})
-        end
+        local data={touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,key=keyInstance.index}
         if wasCorrect and not complete then
           eventFunc(false or networked)
         end
@@ -137,6 +134,10 @@ function create(eventFunc,networked,noLogging)
             complete=false
             eventFunc(true)
           end
+          if logData then
+            logger.log(data)
+          end
+          
           if keyInstance.sparks then
             keyInstance.sparks:stop()
             keyInstance.sparks=nil
@@ -151,6 +152,7 @@ function create(eventFunc,networked,noLogging)
   end
 
   function group:setup(instruction,noAid,_noFeedback,track,index)  
+    self:clear()
     if noAid then
       for i=1,#keys do
         keys[i]:highlight(true)
@@ -205,6 +207,7 @@ function create(eventFunc,networked,noLogging)
       keys[i].time=nil
       key.track=nil
       key.instructionIndex=nil
+      key.time=nil
      
       keys[i]:highlight(false)
       keys[i].scientificNote=nil

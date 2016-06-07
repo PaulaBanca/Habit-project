@@ -78,6 +78,9 @@ local function switchSong(newTrack)
   scene.img=img
   state=playstate.create()
   modesDropped=0
+  logger.setScore(0)
+  logger.setIterations(state.get("iterations"))
+  logger.setBank(0)
   logger.setModesDropped(modesDropped)
     
   learningLength=maxLearningLength

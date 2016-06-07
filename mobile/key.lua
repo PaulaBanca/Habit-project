@@ -136,7 +136,6 @@ function create()
     self:clearCoin()
     highlighted=false
     highlight.isVisible=false
-
   end
   group.clear=clear
 
