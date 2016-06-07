@@ -394,6 +394,8 @@ function scene:show(event)
       scene.img.isVisible=false
       scene.progress.isVisible=false
     end
+
+    logger.setIntro(isStart)
     
     restart()
     if not isStart and rewardType~="none" then
