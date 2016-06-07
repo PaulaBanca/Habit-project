@@ -85,7 +85,7 @@ function scene:create()
   }):translate(button.x, button.y)
 
   button:addEventListener("tap", function()
-    composer.gotoScene("scenes.connect")
+    composer.gotoScene("scenes.practiceintro")
   end)
 end
 scene:addEventListener("create")
@@ -101,7 +101,7 @@ function scene:show(event)
       local selection=row.options[select]
       row.selectFunc(selection)
     end
-    composer.gotoScene("scenes.connect")
+    composer.gotoScene("scenes.practiceintro")
   end
 end
 
