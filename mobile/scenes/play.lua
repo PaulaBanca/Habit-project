@@ -395,8 +395,9 @@ function scene:show(event)
       scene.progress.isVisible=false
     end
 
-    logger.setIntro(isStart)
-    
+    logger.setIntro(isStart or false)
+    logger.setSequenceTime(0)
+
     restart()
     if not isStart and rewardType~="none" then
       scene.points=display.newText({
