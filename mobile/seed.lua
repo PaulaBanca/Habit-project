@@ -16,7 +16,7 @@ local tonumber=tonumber
 setfenv(1,M)
 
 function setup(whenDone)
-  if false and user.get("seed") then
+  if user.get("seed") then
     math.randomseed(user.get("seed"))
     stimuli.generateSeeds()
     tunes.generateTunes()
