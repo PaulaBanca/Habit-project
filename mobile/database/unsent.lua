@@ -8,6 +8,8 @@ local pairs=pairs
 local serpent=require "serpent"
 local tonumber=tonumber
 local math=math
+local table=table
+local timer=timer
 
 setfenv(1,M)
 
@@ -20,7 +22,7 @@ CREATE TABLE IF NOT EXISTS touch (
   date TEXT NOT NULL,
   time INTEGER NOT NULL,
   delay INTEGER,
-  wasCorrect INTEGER NOT NULL,
+  wasCorrect TEXT NOT NULL,
   complete TEXT,
   track INTEGER,
   instructionIndex INTEGER,
@@ -31,7 +33,9 @@ CREATE TABLE IF NOT EXISTS touch (
   bank INTEGER,
   score INTEGER,
   practices INTEGER,
-  userid TEXT NOT NULL
+  userid TEXT NOT NULL,
+  timeIntoSequence INTEGER NOT NULL,
+  intro TEXT NOT NULL
 );
 ]]
 
@@ -50,13 +54,34 @@ CREATE TABLE IF NOT EXISTS questionnaires (
 ]]
 database.runSQLQuery(createTableCmd)
 
-local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid) VALUES ("%s",%d,%d,"%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s");]]
+local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro) VALUES ("%s",%d,%d,"%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s","%s","%s");]]
 local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,date,userid) VALUES (%s,%s,%s,%s,"%s","%s");]]
 
-
+local queuedCommands={}
 function log(t)
   if t.touchPhase then
-    database.runSQLQuery(insertTouchCmd:format(t.touchPhase,t.x,t.y,t.date,t.time,tostring(t.delay or "NULL"),tostring(t.wasCorrect or "NULL"),tostring(t.complete),tostring(t.track or "NULL"),tostring(t.instructionIndex or "NULL"),tostring(t.modesDropped or "NULL"), tostring(t.iterations or "NULL"),tostring(t.modeIndex or "NULL"), tostring(t.keyIndex or "NULL"),tostring(t.bank or "NULL"),tostring(t.score or "NULL"),t.practices,t.userid))
+    queuedCommands[#queuedCommands+1]=insertTouchCmd:format(
+      t.touchPhase,
+      t.x,
+      t.y,
+      t.date,
+      t.time,
+      tostring(t.delay or "NULL"),
+      tostring(t.wasCorrect or "false"),
+      tostring(t.complete),
+      tostring(t.track or "NULL"),
+      tostring(t.instructionIndex or "NULL"),
+      tostring(t.modesDropped or "NULL"),
+      tostring(t.iterations or "NULL"),
+      tostring(t.modeIndex or "NULL"),
+      tostring(t.keyIndex or "NULL"),
+      tostring(t.bank or "NULL"),
+      tostring(t.score or "NULL"),
+      t.practices,
+      t.userid,
+      t.timeIntoSequence,
+      tostring(t.intro)
+    )
   else
     database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.date,t.userid))
   end
@@ -109,6 +134,19 @@ end
 local removeSentQsCmd=[[DELETE FROM questionnaires WHERE ID <= %d;]]
 function clearQsUpTo(id)
   database.runSQLQuery(removeSentQsCmd:format(id))
+end
+
+function flushQueuedCommands(onComplete)
+  local total=#queuedCommands
+  if total==0 then
+    return onComplete()
+  end
+  timer.performWithDelay(1,function(event)
+    database.runSQLQuery(table.remove(queuedCommands,1))
+    if event.count==total then
+      onComplete()
+    end
+  end,total)
 end
 
 function hasDataToSend()

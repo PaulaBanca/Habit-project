@@ -2,11 +2,11 @@ local M={}
 logger=M
 
 local jsonreader=require "jsonreader"
-local system=system
 local parse = require('plugin.parse')
 local user=require "user"
 local serpent=require "serpent"
 local unsent=require "database.unsent"
+local system=system
 local print=print
 local assert=assert
 local timer=timer
@@ -16,6 +16,7 @@ local error=error
 local pairs=pairs
 local ipairs=ipairs
 local display=display
+local type=type
 
 setfenv(1,M)
 
@@ -23,7 +24,7 @@ function createLoginCallback(callback)
   local sessionToken
   return function(ok,res,info)
     if not ok then
-      print('err', res )
+      print('err', type (res)=="table" and serpent.block(res) or res )
       callback(false,res)
     else
       sessionToken=res.sessionToken
@@ -87,85 +88,79 @@ function log(t)
       t[k]=v    
     end
   end
-  parse.request(parse.Object.create, "Data")
-    :data(t)
-    :response(function(ok, res)
-      if ok then
-      else
+  -- parse.request(parse.Object.create, "TestingData")
+  --   :data(t)
+  --   :response(function(ok, res)
+  --     if ok then
+  --     else
         unsent.log(t)
-      end
-  end)
+  --     end
+  -- end)
 end
 
-local catchUp
+function send(getFunc,clearFunc,doneFunc,dataName)
+  local count=0
+  local b
+  getFunc(function(col,done)
+    if not b then
+      b=parse.batch.new()
+    end
+    b.create(dataName, col)
+    count=count+1
+
+    if done then
+      parse.request(parse.Object.batch)
+        :data(b.getBatch())
+        :response(function(ok, res)
+        if ok then 
+          clearFunc(col.ID)
+        else
+          print ("Err ",type(res)=="table" and serpent.block(res) or res)
+        end
+        doneFunc()
+      end)
+    end
+  end)
+  return true
+end
+
 local syncMessage
+local paused
 function startCatchUp()
-  catchUp=timer.performWithDelay(1000, function()
-    local b
-    local nothingToSync=true
-    unsent.get(function(col,done)
-      nothingToSync=false
-      if not b then 
-        b=parse.batch.new()
-      end
-      b.create("Data", col)
+  paused=false
 
-      if done then
-        parse.request(parse.Object.batch)
-          :data(b.getBatch())
-          :response(function(ok, res)
-          if ok then 
-            unsent.clearUpTo(col.ID)
-          end
-        end)
-      end
-    end)
+  if not syncMessage then
+    syncMessage=display.newText({
+      text="Background syncing...",
+      fontSize=15,
+    })
+    syncMessage.anchorX=0
+    syncMessage.anchorY=0
+    syncMessage.x=10
+    syncMessage.y=10
+  end
 
-    b=nil
-    unsent.getQs(function(col,done)
-      nothingToSync=false
-      if not b then 
-        b=parse.batch.new()
+  unsent.flushQueuedCommands(function()
+    local sendData
+    sendData=function()
+      if paused then 
+        return
       end
-      b.create("Data", col)
-      
-      if done then
-        parse.request(parse.Object.batch)
-          :data(b.getBatch())
-          :response(function(ok, res)
-          if ok then 
-            for _, result in ipairs(res) do
-              if result.success then
-                print (result.success.createdAt)
-              else
-                print(result.error.error, result.error.code)
-              end
-            end
-            unsent.clearQsUpTo(col.ID)
-          end
-        end)
-      end
-    end)
-    if nothingToSync then 
-      if syncMessage then
+      local nothingToSync=true
+      nothingToSync=nothingToSync and send(unsent.get,unsent.clearUpTo,sendData,"TestingData")
+      nothingToSync=nothingToSync and send(unsent.getQs,unsent.clearQsUpTo,sendData,"TestingData")
+
+      if nothingToSync and syncMessage then
         syncMessage:removeSelf()
         syncMessage=nil
       end
-    elseif not syncMessage and unsent.hasDataToSend() then
-      syncMessage=display.newText({
-        text="Background syncing...",
-        fontSize=15,
-      })
-      syncMessage.anchorX=0
-      syncMessage.anchorY=0
-      syncMessage.x=10
-      syncMessage.y=10
     end
-  end,-1)
+    sendData()
+  end)
 end
 
 function stopCatchUp()
-  timer.cancel(catchUp)
+  paused=true
 end
 
 return M
