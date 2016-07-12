@@ -115,7 +115,7 @@ function create(eventFunc,networked,noLogging)
           keyInstance.setPressed(true)
         end
         if logData then
-          logger.log({touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,key=keyInstance.index})
+          logger.log({touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,keyIndex=keyInstance.index})
         end
 
         display.getCurrentStage():setFocus(event.target,event.id)
@@ -128,7 +128,7 @@ function create(eventFunc,networked,noLogging)
           clientloop.sendEvent({type="key released",note=keyInstance. 
             index})
         end
-        local data={touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,key=keyInstance.index}
+        local data={touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,keyIndex=keyInstance.index}
         if wasCorrect and not complete then
           eventFunc(false or networked)
         end
