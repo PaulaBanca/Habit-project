@@ -135,16 +135,19 @@ function startCatchUp()
 
   if not syncMessage then
     syncMessage=display.newText({
-      text="Background syncing...",
+      text="Saving do not close!",
       fontSize=15,
     })
     syncMessage.anchorX=0
     syncMessage.anchorY=0
     syncMessage.x=10
     syncMessage.y=10
+    syncMessage:setTextColor(1, 0, 0)
   end
 
   unsent.flushQueuedCommands(function()
+    syncMessage.text="Background Syncing..."
+    syncMessage:setTextColor(1)
     local sendData
     sendData=function()
       if paused then 
