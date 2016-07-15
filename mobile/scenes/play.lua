@@ -135,6 +135,8 @@ local function madeMistake(bg)
   local time=system.getTimer()
   if time-lastMistakeTime>500 then
     state.increment("mistakes")
+    state.increment("total mistakes")
+    logger.setTotalMistakes(state.get("total mistakes"))
     lastMistakeTime=time
   end
   state.startTimer()

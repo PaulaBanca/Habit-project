@@ -13,7 +13,8 @@ local function blankState()
     prevState,
     iterations=0,
     rounds=0,
-    timerStart=0
+    timerStart=0,
+    ["total mistakes"]=0
   }
 end
 

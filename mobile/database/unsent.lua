@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS touch (
   practices INTEGER,
   userid TEXT NOT NULL,
   timeIntoSequence INTEGER NOT NULL,
-  intro TEXT NOT NULL
+  intro TEXT NOT NULL,
+  mistakes INTEGER NOT NULL
 );
 ]]
 
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS questionnaires (
 ]]
 database.runSQLQuery(createTableCmd)
 
-local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro) VALUES ("%s",%d,%d,"%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s","%s","%s");]]
+local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES ("%s",%d,%d,"%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s","%s","%s",%d);]]
 local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,date,userid) VALUES (%s,%s,%s,%s,"%s","%s");]]
 
 local queuedCommands={}
@@ -80,7 +81,8 @@ function log(t)
       t.practices,
       t.userid,
       t.timeIntoSequence,
-      tostring(t.intro)
+      tostring(t.intro),
+      (t.mistakes or 0)
     )
   else
     database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.date,t.userid))
