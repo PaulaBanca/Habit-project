@@ -51,9 +51,9 @@ Runtime:addEventListener("resize", function (event)
   timer.performWithDelay(500,start)
   start=nil
 end)
+local serverkeylistener=require "serverkeylistener"
 if system.getInfo("environment")=="simulator" then
   start()
   start=nil
-  local servertest=require "servertest"
 end
 

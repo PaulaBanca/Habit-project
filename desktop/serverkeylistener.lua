@@ -1,5 +1,5 @@
 local M={}
-servertest=M
+serverkeylistener=M
 
 local events=require "events"
 local NUM_KEYS=NUM_KEYS
