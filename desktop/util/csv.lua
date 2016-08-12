@@ -12,7 +12,11 @@ setfenv(1,M)
 
 local function testFileExists(path)
 	local fh,err=io.open(path,"r")
-	return fh~=nil
+	if fh then
+		fh:close()
+		return true
+	end
+	return false
 end
 
 local function appendToFile(path,line)
