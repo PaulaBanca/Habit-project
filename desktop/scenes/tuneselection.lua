@@ -564,21 +564,32 @@ function scene:show(event)
       arrows.right.alpha=1
     end
 
+
+    local translate={
+      space="left",
+      tap="right"
+    }
+
     self.keyListener=function(event)
-      if event.phase=="down" and validKeys[event.keyName] then
-        tuneSelected=tunes[event.keyName]
-        validKeys[event.keyName]=nil
-        validKeys[opposite[event.keyName]]=true
-        arrows[event.keyName].alpha=0.3
-        arrows[opposite[event.keyName]].alpha=1
+      local kn=translate[event.keyName or "tap"]
+      if not kn then
+        return
+      end
+      if (event.phase=="down" or not event.phase) and validKeys[kn] then
+        tuneSelected=tunes[kn]
+        validKeys[kn]=nil
+        validKeys[opposite[kn]]=true
+        arrows[kn].alpha=0.3
+        arrows[opposite[kn]].alpha=1
         if not selection.isVisible then
           selection.isVisible=true
           selection.alpha=0
         end
-        transition.to(selection,{alpha=1,x=xpos[event.keyName]})
+        transition.to(selection,{alpha=1,x=xpos[kn]})
       end
     end
     Runtime:addEventListener("key",self.keyListener)
+    Runtime:addEventListener("tap",self.keyListener)
   end)
 end
 
