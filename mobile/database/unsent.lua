@@ -10,6 +10,7 @@ local tonumber=tonumber
 local math=math
 local table=table
 local timer=timer
+local native=native
 
 setfenv(1,M)
 
@@ -58,32 +59,26 @@ database.runSQLQuery(createTableCmd)
 local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES ("%s",%d,%d,"%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s","%s","%s",%d);]]
 local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,date,userid) VALUES (%s,%s,%s,%s,"%s","%s");]]
 
+local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES (:touchPhase,:x,:y,:date,:time,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:userid,:timeIntoSequence,:intro,:mistakes);]])
+
+
 local queuedCommands={}
 function log(t)
   if t.touchPhase then
-    queuedCommands[#queuedCommands+1]=insertTouchCmd:format(
-      t.touchPhase,
-      t.x,
-      t.y,
-      t.date,
-      t.time,
-      tostring(t.delay or "NULL"),
-      tostring(t.wasCorrect or "false"),
-      tostring(t.complete),
-      tostring(t.track or "NULL"),
-      tostring(t.instructionIndex or "NULL"),
-      tostring(t.modesDropped or "NULL"),
-      tostring(t.iterations or "NULL"),
-      tostring(t.modeIndex or "NULL"),
-      tostring(t.keyIndex or "NULL"),
-      tostring(t.bank or "NULL"),
-      tostring(t.score or "NULL"),
-      t.practices,
-      t.userid,
-      t.timeIntoSequence,
-      tostring(t.intro),
-      (t.mistakes or 0)
-    )
+    t.delay=tostring(t.delay or "NULL")
+    t.wasCorrect =tostring(t.wasCorrect or "false")
+    t.complete=tostring(t.complete)
+    t.track =tostring(t.track or "NULL")
+    t.instructionIndex =tostring(t.instructionIndex or "NULL")
+    t.modesDropped =tostring(t.modesDropped or "NULL")
+    t.iterations =tostring(t.iterations or "NULL")
+    t.modeIndex =tostring(t.modeIndex or "NULL")
+    t.keyIndex =tostring(t.keyIndex or "NULL")
+    t.bank =tostring(t.bank or "NULL")
+    t.score =tostring(t.score or "NULL")
+    t.intro=tostring(t.intro)
+    t.mistakes=(t.mistakes or 0)    
+    queuedCommands[#queuedCommands+1]=t
   else
     database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.date,t.userid))
   end
@@ -143,12 +138,18 @@ function flushQueuedCommands(onComplete)
   if total==0 then
     return onComplete()
   end
-  timer.performWithDelay(1,function(event)
-    database.runSQLQuery(table.remove(queuedCommands,1))
-    if event.count==total then
-      onComplete()
+  native.setActivityIndicator(true)
+  timer.performWithDelay(1, function()
+    database.runSQLQuery("BEGIN TRANSACTION;")
+    for i=1, #queuedCommands do
+      preparedInsert:bind_names(queuedCommands[i])
+      database.step(preparedInsert)
     end
-  end,total)
+    database.runSQLQuery("END TRANSACTION;")
+    queuedCommands={}
+    native.setActivityIndicator(false)
+    onComplete()
+  end)
 end
 
 function hasDataToSend()

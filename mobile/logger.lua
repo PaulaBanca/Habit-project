@@ -92,14 +92,7 @@ function log(t)
       t[k]=v    
     end
   end
-  -- parse.request(parse.Object.create, "TestingData")
-  --   :data(t)
-  --   :response(function(ok, res)
-  --     if ok then
-  --     else
-        unsent.log(t)
-  --     end
-  -- end)
+  unsent.log(t)
 end
 
 function send(getFunc,clearFunc,doneFunc,dataName)

@@ -25,6 +25,28 @@ function runSQLQuery(sql,callback,user_data)
   end
 end
 
+function prepare(sql)
+  local s=db:prepare(sql)
+  if not s then
+    error(db:errmsg())
+  end
+  return s
+end
+
+function step(prepared)
+  local res
+  while true do
+    res=prepared:step()
+    if res==sqlite3.DONE then
+      break
+    end
+    if res==sqlite3.ERROR then
+      error(db:errmsg())
+    end
+  end
+  prepared:reset()
+end
+
 function lastRowID()
   return db:last_insert_rowid()
 end
