@@ -64,7 +64,7 @@ local pageSetup={
   {
     text="And again with a new set of options.",
     onKeyPress=function() 
-      local options={leftTune=tunemanager.getID("discarded"),rightTune="wildcard6"}
+      local options={leftTune=tunemanager.getID("discarded"),rightTune="preferred"}
       local switch=composer.getVariable("preferencetest")[3].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
       composer.gotoScene("scenes.tuneselection",{params={timed=60*1000,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=9}}) end
