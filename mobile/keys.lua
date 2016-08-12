@@ -20,6 +20,7 @@ local timer=timer
 local pairs=pairs
 local print=print
 local tostring=tostring
+local next=next
 local NUM_KEYS=NUM_KEYS
 
 setfenv(1,M)
@@ -133,7 +134,7 @@ function create(eventFunc,networked,noLogging)
           eventFunc(false or networked)
         end
         timer.performWithDelay(100, function() 
-          if complete then
+          if complete and not next(currentlyPressedKeys) then
             complete=false
             eventFunc(true)
           end
