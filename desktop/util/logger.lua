@@ -50,7 +50,7 @@ function create(filename,headers)
     line=line or blankLine()
 
     assert(line[k]~=nil,"logger.lua: No key '"..k.."' expected"..serpent.line(line,{comment=false}))
-    assert(line[k]=="" and not force,"logger.lua: Key '"..k.."' already has value")
+    assert(line[k]=="" or force,"logger.lua: Key '"..k.."' already has value")
     line[k]=v
     local full=true
     for k,v in pairs(line) do
