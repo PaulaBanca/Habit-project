@@ -22,6 +22,7 @@ local tonumber=tonumber
 local next=next
 local native=native
 local os=os
+local system=system
 local math=math
 local NUM_KEYS=NUM_KEYS
 
@@ -184,14 +185,18 @@ function scene:show(event)
       count.anchorY=0
       count:setFillColor(0)
 
+       local timeField=logger.create("practice_tune_times",{"sequence","date","time to complete"})
+     
       local steps=0
       local reset
       local inMistakeStreak
+      local time=system.getTimer()
       local function madeMistake(notunes)
         steps=0
         self.meter:reset()
         reset()
         sound.playSound("wrong")
+        time=system.getTimer()
         
         if not inMistakeStreak then
           mistakes=mistakes+1
@@ -230,6 +235,12 @@ function scene:show(event)
         local n=tonumber(count.text)+1
         completedSequences=n
         count.text=n
+
+        timeField("sequence",tunePracticing)
+        timeField("date",os.date())
+        timeField("time to complete",system.getTimer()-time)
+        time=system.getTimer()
+
         if not bestPractices[tunePracticing] or n>bestPractices[tunePracticing] then
           bestPractices[tunePracticing]=n
         end
