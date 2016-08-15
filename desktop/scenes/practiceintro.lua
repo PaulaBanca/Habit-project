@@ -46,7 +46,7 @@ local pageSetup={
   {text="Now you must invent new sequences.\n\nYou can play anything you like, apart from playing the 1st or 2nd sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press single or several keys at once if you want.\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=6,iterations=20}})
   end},
   {
-    text="Now for the next minute you can play either of the two indicated sequences.\n\nSelect the sequence using the left and right pads.\n\nYou can switch as you go, if you want",
+    text="Now play any combination of the two indicated sequences 40 times.\n\nSelect the sequence using the left and right pads.\n\nYou can switch as you go, if you want",
     onKeyPress=function() 
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[1].switch

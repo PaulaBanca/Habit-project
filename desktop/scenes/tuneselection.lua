@@ -246,7 +246,7 @@ function scene:show(event)
 
     local leftTally,rightTally,total=0,0,0
     local count=0
-    markTune=function(side)
+    markTune=function(side,logField)
       total=total+1
       if side==1 then
         leftTally=leftTally+1
@@ -278,12 +278,13 @@ function scene:show(event)
           end
         end
       end
+      logField("winnings",won)
     end
   end
 
   self.timer=timer.performWithDelay(event.params.timed and 3000 or 0, function()
     self.timer=nil
-    local logField=logger.create(event.params.logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice"})
+    local logField=logger.create(event.params.logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice","winnings"})
 
     local incrementCount
     if event.params.timed or event.params.iterations then
@@ -348,7 +349,9 @@ function scene:show(event)
       end
       local side=matched==left and 1 or 2
       if markTune then
-        markTune(side)
+        markTune(side,logField)
+      else
+        logField("winnings","n/a")
       end
       resetSelection()
       meterResetTimer=timer.performWithDelay(500, function()
