@@ -119,15 +119,16 @@ function setup(leftTune,rightTune,leftReward,rightReward,chests)
   return left,right
 end
 
-function scene:startTimer(time,page)
-  local counter=countdown.create(time,80)
-  counter:translate(display.contentCenterX,display.contentHeight-counter.height)
-  counter:start()
-  self.view:insert(counter)
-  timer.performWithDelay(time, function()
-    composer.gotoScene("scenes.practiceintro",{params={page=page}})
-  end)
-
+function scene:startTimer(time,iterations,page)
+  if time then
+    local counter=countdown.create(time,80)
+    counter:translate(display.contentCenterX,display.contentHeight-counter.height)
+    counter:start()
+    self.view:insert(counter)
+    timer.performWithDelay(time, function()
+      composer.gotoScene("scenes.practiceintro",{params={page=page}})
+    end)
+  end
   local tuneCount=display.newGroup()
   self.view:insert(tuneCount)
   local t=display.newText({
@@ -150,7 +151,11 @@ function scene:startTimer(time,page)
   count:setFillColor(0)
   
   local function inc()
-    count.text=tonumber(count.text)+1
+    local n=tonumber(count.text)+1
+    count.text=n
+    if n==iterations then
+      composer.gotoScene("scenes.practiceintro",{params={page=page}})    
+    end
   end
   return tuneCount,inc
 end
@@ -168,7 +173,7 @@ function scene:show(event)
   
   local left,right=setup(event.params.leftTune,event.params.rightTune,event.params.leftReward,event.params.rightReward,event.params.doors)
   local start
-  if event.params.timed then
+  if event.params.timed or event.params.iterations then
     start=display.newText({
       parent=self.view,
       text="Get Ready!",
@@ -227,7 +232,7 @@ function scene:show(event)
     })
     total:setFillColor(0)
     total.x=display.contentCenterX
-    total.y=left.y-left.contentHeight/2-420
+    total.y=left.y-left.contentHeight/2-490
 
     local won=0
     local cash=display.newText({
@@ -281,16 +286,17 @@ function scene:show(event)
     local logField=logger.create(event.params.logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice"})
 
     local incrementCount
-    if event.params.timed then
+    if event.params.timed or event.params.iterations then
       start.text="Go!"
       transition.to(start,{alpha=0,xScale=5,yScale=5,time=200,onComplete=delete})
+    
       local timerGroup
-      timerGroup,incrementCount=self:startTimer(event.params.timed,event.params.page)
-      timerGroup.y=start.y-50
+      timerGroup,incrementCount=self:startTimer(event.params.timed,event.params.iterations,event.params.page)
+      timerGroup.y=start.y-90
     else
-      incrementCount=function() end 
+      incrementCount=function() end
     end
-
+  
     local total=0
     local steps=0
     local mistakes=0

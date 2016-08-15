@@ -185,7 +185,7 @@ function scene:show(event)
       count.anchorY=0
       count:setFillColor(0)
 
-       local timeField=logger.create("practice_tune_times",{"sequence","date","time to complete"})
+      local timeField=logger.create("practice_tune_times",{"sequence","date","time to complete"})
      
       local steps=0
       local reset
