@@ -607,8 +607,10 @@ function scene:show(event)
       tuneSelected=tune 
     end)
     
+    if event.params.noPlay then
+      return
+    end
     local currentWinnings="n/a"
-    -- if not event.params.no
     self:setupUserInput(left,right,
       event.params.logChoicesFilename,
       event.params.logInputFilename,
