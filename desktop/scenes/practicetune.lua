@@ -287,7 +287,7 @@ function scene:show(event)
         elseif event.allReleased and event.complete then
           transition.cancel("mistake")
         end
-      end,tunePracticing,0>tunePracticing,function() return math.abs(tunePracticing) end)
+      end,function() return tunePracticing end,tunePracticing<0,function() return math.abs(tunePracticing) end)
       reset=_r
       events.addEventListener("key played",onPlay)
       events.addEventListener("key released",onRelease)

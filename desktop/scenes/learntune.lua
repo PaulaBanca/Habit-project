@@ -201,7 +201,7 @@ function scene:show(event)
         end
         highlightKeys(steps,advancedMode,hints)
       end
-    end,tuneLearning)
+    end,function() return tuneLearning end)
     reset=_r
 
     events.addEventListener("key played",onPlay)

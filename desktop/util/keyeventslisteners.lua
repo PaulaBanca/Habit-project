@@ -13,7 +13,7 @@ local table=table
 
 setfenv(1,M)
 
-function create(logName,onTuneComplete,onMistake,onFine,restrictedToTune,allowWildCard,getWildCardLength)
+function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWildCard,getWildCardLength)
   local keysDown={}
   getWildCardLength=getWildCardLength or function() end
   local function keyPattern()
@@ -30,10 +30,11 @@ function create(logName,onTuneComplete,onMistake,onFine,restrictedToTune,allowWi
     if allowWildCard then
       return false
     end
-    if not restrictedToTune then
+    if not getSelectedTune or not getSelectedTune() then
+      print ("no matchign tunes")
       return not matchingTunes 
     end
-    return restrictedToTune>0 and (not matchingTunes or not matchingTunes[restrictedToTune])
+    return getSelectedTune()>0 and (not matchingTunes or not matchingTunes[getSelectedTune()])
   end
 
   local isComplete
@@ -60,7 +61,7 @@ function create(logName,onTuneComplete,onMistake,onFine,restrictedToTune,allowWi
       onMistake()
     elseif not tune then
       for k,v in pairs(matchingTunes or {}) do
-        isComplete=isComplete or (v.type=="complete" and (k==restrictedToTune or not restrictedToTune))
+        isComplete=isComplete or (v.type=="complete" and (k==getSelectedTune() or not getSelectedTune()))
       end
       onFine({complete=isComplete,phase="pressed"})
     end
@@ -77,6 +78,9 @@ function create(logName,onTuneComplete,onMistake,onFine,restrictedToTune,allowWi
       wildcardSteps=wildcardSteps+1
     end
     local complete=tune or wildcardSteps==getWildCardLength()
+    if complete and getSelectedTune then
+      complete=tune==getSelectedTune() or -wildcardSteps==getSelectedTune()
+    end
 
     if mistake then
       onMistake()
