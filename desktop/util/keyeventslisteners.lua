@@ -14,6 +14,15 @@ local table=table
 setfenv(1,M)
 
 function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWildCard,getWildCardLength)
+
+  local startTime=nil
+  local wrapper=function(f,arg)
+    startTime=nil
+    f(arg)
+  end
+  onTuneComplete=_.wrap(onTuneComplete,wrapper)
+  onMistake=_.wrap(onMistake,wrapper)
+
   local keysDown={}
   getWildCardLength=getWildCardLength or function() end
   local function keyPattern()
@@ -24,14 +33,13 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     return table.concat(pattern, "") 
   end
 
-  local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake", "completed step", "phase","finished sequence"})
+  local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake", "completed step", "phase","finished sequence","sequence millis"})
   
   local function matchesNoTune(matchingTunes)
     if allowWildCard then
       return false
     end
     if not getSelectedTune or not getSelectedTune() then
-      print ("no matchign tunes")
       return not matchingTunes 
     end
     return getSelectedTune()>0 and (not matchingTunes or not matchingTunes[getSelectedTune()])
@@ -44,6 +52,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     if keysDown[event.note] then
       mistake=true
     end
+    startTime=startTime or system.getTimer()
     keysDown[event.note]=true
     logInput("date",os.date())
     logInput("system millis",system.getTimer())
@@ -51,6 +60,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     logInput("keys down",keyPattern())
     logInput("phase","pressed")
     logInput("finished sequence","n/a")
+    logInput("sequence millis",system.getTimer()-startTime)
 
     isComplete=false
     local tune,matchingTunes=tunedetector.matchAgainstTunes(keysDown)
@@ -82,6 +92,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
       complete=tune==getSelectedTune() or -wildcardSteps==getSelectedTune()
     end
 
+    logInput("sequence millis",startTime and (system.getTimer()-startTime) or "n/a")
     if mistake then
       onMistake()
     elseif complete then
