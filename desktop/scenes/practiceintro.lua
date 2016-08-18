@@ -42,12 +42,12 @@ local pageSetup={
   {text="Now you must invent new sequences.\n\nYou can play anything you like, apart from playing the 1st or 2nd sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press single or several keys at once if you want.\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=7,iterations=20}})
   end},
   {
-    text="Now play any combination of the two indicated sequences 40 times.\n\nSelect the sequence using the left and right pads.\n\nYou can switch as you go, if you want",
+    text="Now play any combination of the two indicated sequences 30 times.\n\nSelect the sequence using the left and right pads.\n\nYou can switch as you go, if you want",
     onKeyPress=function() 
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[1].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=40,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=8}}) end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=8}}) end
   },
   {
     text="Now, lets do the same again but with different sequences to choose from.",
@@ -55,7 +55,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard3"}
       local switch=composer.getVariable("preferencetest")[2].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=40,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=9}}) end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=9}}) end
   },
   {
     text="And again with a new set of options.",
@@ -63,7 +63,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("discarded"),rightTune="preferred"}
       local switch=composer.getVariable("preferencetest")[3].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=40,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
   },
   
   {
