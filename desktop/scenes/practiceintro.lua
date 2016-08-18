@@ -128,8 +128,8 @@ local pageSetup={
     {text="In this last task, you also need to choose between 2 chests. You open chests by playing the sequence that matches the symbol on it.\n\nSome symbols or chests will reward you more often than the others.\n\nRemember you are playing for real money! You will receive your winnings by the end of the study.\n\nTry to win as much as you can!",
     onKeyPress=function()
       doorschedule.start()
-      vischedule.setup(1,35000,1000)
-      vischedule.setup(2,35000,1000)
+      vischedule.setup(1,20000,1000)
+      vischedule.setup(2,20000,1000)
       vischedule.setup(3,4000,1000)
       vischedule.start()
       function run()
