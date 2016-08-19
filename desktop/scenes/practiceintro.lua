@@ -23,23 +23,68 @@ local pageSetup={
   {text="Well done!\n\nNow lets play the other sequence.",onKeyPress=function() composer.gotoScene("scenes.practicetune",{params={logName="practice_tune_"..composer.getVariable("secondpractice"),tune=composer.getVariable("secondpractice"),page=3}})
     end},
   {
-    text="Now on the next the screen select your preferred tune using the left or right pads and play it once.",
+    text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go if you want.\n\nSelect the sequences using the left and right pads.",
+    onKeyPress=function() 
+      local options={leftTune=tunemanager.getID("discarded"),rightTune="preferred"}
+      local switch=composer.getVariable("preferencetest")[3].switch
+      if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=4}}) end
+  },
+  {
+    text="Which one is your preferred sequence? On the next screen, select it using the left and right pads and play it once.",
     onKeyPress=function() 
       local options={leftTune=composer.getVariable("firstpractice"),rightTune=composer.getVariable("secondpractice")}
       composer.gotoScene("scenes.tuneselection",{params={logChoicesFilename="select_preferred",logInputFilename="select_preferred_inputs",leftTune=options.leftTune,rightTune=options.rightTune,onTuneComplete=function(matched,notMatched,side)
         tunemanager.setPreferred(matched.tune)
         tunemanager.setDiscarded(notMatched.tune)
-        composer.gotoScene("scenes.practiceintro",{params={page=4}})
+        composer.gotoScene("scenes.practiceintro",{params={page=5}})
       end}}) 
     end
   },
+  {text="In the following task, you will need to choose between 2 chests. You open chests by selecting it using the left and right pads and playing the sequence that matches the symbol on it.\n\nFeel free to open the chests you prefer.\n\nThere are rewards in some of them. You will receive your winnings by the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
+    onKeyPress=function()
+      doorschedule.start()
+      vischedule.setup(1,5000,1000)
+      vischedule.setup(2,20000,1000)
+      vischedule.start()
+
+      local vischeduleMap={
+        [tunemanager.getID("discarded")]=1,
+        [tunemanager.getID("preferred")]=2,
+      }
+      function run()
+        local opts=doorschedule.nextRound()
+        if not opts then
+          local result=composer.getScene("scenes.doorresult").total
+          winnings.add(result)
+          composer.gotoScene("scenes.doorstotal",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=6}}})
+          return
+        end
+
+        opts.logChoicesFilename="doors-choices-1"
+        opts.logInputFilename="doors-inputs-1"
+        opts.doors=true
+        opts.onTuneComplete=function(matched,notMatched,side)
+          local stage=display.getCurrentStage()
+          stage:insert(matched)
+          stage:insert(notMatched)
+          stage:insert(matched.door)
+          local vi=vischeduleMap[matched.tune]
+        
+          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,side=vi,chest=matched.door,onClose=run}})
+        end
+        composer.gotoScene("scenes.tuneselection",{params=opts})
+      end
+      run()
+    end},
+
   {text="In the following task, you will see several shapes appearing and disappearing on the screen.\n\nYou just need to count how many stars appear.\n\nThey come and go quickly so pay attention to avoid missing them!",onKeyPress=function()
-      composer.gotoScene("scenes.practicetune",{params={tune=nil,page=5,countShapes=true}})
+      composer.gotoScene("scenes.practicetune",{params={tune=nil,page=7,countShapes=true}})
     end},
    {text="Next you will need to play one of the sequences as fast as you can AND, at the same time, count the number of stars that appear!\n\nYou need to be very good at both tasks to proceed to the next stage. Good luck!",onKeyPress=function()
-      composer.gotoScene("scenes.practicetune",{params={logName="countshapes_tune_"..tunemanager.getID("preferred"),tune=tunemanager.getID("preferred"),page=6,countShapes=true}})
+      composer.gotoScene("scenes.practicetune",{params={logName="countshapes_tune_"..tunemanager.getID("preferred"),tune=tunemanager.getID("preferred"),page=8,countShapes=true}})
       end},
-  {text="Now you must invent new sequences.\n\nYou can play anything you like, apart from playing the 1st or 2nd sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press single or several keys at once if you want.\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=7,iterations=20}})
+  {text="Now you must invent new sequences.\n\nYou can play any sequence made up of 6 different steps, apart from playing the 2 sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press single or several keys at once if you want.\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=9,iterations=20}})
   end},
   {
     text="Now play any combination of the two indicated sequences 30 times.\n\nSelect the sequence using the left and right pads.\n\nYou can switch as you go, if you want",
@@ -47,7 +92,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[1].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=8}}) end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
   },
   {
     text="Now, lets do the same again but with different sequences to choose from.",
@@ -55,17 +100,8 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard3"}
       local switch=composer.getVariable("preferencetest")[2].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=9}}) end
-  },
-  {
-    text="And again with a new set of options.",
-    onKeyPress=function() 
-      local options={leftTune=tunemanager.getID("discarded"),rightTune="preferred"}
-      local switch=composer.getVariable("preferencetest")[3].switch
-      if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
-  },
-  
+      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=11}}) end
+  }, 
   {
     text="Now, your performance will be rewarded and you will receive your winnings by the end of the study.",
     onKeyPress=function() 
@@ -78,7 +114,7 @@ local pageSetup={
       end
       local total
       local tally={left=0,right=0}
-      composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-3",logInputFilename="preferencetest-inputs-3",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="preferred",page=11}}) end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-3",logInputFilename="preferencetest-inputs-3",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="preferred",page=12}}) end
   },
   {
     text="Same thing again but the options have changed.",
@@ -90,11 +126,11 @@ local pageSetup={
         options.leftTune,options.rightTune=options.rightTune,options.leftTune
         rewards.left,rewards.right=rewards.right,rewards.left
       end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-4",logInputFilename="preferencetest-inputs-4",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="wildcard6",page=12}}) end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-4",logInputFilename="preferencetest-inputs-4",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="wildcard6",page=13}}) end
   },
   {text="Now you will learn a new sequence called Venus.\n\nFollow the lights, memorize it, and play yourself!",img=function()
     return stimuli.getStimulus(3)
-  end,onKeyPress=function() composer.gotoScene("scenes.learntune", {params={tune=tunemanager.getID(3),page=13}})
+  end,onKeyPress=function() composer.gotoScene("scenes.learntune", {params={tune=tunemanager.getID(3),page=14}})
   end},
   {text="In the following task, you will need to choose between 2 chests. You open chests by selecting it using the left and right pads and playing the sequence that matches the symbol on it.\n\nFeel free to open the chests you prefer.\n\nThere are rewards in some of them. You will receive your winnings by the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
@@ -107,7 +143,7 @@ local pageSetup={
         if not opts then
           local result=composer.getScene("scenes.doorresult").total
           winnings.add(result)
-          composer.gotoScene("scenes.doorstotal",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=14}}})
+          composer.gotoScene("scenes.doorstotal",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=15}}})
           return
         end
 
@@ -125,12 +161,12 @@ local pageSetup={
       end
       run()
     end},
-    {text="In this last task, you also need to choose between 2 chests. You open chests by playing the sequence that matches the symbol on it.\n\nSome symbols or chests will reward you more often than the others.\n\nRemember you are playing for real money! You will receive your winnings by the end of the study.\n\nTry to win as much as you can!",
+    {text="In this last task you need to choose between 2 chests. You open chests by playing the sequence that matches the symbol on it.\n\nSome chests will reward you more often than the others.\n\nRemember you are playing for real money! You will receive your winnings by the end of the study.\n\nTry to win as much as you can!",
     onKeyPress=function()
       doorschedule.start()
       vischedule.setup(1,20000,1000)
       vischedule.setup(2,20000,1000)
-      vischedule.setup(3,4000,1000)
+      vischedule.setup(3,5000,1000)
       vischedule.start()
       function run()
         local opts=doorschedule.nextRound()

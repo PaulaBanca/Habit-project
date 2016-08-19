@@ -9,10 +9,10 @@ local table=table
 setfenv(1,M)
 
 local round=0
-local schedules={jsonreader.load(system.pathForFile("data/schedule1.json",system.ResourceDirectory))}
+local schedules={jsonreader.load(system.pathForFile(("data/schedule2_block4.json"),system.ResourceDirectory)),jsonreader.load(system.pathForFile("data/schedule1.json",system.ResourceDirectory))}
 
 do 
-  local SCHEDULE2_BLOCKS=4
+  local SCHEDULE2_BLOCKS=3
   local blocks={}
   local order=_.shuffle(_.range(1,SCHEDULE2_BLOCKS))
   for i=1, SCHEDULE2_BLOCKS do
