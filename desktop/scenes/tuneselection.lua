@@ -511,8 +511,8 @@ function scene:setupSideSelector(left,right,setSelection)
   }
 
   local translate={
-    space="left",
-    tap="right"
+    space="right",
+    tap="left"
   }
 
   self.keyListener=function(event)
