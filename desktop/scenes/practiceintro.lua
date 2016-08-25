@@ -87,7 +87,7 @@ local pageSetup={
   {text="Now you can play any sequence of your choice made up of 6 different steps, apart from the 2 sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press one or more keys at once if you want.\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=9,iterations=20}})
   end},
   {
-    text="Now play any combination of the two indicated sequences 30 times.\n\nSelect the sequence using the left and right pads.\n\nYou can switch as you go, if you want",
+    text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go.\n\nSelect the sequences using the left and right pads.",
     onKeyPress=function() 
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[1].switch
@@ -128,11 +128,11 @@ local pageSetup={
       end
       composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-4",logInputFilename="preferencetest-inputs-4",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="wildcard6",page=13}}) end
   },
-  {text="Now you will learn a new sequence called Venus.\n\nFollow the lights, memorize it, and play yourself!",img=function()
+  {text="Now you will learn a new sequence.\n\nFollow the lights, memorize it, and play yourself!",img=function()
     return stimuli.getStimulus(3)
   end,onKeyPress=function() composer.gotoScene("scenes.learntune", {params={tune=tunemanager.getID(3),page=14}})
   end},
-  {text="In the following task, you will need to choose between 2 chests. You open chests by selecting it using the left and right pads and playing the sequence that matches the symbol on it.\n\nFeel free to open the chests you prefer.\n\nThere are rewards in some of them. You will receive your winnings by the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
+  {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nYou may be rewarded more often for some sequences. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
       doorschedule.start()
       vischedule.setup(1,30000,1000)
