@@ -203,7 +203,7 @@ function scene:show(event)
           inMistakeStreak=true
         end
         local t=display.newText({
-          text=notunes and "Do not play moon or star!" or "Mistake, start again!",
+          text=notunes and "No trained sequences!" or "Mistake, start again!",
           fontSize=120,
           parent=self.view,
           x=display.contentCenterX,
