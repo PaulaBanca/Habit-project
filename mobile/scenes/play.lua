@@ -160,9 +160,12 @@ function nextKey()
   if index==1 and state.get("count")>0 then
     if not isStart and modesDropped==0 then
       state.increment("rounds")
-      scene.progress:mark(state.get("rounds"),state.get("mistakes")==0)
+      local rounds=state.get("rounds")
+      if rounds<maxLearningLength*2 then
+        scene.progress:mark(rounds,state.get("mistakes")==0)
+      end
       
-        if rewardType~="none" then
+      if rewardType~="none" then
         local earned=tonumber(scene.bank:getScore())+tonumber(scene.rewardPoints:getPoints())
         if rewardType=="random" and math.random(100)>37 then
           earned=0
@@ -188,7 +191,9 @@ function nextKey()
       
         transition.to(t,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=1,onComplete=function(obj)
           obj:removeSelf()
-          scene.points.text=tonumber(scene.points.text)+earned
+          if scene.points then
+            scene.points.text=tonumber(scene.points.text)+earned
+          end
         end})
       end
     end
