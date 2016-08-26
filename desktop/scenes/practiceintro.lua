@@ -7,6 +7,7 @@ local Runtime=Runtime
 local tunemanager=require "tunemanager"
 local doorschedule=require "doorschedule"
 local vischedule=require "util.vischedule"
+local vrschedule=require "util.vrschedule"
 local winnings=require "winnings"
 local stimuli=require "stimuli"
 local _=require "util.moses"
@@ -44,11 +45,11 @@ local pageSetup={
   {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nYou may be rewarded more often for some sequences. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
       doorschedule.start()
-      vischedule.setup(1,5000,1000)
-      vischedule.setup(2,20000,1000)
-      vischedule.start()
+      vrschedule.setup(1,3,1) 
+      vrschedule.setup(2,12,2)
+      vrschedule.start()
 
-      local vischeduleMap={
+      local vrscheduleMap={
         [tunemanager.getID("discarded")]=1,
         [tunemanager.getID("preferred")]=2,
       }
@@ -69,7 +70,7 @@ local pageSetup={
           stage:insert(matched)
           stage:insert(notMatched)
           stage:insert(matched.door)
-          local vi=vischeduleMap[matched.tune]
+          local vi=vrscheduleMap[matched.tune]
         
           composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,side=vi,chest=matched.door,onClose=run}})
         end
@@ -107,7 +108,7 @@ local pageSetup={
     onKeyPress=function() 
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[4].switch
-      local rewards={left=0.1,right=0.1}
+      local rewards={left=0.05,right=0.05}
       if switch then 
         options.leftTune,options.rightTune=options.rightTune,options.leftTune
         rewards.left,rewards.right=rewards.right,rewards.left
@@ -121,7 +122,7 @@ local pageSetup={
     onKeyPress=function() 
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[5].switch
-      local rewards={left=0.1,right=0.1}
+      local rewards={left=0.05,right=0.05}
       if switch then 
         options.leftTune,options.rightTune=options.rightTune,options.leftTune
         rewards.left,rewards.right=rewards.right,rewards.left
@@ -164,10 +165,10 @@ local pageSetup={
     {text="This is the last part of the experiment! This time the choices come in blocks, so it may be easier to find the more rewarding sequences.",
     onKeyPress=function()
       doorschedule.start()
-      vischedule.setup(1,20000,1000)
-      vischedule.setup(2,20000,1000)
-      vischedule.setup(3,5000,1000)
-      vischedule.start()
+      vrschedule.setup(1,12,2)
+      vrschedule.setup(2,12,2)
+      vrschedule.setup(3,3,1)
+      vrschedule.start()
       function run()
         local opts=doorschedule.nextRound()
         if not opts then
@@ -178,7 +179,7 @@ local pageSetup={
         opts.logChoicesFilename="doors-choices-2"
         opts.logInputFilename="doors-inputs-2"
         opts.doors=true
-        local vischeduleMap={
+        local vrscheduleMap={
           [tunemanager.getID("preferred")]=1,
           [tunemanager.getID("wildcard3")]=2,
           [tunemanager.getID("wildcard6")]=3,
@@ -191,7 +192,7 @@ local pageSetup={
           stage:insert(notMatched)
           stage:insert(matched.door)
           
-          local vi=vischeduleMap[matched.tune]
+          local vi=vrscheduleMap[matched.tune]
           composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,chest=matched.door,side=vi,onClose=run}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
