@@ -155,11 +155,11 @@ function create(eventFunc,networked,noLogging)
     img:addEventListener("touch")
   end
 
-  function group:setup(instruction,noAid,_noFeedback,track,index)  
+  function group:setup(instruction,noAid,_noFeedback,noHighlight,track,index)  
     self:clear()
     if noAid then
       for i=1,#keys do
-        keys[i]:highlight(true)
+        keys[i]:highlight(not noHighlight)
       end
     end
     noFeedback=_noFeedback
@@ -169,7 +169,7 @@ function create(eventFunc,networked,noLogging)
       local note,octave=notes.toNotePitch(scientificNote)  
       key:setNote(note,noAid) 
       key:setOctave(octave) 
-      key:highlight(true)
+      key:highlight(not noHighlight)
       key.time=system.getTimer()
       key.track=track
       key.instructionIndex=index

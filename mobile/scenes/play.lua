@@ -253,7 +253,7 @@ function nextKey()
   end
 
   local nextIntruction=song[index]
-  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,track,index)
+  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,track,index)
 
   if scene.hint then
     scene.hint:removeSelf()
@@ -370,9 +370,6 @@ function scene:createKeys()
     self.keyBounds[i].blendMode="multiply"
   end
   self.bg:toBack()
-
-  self.keys.isVisible=modeIndex<=3
-  self.keys.isHitTestable=modeIndex>3
 end
 
 function scene:show(event)
