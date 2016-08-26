@@ -3,6 +3,7 @@ local scene=composer.newScene()
 
 local user=require "user"
 local display=display
+local system=system
 
 setfenv(1,scene)
 
@@ -71,7 +72,11 @@ function scene:create()
   }):translate(bg.x, bg.y)
 
   bg:addEventListener("tap", function()
-    composer.gotoScene("scenes.debug")
+    if system.getInfo("environment")=="simulator" then
+      composer.gotoScene("scenes.debug")
+    else
+      composer.gotoScene("scenes.intro")
+    end
   end)
 end
 scene:addEventListener("create")
@@ -81,7 +86,12 @@ function scene:show(event)
     if user.get("melody setup") then
       local c=composer.getScene("scenes.select")
       c:setup(user.get("melody setup")=="A" and 0 or 1)
-      composer.gotoScene("scenes.debug")
+      if system.getInfo("environment")=="simulator" then
+        composer.gotoScene("scenes.debug")
+      else
+        composer.gotoScene("scenes.intro")
+      end
+
       return
     end
   end
