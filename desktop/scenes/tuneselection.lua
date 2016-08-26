@@ -376,6 +376,16 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
   local leftTally,rightTally,total=0,0,0
   local count=0
 
+  local leftCoins={}
+  for i=1, math.floor(leftReward*100) do
+    leftCoins[i]=display.newImage(self.view,"img/coin.png",lr.x-60,y-60-i*40)
+  end
+
+  local rightCoins={}
+  for i=1, math.floor(rightReward*100) do
+    rightCoins[i]=display.newImage(self.view,"img/coin.png",rr.x+60,y-60-i*40)
+  end
+
   return function(side)
     total=total+1
     if side==1 then
@@ -393,6 +403,9 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
           count=0 
           leftReward=math.max(0,leftReward-0.01)
           lr.text=rewardtext.create(leftReward)
+          if #leftCoins>0 then
+            transition.to(table.remove(leftCoins),{x=0,onComplete=function(obj) obj:removeSelf() end})
+          end
         end
       end
     else
@@ -405,6 +418,9 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
           count=0 
           rightReward=math.max(0,rightReward-0.01)
           rr.text=rewardtext.create(rightReward)
+          if #rightCoins>0 then
+            transition.to(table.remove(rightCoins),{x=display.actualContentWidth,onComplete=function(obj) obj:removeSelf() end})
+          end
         end
       end
     end
