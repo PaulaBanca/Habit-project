@@ -129,19 +129,34 @@ function create(eventFunc,networked,noLogging)
           clientloop.sendEvent({type="key released",note=keyInstance. 
             index})
         end
-        local data={touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,keyIndex=keyInstance.index}
+    
+        if logData then
+          local data={
+            touchPhase=event.phase,
+            x=event.x,
+            y=event.y,
+            date=os.date(),
+            time=event.time,
+            delay=keyInstance.time and (event.time-keyInstance.time),
+            wasCorrect=wasCorrect,
+            complete=complete,
+            track=keyInstance.track,
+            instructionIndex=keyInstance.instructionIndex,
+            keyIndex=keyInstance.index
+          }
+          logger.log(data)
+        end
+
         if wasCorrect and not complete then
           eventFunc(false or networked)
         end
-        timer.performWithDelay(100, function() 
-          if complete and not next(currentlyPressedKeys) then
-            complete=false
-            eventFunc(true)
-          end
-          if logData then
-            logger.log(data)
-          end
-          
+
+        if complete and not next(currentlyPressedKeys) then
+          complete=false
+          eventFunc(true)
+        end
+
+        timer.performWithDelay(100, function()          
           if keyInstance.sparks then
             keyInstance.sparks:stop()
             keyInstance.sparks=nil

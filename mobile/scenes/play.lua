@@ -129,7 +129,6 @@ local function restart()
   roundStart=system.getTimer()
   state.restart()
   scene.keys:clear()
-  nextKey()
 end
 
 local lastMistakeTime=0
@@ -149,7 +148,90 @@ local function madeMistake(bg)
   timer.performWithDelay(250,restart)
 end
 
-function nextKey()
+local function processRewards()
+  if rewardType=="none" then
+    return
+  end
+  local earned=tonumber(scene.bank:getScore())+tonumber(scene.rewardPoints:getPoints())
+  if rewardType=="random" and math.random(100)>37 then
+    earned=0
+  end
+
+  logger.setScore(tonumber(scene.points.text)+earned)
+  logger.setSequenceTime(state.getTime())
+  local t=display.newText({
+    parent=scene.view,
+    text=earned,
+    fontSize=40,
+  })
+  t:setFillColor(0.478,0.918,0)
+  t.x=scene.bank.x
+  t.y=scene.bank.y
+  
+  scene.bank:setScore(0)
+  scene.bank.isVisible=false
+  if scene.rewardPoints then
+    scene.rewardPoints:removeSelf()
+    scene.rewardPoints=nil
+  end
+
+  transition.to(t,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=1,onComplete=function(obj)
+    obj:removeSelf()
+    if scene.points then
+      scene.points.text=tonumber(scene.points.text)+earned
+    end
+  end})
+end
+
+local function roundCompleteAnimation()
+  local p=display.newEmitter(particles.load("sequenceright"))
+  p.blendMode="add"
+  p:translate(display.contentCenterX, display.contentCenterY)
+  sound.playSound("correct")
+  transition.to(p, {time=2000,alpha=0,onComplete=function() 
+    p:removeSelf()
+  end})
+end
+
+local function keyChangeAnimation()
+  scene.keys:disable()
+  transition.to(scene.keys,{y=display.contentHeight+scene.keys.height,
+    onComplete=function(obj) 
+    if obj.removeSelf then
+      obj:removeSelf()
+    end
+  end})
+  scene:createKeys()
+  scene.keys.alpha=0
+  transition.to(scene.keys,{alpha=1})
+end
+
+local function shouldChangeModeUp()
+  return state.get("iterations")>=learningLength
+end  
+
+local function changeModeUp()
+  state.clear("iterations")
+  state.pullState()
+ 
+  modeIndex=modeIndex+1
+  if modeIndex>#modes then
+    modeIndex=#modes
+  end
+  scene.bg:setColour(modeIndex)
+
+  modesDropped=modesDropped-1
+  if modesDropped<=0 then
+    scene.progress.isVisible=true
+    modesDropped=0
+  end 
+  learningLength=modesDropped==0 and maxLearningLength or 3
+  logger.setModesDropped(modesDropped)
+  logger.setModeIndex(modeIndex)
+  keyChangeAnimation()
+end
+
+function completeRound()
   if scene.keys:hasPendingInstruction() then
     return
   end
@@ -167,94 +249,40 @@ function nextKey()
       if rounds<maxLearningLength*2 then
         scene.progress:mark(rounds,state.get("mistakes")==0)
       end
-      
-      if rewardType~="none" then
-        local earned=tonumber(scene.bank:getScore())+tonumber(scene.rewardPoints:getPoints())
-        if rewardType=="random" and math.random(100)>37 then
-          earned=0
-        end
-     
-        logger.setScore(tonumber(scene.points.text)+earned)
-        logger.setSequenceTime(state.getTime())
-        local t=display.newText({
-          parent=scene.view,
-          text=earned,
-          fontSize=40,
-        })
-        t:setFillColor(0.478,0.918,0)
-        t.x=scene.bank.x
-        t.y=scene.bank.y
-        
-        scene.bank:setScore(0)
-        scene.bank.isVisible=false
-        if scene.rewardPoints then
-          scene.rewardPoints:removeSelf()
-          scene.rewardPoints=nil
-        end
-      
-        transition.to(t,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=1,onComplete=function(obj)
-          obj:removeSelf()
-          if scene.points then
-            scene.points.text=tonumber(scene.points.text)+earned
-          end
-        end})
-      end
+      processRewards()
     end
-    local p=display.newEmitter(particles.load("sequenceright"))
-    p.blendMode="add"
-    p:translate(display.contentCenterX, display.contentCenterY)
-    sound.playSound("correct")
-    transition.to(p, {time=2000,alpha=0,onComplete=function() 
-      p:removeSelf()
-    end})
+
+    roundCompleteAnimation()
+
     if state.get("rounds")==maxLearningLength*2 then
       practicelogger.logPractice(track)
       daycounter.completedPractice(track)
       timer.performWithDelay(600, function()
         composer.gotoScene("scenes.score",{params={score=tonumber(scene.points.text),track=track}})
       end)
-      return 
+      return true
     end
     if isStart then
       composer.gotoScene("scenes.schedule")
-      return 
-    else
-      state.increment("iterations")
+      return true
     end
 
+    state.increment("iterations")
+    state.clear("mistakes")
     scene.keys:clear()
-    if state.get("iterations")>=learningLength then
-      state.clear("iterations")
-      state.pullState()
-      modeIndex=modeIndex+1
-      if modeIndex>#modes then
-        modeIndex=#modes
-      end
-      scene.bg:setColour(modeIndex)
-    
-      modesDropped=modesDropped-1
-      if modesDropped<=0 then
-        scene.progress.isVisible=true
-        modesDropped=0
-      end
-      learningLength=modesDropped==0 and maxLearningLength or 3
-      logger.setModesDropped(modesDropped)
-      logger.setModeIndex(modeIndex)
-      scene.keys:disable()
-      transition.to(scene.keys,{y=display.contentHeight+scene.keys.height,
-        onComplete=function(obj) 
-        if obj.removeSelf then
-          obj:removeSelf()
-        end
-      end})
-      scene:createKeys()
-      scene.keys.alpha=0
-      transition.to(scene.keys,{alpha=1})
+    if shouldChangeModeUp() then
+      changeModeUp()
     end
     logger.setIterations(state.get("iterations"))
-    state.clear("mistakes")
   end
+end
 
+function nextKey()
+  if scene.keys:hasPendingInstruction() or headless then
+    return
+  end
+  
+  local index=getIndex()
   local nextIntruction=song[index]
   local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,track,index)
 
@@ -349,8 +377,9 @@ function scene:createKeys()
   local keys=keys.create(function(wasCorrect)
     if not wasCorrect then
       madeMistake(self.redBackground)
-    else
-      nextKey()
+    end
+    if not completeRound() then
+      timer.performWithDelay(1,nextKey)
     end
   end,headless,isStart)
   if self.keys then
