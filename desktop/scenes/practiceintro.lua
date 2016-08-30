@@ -45,8 +45,8 @@ local pageSetup={
   {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nYou may be rewarded more often for some sequences. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
       doorschedule.start()
-      vrschedule.setup(1,3,1) 
-      vrschedule.setup(2,12,2)
+      vrschedule.setup(1,3,1,1000) 
+      vrschedule.setup(2,12,2,1000)
       vrschedule.start()
 
       local vrscheduleMap={
@@ -70,9 +70,10 @@ local pageSetup={
           stage:insert(matched)
           stage:insert(notMatched)
           stage:insert(matched.door)
-          local vi=vrscheduleMap[matched.tune]
+          local vr=vrscheduleMap[matched.tune]
+          local payout=vrschedule.reward(vr)
         
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,side=vi,chest=matched.door,onClose=run}})
+          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
@@ -156,7 +157,9 @@ local pageSetup={
           stage:insert(matched)
           stage:insert(notMatched)
           stage:insert(matched.door)
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,side=side,chest=matched.door,onClose=run}})
+          local payout=vischedule.reward(side)
+        
+          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
@@ -165,9 +168,9 @@ local pageSetup={
     {text="This is the last part of the experiment! This time the choices come in blocks, so it may be easier to find the more rewarding sequences.",
     onKeyPress=function()
       doorschedule.start()
-      vrschedule.setup(1,12,2)
-      vrschedule.setup(2,12,2)
-      vrschedule.setup(3,3,1)
+      vrschedule.setup(1,12,2,1000)
+      vrschedule.setup(2,12,2,1000)
+      vrschedule.setup(3,3,1,1000)
       vrschedule.start()
       function run()
         local opts=doorschedule.nextRound()
@@ -192,8 +195,10 @@ local pageSetup={
           stage:insert(notMatched)
           stage:insert(matched.door)
           
-          local vi=vrscheduleMap[matched.tune]
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,chest=matched.door,side=vi,onClose=run}})
+          local vr=vrscheduleMap[matched.tune]
+          local payout=vrschedule.reward(vr)
+        
+          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end

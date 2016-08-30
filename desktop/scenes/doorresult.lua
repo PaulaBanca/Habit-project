@@ -2,7 +2,6 @@ local composer=require "composer"
 local scene=composer.newScene()
 
 local tunemanager=require "tunemanager"
-local vischedule=require "util.vischedule"
 local winnings=require "winnings"
 local rewardtext=require "util.rewardtext"
 local sound=require "sound"
@@ -32,8 +31,8 @@ function scene:show(event)
   self.view:insert(matched)
   self.view:insert(notMatched)
   
-  local payout=vischedule.reward(event.params.side)
-  local amount= payout and matched.reward or 0
+  local payout=event.params.payout
+  local amount=payout and matched.reward or 0
   self.logger("date",os.date())
   self.logger("won",amount)
   self.logger("selected",matched.tune)
