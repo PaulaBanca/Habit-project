@@ -80,6 +80,8 @@ local function switchSong(newTrack)
   modesDropped=0
   logger.setScore(0)
   logger.setIterations(state.get("iterations"))
+  logger.setTotalMistakes(state.get("total mistakes"))
+    
   logger.setBank(0)
   logger.setModesDropped(modesDropped)
     
@@ -102,6 +104,7 @@ local function restart()
     modesDropped=modesDropped+1
     logger.setModesDropped(modesDropped)
     logger.setModeIndex(modeIndex)
+    logger.setTotalMistakes(state.get("total mistakes"))
     scene.keys:disable()
     scene.keys:clear()
     transition.to(scene.keys,{y=-scene.keys.height,
