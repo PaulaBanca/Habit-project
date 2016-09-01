@@ -77,11 +77,13 @@ local function switchSong(newTrack)
   img:scale(0.5,0.5)
   scene.img=img
   state=playstate.create()
+  state.startTimer()
   modesDropped=0
   logger.setScore(0)
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(state.get("total mistakes"))
-    
+  logger.setSequenceTime(state.getTime())
+     
   logger.setBank(0)
   logger.setModesDropped(modesDropped)
     
@@ -142,6 +144,8 @@ local function madeMistake(bg)
     lastMistakeTime=time
   end
   state.startTimer()
+  logger.setSequenceTime(state.getTime())
+  
   bg:toFront()
   bg.alpha=1
   transition.to(bg,{alpha=0})
@@ -241,6 +245,8 @@ function completeRound()
   end
   
   state.increment()
+  logger.setSequenceTime(state.getTime())
+  
   local index=getIndex()
   if index==1 and state.get("count")>0 then
     if not isStart and modesDropped==0 then
