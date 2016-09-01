@@ -85,6 +85,10 @@ function setTotalMistakes(mistakes)
   additionalData["mistakes"]=mistakes
 end 
 
+function setTrack(track)
+  additionalData["track"]=track
+end 
+
 function log(t)
   t.userid=user.getID()
   if not t.pleasure_melody_1 then

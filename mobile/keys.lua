@@ -116,7 +116,7 @@ function create(eventFunc,networked,noLogging)
           keyInstance.setPressed(true)
         end
         if logData then
-          logger.log({touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,track=keyInstance.track,instructionIndex=keyInstance.instructionIndex,keyIndex=keyInstance.index})
+          logger.log({touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,instructionIndex=keyInstance.instructionIndex,keyIndex=keyInstance.index})
         end
 
         display.getCurrentStage():setFocus(event.target,event.id)
@@ -140,7 +140,6 @@ function create(eventFunc,networked,noLogging)
             delay=keyInstance.time and (event.time-keyInstance.time),
             wasCorrect=wasCorrect,
             complete=complete,
-            track=keyInstance.track,
             instructionIndex=keyInstance.instructionIndex,
             keyIndex=keyInstance.index
           }
@@ -170,7 +169,7 @@ function create(eventFunc,networked,noLogging)
     img:addEventListener("touch")
   end
 
-  function group:setup(instruction,noAid,_noFeedback,noHighlight,track,index)  
+  function group:setup(instruction,noAid,_noFeedback,noHighlight,index)  
     self:clear()
     if noAid then
       for i=1,#keys do
@@ -186,7 +185,6 @@ function create(eventFunc,networked,noLogging)
       key:setOctave(octave) 
       key:highlight(not noHighlight)
       key.time=system.getTimer()
-      key.track=track
       key.instructionIndex=index
       key.scientificNote=scientificNote
     end

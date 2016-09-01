@@ -83,7 +83,7 @@ local function switchSong(newTrack)
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(state.get("total mistakes"))
   logger.setSequenceTime(state.getTime())
-     
+  logger.setTrack(track)
   logger.setBank(0)
   logger.setModesDropped(modesDropped)
     
@@ -292,7 +292,7 @@ function nextKey()
   
   local index=getIndex()
   local nextIntruction=song[index]
-  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,track,index)
+  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,index)
 
   if scene.hint then
     scene.hint:removeSelf()
