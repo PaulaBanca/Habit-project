@@ -444,6 +444,7 @@ function scene:show(event)
     logger.setSequenceTime(0)
 
     restart()
+    nextKey()
     if not isStart and rewardType~="none" then
       scene.points=display.newText({
         parent=scene.view,
