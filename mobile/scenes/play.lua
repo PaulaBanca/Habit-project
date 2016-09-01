@@ -107,6 +107,8 @@ local function restart()
     logger.setModesDropped(modesDropped)
     logger.setModeIndex(modeIndex)
     logger.setTotalMistakes(state.get("total mistakes"))
+    logger.setIterations(state.get("iterations"))
+ 
     scene.keys:disable()
     scene.keys:clear()
     transition.to(scene.keys,{y=-scene.keys.height,
