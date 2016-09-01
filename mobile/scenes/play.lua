@@ -31,7 +31,7 @@ local tonumber=tonumber
 
 setfenv(1,scene)
 
-local song
+local sequence
 local maxLearningLength=10
 local learningLength=maxLearningLength
 local track=1
@@ -68,8 +68,8 @@ local function switchSong(newTrack)
   end
   track=newTrack or (track%2)+1
   local songs=tunes.getTunes()
-  song=songs[track]
-  local index=tunes.getStimulus(song)
+  sequence=songs[track]
+  local index=tunes.getStimulus(sequence)
   local img=stimuli.getStimulus(index)
   scene.view:insert(img)
   img.anchorY=0
@@ -92,7 +92,7 @@ local function switchSong(newTrack)
 end
 
 local function getIndex()
-  return state.get("count")%#song+1
+  return state.get("count")%#sequence+1
 end
 
 local function restart()
@@ -291,7 +291,7 @@ function nextKey()
   end
   
   local index=getIndex()
-  local nextIntruction=song[index]
+  local nextIntruction=sequence[index]
   local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,index)
 
   if scene.hint then
@@ -434,7 +434,7 @@ function scene:show(event)
 
     learningLength=maxLearningLength
     switchSong(event.params and event.params.track)
-    song=isStart and startInstructions or song
+    sequence=isStart and startInstructions or sequence
     if isStart or headless then
       scene.img.isVisible=false
       scene.progress.isVisible=false
