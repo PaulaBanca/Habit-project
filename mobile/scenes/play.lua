@@ -261,7 +261,9 @@ function completeRound()
     end
 
     roundCompleteAnimation()
-
+    state.startTimer()
+    logger.setSequenceTime(state.getTime())
+  
     if state.get("rounds")==maxLearningLength*2 then
       practicelogger.logPractice(track)
       daycounter.completedPractice(track)
