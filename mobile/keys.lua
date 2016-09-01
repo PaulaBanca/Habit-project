@@ -222,17 +222,17 @@ function create(eventFunc,networked,noLogging)
     end
     complete=false
     for i=1,#keys do
-      keys[i]:clear()
-      keys[i].time=nil
-      key.track=nil
-      key.instructionIndex=nil
-      key.time=nil
+      local k=keys[i]
+      k:clear()
+      k.time=nil
+      k.instructionIndex=nil
+      k.time=nil
      
-      keys[i]:highlight(false)
-      keys[i].scientificNote=nil
-      if keys[i].sparks then
-        keys[i].sparks:stop()
-        keys[i].sparks=nil
+      k:highlight(false)
+      k.scientificNote=nil
+      if k.sparks then
+        k.sparks:stop()
+        k.sparks=nil
       end
     end
   end
