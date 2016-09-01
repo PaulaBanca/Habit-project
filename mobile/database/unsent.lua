@@ -2,10 +2,11 @@ local M={}
 unsent=M
 
 local database=require "database.database"
+local sqlite3=require "sqlite3"
+local serpent=require "serpent"
 local tostring=tostring
 local print=print
 local pairs=pairs
-local serpent=require "serpent"
 local tonumber=tonumber
 local math=math
 local table=table
@@ -85,25 +86,29 @@ function log(t)
   return database.lastRowID()
 end
 
-local countCmd="select count(ID) from touch limit 50;"
-local getTouchesCmd=[[SELECT * FROM touch ORDER BY ID ASC limit 50;]]
-local countQCmd="select count(ID) from questionnaires limit 50;"
-local getQuestionnairesCmd=[[SELECT * FROM questionnaires ORDER BY ID ASC limit 50;]]
+local hasTouchesCmd="select exists (select 1 from touch); "
+local preparedGetTouches=database.prepare([[SELECT * FROM touch ORDER BY ID ASC limit 50;]])
+local hasQuestionnairesCmd="select exists (select 1 from questionnaires); "
+local preparedGetQuestionnaires=database.prepare([[SELECT * FROM questionnaires ORDER BY ID ASC limit 50;]])
 
-function get(callback)
-  database.runSQLQuery(countCmd,function(udata,cols,values,names)
-    local count=math.min(50,values[1])
-    database.runSQLQuery(getTouchesCmd,function(udata,cols,values,names)
-      count=count-1
-      local col={}
-      for i=1,#names do
-        col[names[i]]=values[i]
-      end
-      callback(col,count==0)
-      return 0
-    end)
-    return 0
-  end)
+function fetch50(preparedStmt,callback)
+  preparedStmt:reset()
+  while true do
+    local res=preparedStmt:step()
+    if res==sqlite3.DONE then
+      return callback(nil,true)
+    end
+    if res==sqlite3.ERROR then
+      error(db:errmsg())
+    end
+    if res==sqlite3.ROW then
+      callback(preparedStmt:get_named_values())
+    end
+  end
+end
+
+function getTouches(callback)
+  fetch50(preparedGetTouches,callback)
 end
 
 local removeSentCmd=[[DELETE FROM touch WHERE ID <= %d;]]
@@ -112,20 +117,7 @@ function clearUpTo(id)
 end
 
 function getQs(callback)
-  database.runSQLQuery(countQCmd,function(udata,cols,values,names)
-    local count=math.min(50,values[1])
-    database.runSQLQuery(getQuestionnairesCmd,function(udata,cols,values,names)
-      count=count-1
-      local col={}
-
-      for i=1,#names do
-        col[names[i]]=(names[i]~="userid" and tonumber(values[i])) or values[i]
-      end
-      callback(col,count==0)
-      return 0
-    end)
-    return 0
-  end)
+  fetch50(preparedGetQuestionnaires,callback)
 end
 
 local removeSentQsCmd=[[DELETE FROM questionnaires WHERE ID <= %d;]]
@@ -153,19 +145,20 @@ function flushQueuedCommands(onComplete)
 end
 
 function hasDataToSend()
-  local total=0
-  database.runSQLQuery(countQCmd,function(udata,cols,values,names)
-    local count=math.min(50,values[1])
-    total=total+count
+  local hasData=false
+  database.runSQLQuery(hasQuestionnairesCmd,function(udata,cols,values,names)
+    hasData=hasData or values[1]>0
     return 0
   end)
-  database.runSQLQuery(countCmd,function(udata,cols,values,names)
-    local count=math.min(50,values[1])
-    total=total+count
+  if hasData then
+    return true
+  end
+  database.runSQLQuery(hasTouchesCmd,function(udata,cols,values,names)
+    hasData=hasData or values[1]>0
     return 0
   end)
 
-  return total~=0
+  return hasData
 end
 
 return M

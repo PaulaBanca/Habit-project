@@ -96,27 +96,30 @@ function log(t)
 end
 
 function send(getFunc,clearFunc,doneFunc,dataName)
-  local count=0
   local b
+  local lastID
   getFunc(function(col,done)
-    if not b then
-      b=parse.batch.new()
-    end
-    b.create(dataName, col)
-    count=count+1
-
     if done then
+      if not b then
+        return
+      end
       parse.request(parse.Object.batch)
         :data(b.getBatch())
         :response(function(ok, res)
         if ok then 
-          clearFunc(col.ID)
+          clearFunc(lastID)
         else
           print ("Err ",type(res)=="table" and serpent.block(res) or res)
         end
         doneFunc()
       end)
+      return
     end
+    if not b then
+      b=parse.batch.new()
+    end
+    b.create(dataName, col)
+    lastID=col.ID
   end)
   return true
 end
@@ -147,7 +150,7 @@ function startCatchUp()
         return
       end
       local nothingToSync=true
-      nothingToSync=nothingToSync and send(unsent.get,unsent.clearUpTo,sendData,"TestingData")
+      nothingToSync=nothingToSync and send(unsent.getTouches,unsent.clearUpTo,sendData,"TestingData")
       nothingToSync=nothingToSync and send(unsent.getQs,unsent.clearQsUpTo,sendData,"TestingData")
 
       if nothingToSync and syncMessage then
