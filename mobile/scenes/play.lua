@@ -364,6 +364,7 @@ function scene:create(event)
     end
     composer.gotoScene("scenes.schedule")
   end)
+  self.cross=cross
 
   local circle=display.newCircle(self.view, playlayout.CX, playlayout.CY, playlayout.RADIUS)
   circle:setFillColor(1,1,1, 0.2)
@@ -445,7 +446,7 @@ function scene:show(event)
       scene.points=display.newText({
         parent=scene.view,
         text=0,
-        x=display.contentWidth*3/4,
+        x=display.contentWidth-self.cross.width,
         y=20,
         fontSize=40
       })
