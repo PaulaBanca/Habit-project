@@ -115,13 +115,11 @@ function scene:show(event)
       self.timer=timer.performWithDelay(60*1000, function()
         self.timer=nil
         local logField=logger.create(event.params.countShapes and "shapecounter" or "practice_tune_summary",{"shapes","user counted","date","sequence","sequences completed","mistakes"})
-        logField("date",os.date())
-        logField("user counted","n/a")
-        logField("shapes","n/a")
         logField("sequence",tunePracticing or "n/a")
         logField("sequences completed",tunePracticing and completedSequences or "n/a")
         logField("mistakes",tunePracticing and mistakes or "n/a")
-        
+        logField("date",os.date())
+              
         if event.params.countShapes then
           composer.hideOverlay("scenes.shapecounter")
           if tuneCount then
@@ -135,6 +133,7 @@ function scene:show(event)
             elseif event.phase == "ended" or event.phase == "submitted" and tonumber(event.target.text) then
               logField("user counted",event.target.text,true)
               logField("shapes",composer.getVariable("shapes"),true)
+                         
               defaultField:removeSelf()
               composer.gotoScene("scenes.practiceintro",{params={page=page}}) 
             elseif event.phase == "editing" then
@@ -158,7 +157,10 @@ function scene:show(event)
           display.newRect(self.view,display.contentCenterX, display.contentCenterY, 184, 84 ):setFillColor(0)
 
        else
-        composer.gotoScene("scenes.practiceintro",{params={page=event.params.page}}) 
+          logField("user counted","n/a")
+          logField("shapes","n/a")
+          
+          composer.gotoScene("scenes.practiceintro",{params={page=event.params.page}}) 
        end
       end)
     end
