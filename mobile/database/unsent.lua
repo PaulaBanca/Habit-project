@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS touch (
   x INTEGER NOT NULL,
   y INTEGER NOT NULL,
   date TEXT NOT NULL,
-  time INTEGER NOT NULL,
+  time TEXT NOT NULL,
+  appMillis INTEGER NOT NULL,
   delay INTEGER,
   wasCorrect TEXT NOT NULL,
   complete TEXT,
@@ -47,18 +48,19 @@ database.runSQLQuery(createTableCmd)
 local createTableCmd=[[
 CREATE TABLE IF NOT EXISTS questionnaires (
   ID INTEGER PRIMARY KEY ASC AUTOINCREMENT,
+  date TEXT NOT NULL,
+  time TEXT NOT NULL,
   confidence_melody_1 INTEGER,
   confidence_melody_2 INTEGER,
   pleasure_melody_1 INTEGER,
   pleasure_melody_2 INTEGER,
-  date TEXT NOT NULL,
   userid TEXT NOT NULL
 );
 ]]
 database.runSQLQuery(createTableCmd)
 
-local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES ("%s",%d,%d,"%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s","%s","%s",%d);]]
-local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,date,userid) VALUES (%s,%s,%s,%s,"%s","%s");]]
+local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES ("%s",%d,%d,"%s","%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s","%s","%s",%d);]]
+local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,date,time,userid) VALUES (%s,%s,%s,%s,"%s","%s","%s");]]
 
 local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES (:touchPhase,:x,:y,:date,:time,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:userid,:timeIntoSequence,:intro,:mistakes);]])
 
@@ -66,7 +68,7 @@ local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,t
 local queuedCommands={}
 function log(t)
   if t.touchPhase then
-    t.delay=tostring(t.delay or "NULL")
+    t.delay=tostring(t.delay or "-1")
     t.wasCorrect =tostring(t.wasCorrect or "false")
     t.complete=tostring(t.complete)
     t.track =tostring(t.track or "NULL")
@@ -81,7 +83,7 @@ function log(t)
     t.mistakes=(t.mistakes or 0)    
     queuedCommands[#queuedCommands+1]=t
   else
-    database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.date,t.userid))
+    database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.date,t.time,t.userid))
   end
   return database.lastRowID()
 end

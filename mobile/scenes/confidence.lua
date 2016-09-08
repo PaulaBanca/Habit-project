@@ -118,7 +118,8 @@ function scene:show(event)
       self.view[i]:removeSelf()
     end
 
-    data["date"]=os.date()
+    data["date"]=os.date("%F")
+    data["time"]=os.date("%T")
     logger.log(data)
     composer.gotoScene("scenes.schedule")
   end)

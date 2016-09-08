@@ -116,7 +116,19 @@ function create(eventFunc,networked,noLogging)
           keyInstance.setPressed(true)
         end
         if logData then
-          logger.log({touchPhase=event.phase,x=event.x,y=event.y,date=os.date(), time=event.time,delay=keyInstance.time and (event.time-keyInstance.time), wasCorrect=wasCorrect,complete=complete,instructionIndex=keyInstance.instructionIndex,keyIndex=keyInstance.index})
+          logger.log({
+            touchPhase=event.phase,
+            x=event.x,
+            y=event.y,
+            time=os.date("%T"), 
+            date=os.date("%F"), 
+            appMillis=event.time,
+            delay=keyInstance.time and (event.time-keyInstance.time), 
+            wasCorrect=wasCorrect,
+            complete=complete,
+            instructionIndex=keyInstance.instructionIndex,
+            keyIndex=keyInstance.index
+          })
         end
 
         display.getCurrentStage():setFocus(event.target,event.id)
@@ -135,8 +147,9 @@ function create(eventFunc,networked,noLogging)
             touchPhase=event.phase,
             x=event.x,
             y=event.y,
-            date=os.date(),
-            time=event.time,
+            time=os.date("%T"),
+            date=os.date("%F"),
+            appMillis=event.time,
             delay=keyInstance.time and (event.time-keyInstance.time),
             wasCorrect=wasCorrect,
             complete=complete,
