@@ -2,8 +2,8 @@ local M={}
 logger=M
 
 local jsonreader=require "jsonreader"
-local parse = require('plugin.parse')
 local user=require "user"
+local json=require "json"
 local serpent=require "serpent"
 local unsent=require "database.unsent"
 local system=system
@@ -17,36 +17,9 @@ local pairs=pairs
 local ipairs=ipairs
 local display=display
 local type=type
+local network=network
 
 setfenv(1,M)
-
-function createLoginCallback(callback)
-  local sessionToken
-  return function(ok,res,info)
-    if not ok then
-      print('err', type (res)=="table" and serpent.block(res) or res )
-      callback(false,res)
-    else
-      sessionToken=res.sessionToken
-      if not sessionToken then
-        return callback(false,res.error)
-      end
-      callback(true)
-    end
-  end
-end
-
-function create(userid,password,callback)
-  parse.request(parse.User.create)
-    :data({username=userid, password=password})
-    :response(createLoginCallback(callback))
-end
-
-function login(userid,password,callback)
-  parse.request(parse.User.login)
-    :options({username=userid, password=password})
-    :response(createLoginCallback(callback))
-end
 
 local additionalData={}
 function setModesDropped(modes)
@@ -99,30 +72,52 @@ function log(t)
   unsent.log(t)
 end
 
-function send(getFunc,clearFunc,doneFunc,dataName)
+local params={}
+params.progress="upload"
+params.body=json.encode({dataField,dataField,dataField})
+
+function send(getFunc,clearFunc,doneFunc)
   local b
   local lastID
+  local cols={}
   getFunc(function(col,done)
     if done then
-      if not b then
+      if #cols==0 then
         return
       end
-      parse.request(parse.Object.batch)
-        :data(b.getBatch())
-        :response(function(ok, res)
-        if ok then 
-          clearFunc(lastID)
-        else
-          print ("Err ",type(res)=="table" and serpent.block(res) or res)
-        end
+
+      local quitOut
+      local function doneWrapper()
+        assert(not quitOut,"Done Wrapper called twice!")
+        quitOut=true
         doneFunc()
-      end)
+      end
+      local listener=function(event)
+        if event.isError then
+            print("Network error: ", event.response, " Status " , event.status)
+            doneWrapper()
+            return
+        else 
+          if event.phase=="progress" then
+            print ((event.bytesTransferred*100/event.bytesEstimated).."%")
+          elseif event.phase=="ended" then
+            if event.status>=200 and event.status<=201 then
+              clearFunc(lastID)
+            else
+              print("Network error: ", event.response, " Status " , event.status)
+            end
+            doneWrapper()
+          end
+        end
+      end
+
+      local params={}
+      params.progress="upload"
+      params.body=json.encode(cols)
+      network.request("http://multipad-server.herokuapp.com/submit", "POST", listener, params)
       return
     end
-    if not b then
-      b=parse.batch.new()
-    end
-    b.create(dataName, col)
+    cols[#cols+1]=col
     lastID=col.ID
   end)
   return true
@@ -154,8 +149,8 @@ function startCatchUp()
         return
       end
       local nothingToSync=true
-      nothingToSync=nothingToSync and send(unsent.getTouches,unsent.clearUpTo,sendData,"TestingData")
-      nothingToSync=nothingToSync and send(unsent.getQs,unsent.clearQsUpTo,sendData,"TestingData")
+      nothingToSync=nothingToSync and send(unsent.getTouches,unsent.clearUpTo,sendData)
+      nothingToSync=nothingToSync and send(unsent.getQs,unsent.clearQsUpTo,sendData)
 
       if nothingToSync and syncMessage then
         syncMessage:removeSelf()

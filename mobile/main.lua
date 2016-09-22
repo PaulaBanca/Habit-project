@@ -1,16 +1,9 @@
-local parse = require('plugin.parse')
-parse.config:applicationId("J61IWCuJi9pypnawF08WbXKAuGWe8etX8KlPvvgK")
-parse.config:restApiKey("4CruXhgcY3K5PXJGbfJh7CZKHPl4ODAGctPceVA8")
-
 require "constants"
 require "effects.effects"
 display.setStatusBar(display.HiddenStatusBar)
 system.activate("multitouch")
 
 local user=require "user"
-local logger=require "logger"
-logger.startCatchUp()
-
 function start()
   local key=require "key"
   native.setActivityIndicator(true)
