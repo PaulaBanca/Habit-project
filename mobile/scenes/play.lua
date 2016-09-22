@@ -121,7 +121,7 @@ local function restart()
     transition.to(scene.keys,{alpha=1})
   end
 
-   if scene.bank then
+  if scene.bank then
     scene.bank.isVisible=false
     scene.bank:setScore(0)
     if scene.rewardPoints then
@@ -151,7 +151,10 @@ local function madeMistake(bg)
   bg:toFront()
   bg.alpha=1
   transition.to(bg,{alpha=0})
-  timer.performWithDelay(250,restart)
+  timer.performWithDelay(250,function()
+    restart()
+    nextKey()
+  end)
 end
 
 local function processRewards()
