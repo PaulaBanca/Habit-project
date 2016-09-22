@@ -269,10 +269,12 @@ function completeRound()
       daycounter.completedPractice(track)
       timer.performWithDelay(600, function()
         composer.gotoScene("scenes.score",{params={score=tonumber(scene.points.text),track=track}})
+      composer.hideOverlay()
       end)
       return true
     end
     if isStart then
+      composer.hideOverlay()
       composer.gotoScene("scenes.schedule")
       return true
     end
@@ -417,6 +419,8 @@ end
 
 function scene:show(event)
   if event.phase=="did" then
+    composer.showOverlay("scenes.dataviewer")
+
     logger.stopCatchUp()
     isStart=event.params and event.params.intro
     headless=event.params and event.params.headless

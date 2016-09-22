@@ -163,4 +163,8 @@ function hasDataToSend()
   return hasData
 end
 
+function getUnsent()
+  return queuedCommands
+end
+
 return M
