@@ -7,7 +7,7 @@ setfenv(1,M)
 
 local function blankState()
   return {
-    count=-1,
+    count=0,
     mistakes=0,
     lastChanged=0,
     prevState,
@@ -48,7 +48,7 @@ function create()
   end
   
   function t.restart()
-    state.count=-1
+    state.count=0
     t.startTimer()
   end
 
