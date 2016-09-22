@@ -43,6 +43,10 @@ function step(prepared)
     if res==sqlite3.ERROR then
       error(db:errmsg())
     end
+    if res==sqlite3.BUSY then
+    elseif res==sqlite3.MISUSE then
+      error("MISUSE")
+    end
   end
   prepared:reset()
 end
