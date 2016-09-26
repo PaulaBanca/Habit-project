@@ -151,10 +151,8 @@ local function madeMistake(bg)
   bg:toFront()
   bg.alpha=1
   transition.to(bg,{alpha=0})
-  timer.performWithDelay(250,function()
-    restart()
-    nextKey()
-  end)
+  restart()
+  nextKey()
 end
 
 local function processRewards()
@@ -390,7 +388,10 @@ function scene:createKeys()
   if self.keyBounds then
     self.keyBounds:removeSelf()
   end
-  local keys=keys.create(function(wasCorrect)
+  local keys=keys.create(function(wasCorrect,instructionIndex)
+    if instructionIndex and instructionIndex~=getIndex() then
+      return
+    end
     if not wasCorrect then
       madeMistake(self.redBackground)
     end

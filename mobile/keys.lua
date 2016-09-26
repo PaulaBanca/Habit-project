@@ -106,7 +106,7 @@ function create(eventFunc,networked,noLogging)
             notesPlayed[#notesPlayed+1]=keys[k].scientificNote
           end
         else
-          eventFunc(false or networked)
+          eventFunc(false or networked,keyInstance.instructionIndex)
         end
         local note=keyInstance.note
         if note then
@@ -160,12 +160,12 @@ function create(eventFunc,networked,noLogging)
         end
 
         if wasCorrect and not complete then
-          eventFunc(false or networked)
+          eventFunc(false or networked,keyInstance.instructionIndex)
         end
 
         if complete and not next(currentlyPressedKeys) then
           complete=false
-          eventFunc(true)
+          eventFunc(true,keyInstance.instructionIndex)
         end
 
         timer.performWithDelay(100, function()          
