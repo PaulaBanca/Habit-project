@@ -11,6 +11,7 @@ local clientloop=require "clientloop"
 local logger=require "logger"
 local keylayout=require "keylayout"
 local serpent=require "serpent"
+local _=require "util.moses"
 local os=os
 local display=display
 local system=system
@@ -40,7 +41,7 @@ end
 
 function create(eventFunc,networked,noLogging)
   local group=display.newGroup()
-  
+  networked=networked or false
   local keys={}
   local complete
   local currentlyPressedKeys={}
@@ -69,6 +70,24 @@ function create(eventFunc,networked,noLogging)
       touchLine.isVisible=on
     end
 
+    function keyInstance:startSparks()
+      if self.sparks or not self.colour then
+        return
+      end
+
+      local e=display.newEmitter(configureSparks(self.colour))
+      e:translate(self.x,self.y)
+      self.sparks=e
+    end
+
+    function keyInstance:stopSparks()
+      if not self.sparks then
+        return 
+      end
+      self.sparks:stop()
+      self.sparks=nil
+    end
+
     local wasCorrect=false
     local img=keyInstance.getTouchImg()
     img.tap=function(self,event)
@@ -77,9 +96,6 @@ function create(eventFunc,networked,noLogging)
     img.touch=function(self,event) 
       if event.phase=="began" then
         wasCorrect=targetKeys[i] and not currentlyPressedKeys[i] or networked
-        if wasCorrect==nil then
-          wasCorrect=false
-        end
         currentlyPressedKeys[i]=true    
         if keyInstance.onPress then
           keyInstance.onPress(wasCorrect)
@@ -90,21 +106,11 @@ function create(eventFunc,networked,noLogging)
         end
   
         if wasCorrect then
-          if not keyInstance.sparks and not noFeedback and keyInstance.colour then
-            local e=display.newEmitter(configureSparks(keyInstance.colour))
-            e:translate(keyInstance.x,keyInstance.y)
-            keyInstance.sparks=e
+          if not noFeedback then
+            keyInstance:startSparks()
           end
-
-          complete=true
-          local notesPlayed={}
-          for k=1,#keys do
-            if targetKeys[k]~=currentlyPressedKeys[k] then
-              complete=false
-              break
-            end
-            notesPlayed[#notesPlayed+1]=keys[k].scientificNote
-          end
+          
+          complete=_.isEqual(targetKeys,currentlyPressedKeys)
         else
           eventFunc(false or networked,keyInstance.instructionIndex)
         end
@@ -169,10 +175,7 @@ function create(eventFunc,networked,noLogging)
         end
 
         timer.performWithDelay(100, function()          
-          if keyInstance.sparks then
-            keyInstance.sparks:stop()
-            keyInstance.sparks=nil
-          end
+          keyInstance:stopSparks()
           keyInstance.setPressed(false)
         end)
         return true
