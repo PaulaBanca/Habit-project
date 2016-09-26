@@ -117,6 +117,11 @@ function send(getFunc,clearFunc,doneFunc)
       network.request("http://multipad-server.herokuapp.com/submit", "POST", listener, params)
       return
     end
+    for k,v in pairs(col) do
+      if v=="NULL" then
+        col[k]=nil
+      end
+    end
     cols[#cols+1]=col
     lastID=col.ID
   end)
