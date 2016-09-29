@@ -48,10 +48,10 @@ local nextRewardTime
 local roundStart
 
 local startInstructions={
-  "c4",
-  "a4",
-  "d4",
-  "g4",
+  {chord={"c4","none","none","none"},forceLayout=true},
+  {chord={"none","a4","none","none"},forceLayout=true},
+  {chord={"none","none","d4","none"},forceLayout=true},
+  {chord={"none","none","none","g4"},forceLayout=true},
   {chord={"c3","e4","g4","c4"},forceLayout=true},
   {chord={"a3","c4","e4","a4"},forceLayout=true},
   {chord={"f3","a4","c4","f4"},forceLayout=true},
