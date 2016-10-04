@@ -45,7 +45,6 @@ local state
 local intervalTime=5000
 local intervalSpread=3000
 local nextRewardTime
-local roundStart
 
 local startInstructions={
   {chord={"c4","none","none","none"},forceLayout=true},
@@ -130,7 +129,6 @@ local function restart()
     end
   end
 
-  roundStart=system.getTimer()
   state.restart()
   scene.keys:clear()
 end
