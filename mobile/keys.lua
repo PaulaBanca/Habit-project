@@ -93,10 +93,12 @@ function create(eventFunc,networked,noLogging)
     img.tap=function(self,event)
       return wasCorrect
     end
+    local stepID
     img.touch=function(self,event) 
       if event.phase=="began" then
         wasCorrect=targetKeys[i] and not currentlyPressedKeys[i] or networked
         currentlyPressedKeys[i]=true    
+        stepID=keyInstance.stepID
         if keyInstance.onPress then
           keyInstance.onPress(wasCorrect)
         end
@@ -112,7 +114,7 @@ function create(eventFunc,networked,noLogging)
           
           complete=_.isEqual(targetKeys,currentlyPressedKeys)
         else
-          eventFunc(false or networked,keyInstance.instructionIndex)
+          eventFunc(false or networked,stepID)
         end
         local note=keyInstance.note
         if note then
@@ -166,12 +168,12 @@ function create(eventFunc,networked,noLogging)
         end
 
         if wasCorrect and not complete then
-          eventFunc(false or networked,keyInstance.instructionIndex)
+          eventFunc(false or networked,stepID)
         end
 
         if complete and not next(currentlyPressedKeys) then
           complete=false
-          eventFunc(true,keyInstance.instructionIndex)
+          eventFunc(true,stepID)
         end
 
         timer.performWithDelay(100, function()          
@@ -185,7 +187,7 @@ function create(eventFunc,networked,noLogging)
     img:addEventListener("touch")
   end
 
-  function group:setup(instruction,noAid,_noFeedback,noHighlight,index)  
+  function group:setup(instruction,noAid,_noFeedback,noHighlight,index,stepID)
     self:clear()
     if noAid then
       for i=1,#keys do
@@ -202,6 +204,7 @@ function create(eventFunc,networked,noLogging)
       key:highlight(not noHighlight)
       key.time=system.getTimer()
       key.instructionIndex=index
+      key.stepID=stepID
       key.scientificNote=scientificNote
     end
 
@@ -241,6 +244,7 @@ function create(eventFunc,networked,noLogging)
       k.time=nil
       k.instructionIndex=nil
       k.time=nil
+      k.stepID=nil
      
       k:highlight(false)
       k.scientificNote=nil

@@ -14,6 +14,7 @@ local function blankState()
     iterations=0,
     rounds=0,
     timerStart=0,
+    stepID=0,
     ["total mistakes"]=0
   }
 end

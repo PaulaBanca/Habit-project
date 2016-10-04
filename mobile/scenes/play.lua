@@ -301,9 +301,10 @@ function setupNextKeys()
     return
   end
   
+  state.increment("stepID")
   local index=getIndex()
   local nextIntruction=sequence[index]
-  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,index)
+  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,index,state.get("stepID"))
 
   if scene.hint then
     scene.hint:removeSelf()
@@ -391,8 +392,8 @@ function scene:createKeys()
   if self.keyBounds then
     self.keyBounds:removeSelf()
   end
-  local keys=keys.create(function(wasCorrect,instructionIndex)
-    if instructionIndex and instructionIndex~=getIndex() then
+  local keys=keys.create(function(wasCorrect,stepID)
+    if stepID and stepID~=state.get("stepID") then
       return
     end
     timer.performWithDelay(1,function()
