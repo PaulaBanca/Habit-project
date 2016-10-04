@@ -62,13 +62,16 @@ function setTrack(track)
   additionalData["track"]=track
 end 
 
+function createLoggingTable()
+  local t={}
+  for k, v in pairs(additionalData) do
+    t[k]=v    
+  end
+  return t
+end
+
 function log(t)
   t.userid=user.getID()
-  if not t.pleasure_melody_1 then
-    for k, v in pairs(additionalData) do
-      t[k]=v    
-    end
-  end
   unsent.log(t)
 end
 

@@ -93,6 +93,7 @@ function create(eventFunc,networked,noLogging)
     img.tap=function(self,event)
       return wasCorrect
     end
+    local endedLoggingTable
     local stepID
     img.touch=function(self,event) 
       if event.phase=="began" then
@@ -124,19 +125,22 @@ function create(eventFunc,networked,noLogging)
           keyInstance.setPressed(true)
         end
         if logData then
-          logger.log({
-            touchPhase=event.phase,
-            x=event.x,
-            y=event.y,
-            time=os.date("%T"), 
-            date=os.date("%F"), 
-            appMillis=event.time,
-            delay=keyInstance.time and (event.time-keyInstance.time), 
-            wasCorrect=wasCorrect,
-            complete=complete,
-            instructionIndex=keyInstance.instructionIndex,
-            keyIndex=keyInstance.index
-          })
+          local data=logger.createLoggingTable()
+          endedLoggingTable=logger.createLoggingTable()
+          data.touchPhase=event.phase
+          data.x=event.x
+          data.y=event.y
+          data.time=os.date("%T")
+          data.date=os.date("%F")
+          data.appMillis=event.time
+          data.delay=keyInstance.time and (event.time-keyInstance.time)
+          data.wasCorrect=wasCorrect
+          data.complete=complete
+          data.instructionIndex=keyInstance.instructionIndex
+          data.keyIndex=keyInstance.index
+          endedLoggingTable.instructionIndex=keyInstance.instructionIndex
+
+          logger.log(data)
         end
 
         display.getCurrentStage():setFocus(event.target,event.id)
@@ -151,20 +155,20 @@ function create(eventFunc,networked,noLogging)
         end
     
         if logData then
-          local data={
-            touchPhase=event.phase,
-            x=event.x,
-            y=event.y,
-            time=os.date("%T"),
-            date=os.date("%F"),
-            appMillis=event.time,
-            delay=keyInstance.time and (event.time-keyInstance.time),
-            wasCorrect=wasCorrect,
-            complete=complete,
-            instructionIndex=keyInstance.instructionIndex,
-            keyIndex=keyInstance.index
-          }
+          local data=endedLoggingTable
+          assert(data)
+          data.touchPhase=event.phase
+          data.x=event.x
+          data.y=event.y
+          data.time=os.date("%T")
+          data.date=os.date("%F")
+          data.appMillis=event.time
+          data.delay=keyInstance.time and (event.time-keyInstance.time)
+          data.wasCorrect=wasCorrect
+          data.complete=complete
+          data.keyIndex=keyInstance.index
           logger.log(data)
+          endedLoggingTable=nil
         end
 
         if wasCorrect and not complete then
