@@ -87,7 +87,30 @@ local function switchSong(newTrack)
   logger.setModesDropped(modesDropped)
     
   learningLength=maxLearningLength
-  nextKey()
+  setupNextKeys()
+end
+
+local function roundCompleteAnimation()
+  local p=display.newEmitter(particles.load("sequenceright"))
+  p.blendMode="add"
+  p:translate(display.contentCenterX, display.contentCenterY)
+  sound.playSound("correct")
+  transition.to(p, {time=2000,alpha=0,onComplete=function() 
+    p:removeSelf()
+  end})
+end
+
+local function keyChangeAnimation()
+  scene.keys:disable()
+  transition.to(scene.keys,{y=display.contentHeight+scene.keys.height,
+    onComplete=function(obj) 
+    if obj.removeSelf then
+      obj:removeSelf()
+    end
+  end})
+  scene:createKeys()
+  scene.keys.alpha=0
+  transition.to(scene.keys,{alpha=1})
 end
 
 local function getIndex()
@@ -150,14 +173,13 @@ local function madeMistake(bg)
   bg.alpha=1
   transition.to(bg,{alpha=0})
   restart()
-  nextKey()
 end
 
-local function processRewards()
+local function processBank()
   if rewardType=="none" then
     return
   end
-  local earned=tonumber(scene.bank:getScore())+tonumber(scene.rewardPoints:getPoints())
+  local earned=tonumber(scene.bank:getScore())
   if rewardType=="random" and math.random(100)>37 then
     earned=0
   end
@@ -175,10 +197,6 @@ local function processRewards()
   
   scene.bank:setScore(0)
   scene.bank.isVisible=false
-  if scene.rewardPoints then
-    scene.rewardPoints:removeSelf()
-    scene.rewardPoints=nil
-  end
 
   transition.to(t,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=1,onComplete=function(obj)
     obj:removeSelf()
@@ -188,36 +206,14 @@ local function processRewards()
   end})
 end
 
-local function roundCompleteAnimation()
-  local p=display.newEmitter(particles.load("sequenceright"))
-  p.blendMode="add"
-  p:translate(display.contentCenterX, display.contentCenterY)
-  sound.playSound("correct")
-  transition.to(p, {time=2000,alpha=0,onComplete=function() 
-    p:removeSelf()
-  end})
-end
-
-local function keyChangeAnimation()
-  scene.keys:disable()
-  transition.to(scene.keys,{y=display.contentHeight+scene.keys.height,
-    onComplete=function(obj) 
-    if obj.removeSelf then
-      obj:removeSelf()
-    end
-  end})
-  scene:createKeys()
-  scene.keys.alpha=0
-  transition.to(scene.keys,{alpha=1})
-end
-
 local function shouldChangeModeUp()
   return state.get("iterations")>=learningLength
 end  
 
 local function changeModeUp()
-  state.clear("iterations")
   state.pullState()
+  state.clear("mistakes")
+  state.clear("iterations")
  
   modeIndex=modeIndex+1
   if modeIndex>#modes then
@@ -236,59 +232,71 @@ local function changeModeUp()
   keyChangeAnimation()
 end
 
+function hasCompletedRound()
+  local index=getIndex()
+  return index==#sequence and state.get("count")>0
+end
+
 function completeRound()
   if scene.keys:hasPendingInstruction() then
     return
   end
-  scene.keys:clear(true)
   if headless then
     return
   end
-  
+  if not hasCompletedRound() then
+    return
+  end
+
+  if not isStart and modesDropped==0 then
+    state.increment("rounds")
+    local rounds=state.get("rounds")
+    if rounds<maxLearningLength*2 then
+      scene.progress:mark(rounds,state.get("mistakes")==0)
+    end
+    processBank()
+  end
+
+  roundCompleteAnimation()
+  state.startTimer()
+  logger.setSequenceTime(state.getTime())
+
+  state.increment("iterations")
+  state.clear("mistakes")
+  scene.keys:clear()
+
+  if shouldChangeModeUp() then
+    changeModeUp()
+  end
+
+  logger.setIterations(state.get("iterations"))
+end
+
+function proceedToNextStep()
+  scene.keys:clear(true)
   state.increment()
   logger.setSequenceTime(state.getTime())
-  
-  local index=getIndex()
-  if index==1 and state.get("count")>0 then
-    if not isStart and modesDropped==0 then
-      state.increment("rounds")
-      local rounds=state.get("rounds")
-      if rounds<maxLearningLength*2 then
-        scene.progress:mark(rounds,state.get("mistakes")==0)
-      end
-      processRewards()
-    end
+end  
 
-    roundCompleteAnimation()
-    state.startTimer()
-    logger.setSequenceTime(state.getTime())
-  
-    if state.get("rounds")==maxLearningLength*2 then
-      practicelogger.logPractice(track)
-      daycounter.completedPractice(track)
-      timer.performWithDelay(600, function()
-        composer.gotoScene("scenes.score",{params={score=tonumber(scene.points.text),track=track}})
+function hasCompletedTask()
+  if state.get("rounds")==maxLearningLength*2 then
+    scene.keys:removeSelf()
+    practicelogger.logPractice(track)
+    daycounter.completedPractice(track)
+    timer.performWithDelay(600, function()
+      composer.gotoScene("scenes.score",{params={score=tonumber(scene.points.text),track=track}})
       composer.hideOverlay()
-      end)
-      return true
-    end
-    if isStart then
-      composer.hideOverlay()
-      composer.gotoScene("scenes.schedule")
-      return true
-    end
-
-    state.increment("iterations")
-    state.clear("mistakes")
-    scene.keys:clear()
-    if shouldChangeModeUp() then
-      changeModeUp()
-    end
-    logger.setIterations(state.get("iterations"))
+    end)
+    return true
+  end
+  if isStart then
+    composer.hideOverlay()
+    composer.gotoScene("scenes.schedule")
+    return true
   end
 end
 
-function nextKey()
+function setupNextKeys()
   if scene.keys:hasPendingInstruction() or headless then
     return
   end
@@ -310,35 +318,32 @@ function nextKey()
       hint:toBack()
     end
   end
+end
 
-  if not headless and not isStart then
-    if scene.rewardPoints then
-      local amount=tonumber(scene.rewardPoints:getPoints())
-      if scene.bank and amount>0 and modesDropped==0 then
-        scene.bank:setScore(tonumber(scene.bank:getScore())+amount)
-        
-        -- scene.bank.isVisible=true
-        -- local t=scene.rewardPoints:clonePoints()
-        -- local x,y=t:localToContent(t.width/2, 0)
-        -- scene.view:insert(t)
-        -- t.x,t.y=x,y
-        -- transition.to(t,{anchorX=0.5,xScale=2,yScale=2,x=scene.bank.x,y=scene.bank.y,alpha=0,onComplete=function(obj) 
-        --   obj:removeSelf()
-        -- end})
-        -- timer.performWithDelay(1, function() t:toFront() end)
-      end
-      scene.rewardPoints:removeSelf()
-    end
-    if rewardType~="none" then
-      scene.rewardPoints=rewardType=="timed" and countdownpoints.create(100,1000) or countdownpoints.create(200,1000)
-      scene.rewardPoints.isVisible=false
-      scene.rewardPoints:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2+35)
-      scene.view:insert(scene.rewardPoints)
-      scene.redBackground:toFront()
-      if modesDropped>0 then 
-        scene.rewardPoints.isVisible=false
-      end
-    end
+function setUpReward()
+  if rewardType=="none" then
+    return 
+  end
+  scene.rewardPoints=rewardType=="timed" and countdownpoints.create(100,1000) or countdownpoints.create(200,1000)
+  scene.rewardPoints.isVisible=false
+  scene.rewardPoints:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2+35)
+  scene.view:insert(scene.rewardPoints)
+  scene.redBackground:toFront()
+  if modesDropped>0 then 
+    scene.rewardPoints.isVisible=false
+  end
+end
+
+function bankPoints()
+  if headless or isStart or not scene.rewardPoints 
+    or not scene.bank or modesDropped>0 then
+    return
+  end
+  local amount=tonumber(scene.rewardPoints:getPoints())
+  if amount>0 then
+    scene.bank:setScore(tonumber(scene.bank:getScore())+amount)
+    scene.rewardPoints:removeSelf()
+    scene.rewardPoints=nil
   end
 end
 
@@ -390,12 +395,22 @@ function scene:createKeys()
     if instructionIndex and instructionIndex~=getIndex() then
       return
     end
-    if not wasCorrect then
-      madeMistake(self.redBackground)
-    end
-    if not completeRound() then
-      timer.performWithDelay(1,nextKey)
-    end
+    timer.performWithDelay(1,function()
+      if not wasCorrect then
+        madeMistake(self.redBackground)
+      else 
+        bankPoints()
+        if hasCompletedRound() then
+          completeRound()
+          if hasCompletedTask() then
+            return
+          end
+        end
+        proceedToNextStep()
+        setUpReward()
+      end
+      setupNextKeys()
+    end)
   end,headless,isStart)
   if self.keys then
     self.keys:removeSelf()
@@ -452,7 +467,9 @@ function scene:show(event)
     logger.setSequenceTime(0)
 
     restart()
-    nextKey()
+    setupNextKeys()
+    setUpReward()
+
     if not isStart and rewardType~="none" then
       scene.points=display.newText({
         parent=scene.view,
@@ -488,7 +505,6 @@ function scene:show(event)
       end
     end
   else
-    state=playstate.create()
     local p=progress.create(200,40,{maxLearningLength,maxLearningLength})
     p.anchorChildren=true
     p.anchorX=0
