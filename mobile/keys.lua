@@ -266,7 +266,9 @@ function create(eventFunc,networked,noLogging)
 
   function group:disable()
     for i=1, #keys do 
-      keys[i].getTouchImg():removeEventListener("touch")
+      local img=keys[i].getTouchImg()
+      img:removeEventListener("touch")
+      img:removeEventListener("tap")
     end
   end
 
