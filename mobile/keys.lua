@@ -148,7 +148,7 @@ function create(eventFunc,networked,noLogging)
         return true
       end
       if event.phase=="ended" or event.phase=="cancelled" then
-        display.getCurrentStage():setFocus(nil,event.id)
+        display.getCurrentStage():setFocus(event.target,nil)
         currentlyPressedKeys[i]=nil
         if networked then
           clientloop.sendEvent({type="key released",note=keyInstance. 
