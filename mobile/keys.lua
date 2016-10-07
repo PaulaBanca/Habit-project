@@ -22,6 +22,7 @@ local pairs=pairs
 local print=print
 local tostring=tostring
 local next=next
+local assert=assert
 local NUM_KEYS=NUM_KEYS
 
 setfenv(1,M)
