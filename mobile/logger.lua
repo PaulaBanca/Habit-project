@@ -105,7 +105,9 @@ function send(getFunc,clearFunc,doneFunc)
             print ((event.bytesTransferred*100/event.bytesEstimated).."%")
           elseif event.phase=="ended" then
             if event.status>=200 and event.status<=201 then
-              clearFunc(lastID)
+              if event.response=="OK" then
+                clearFunc(lastID)
+              end
             else
               print("Network error: ", event.response, " Status " , event.status)
             end
