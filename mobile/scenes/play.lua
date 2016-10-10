@@ -28,6 +28,7 @@ local tostring=tostring
 local table=table
 local easing=easing
 local tonumber=tonumber
+local Runtime=Runtime
 
 setfenv(1,scene)
 
@@ -540,5 +541,11 @@ end
 scene:addEventListener("create")
 scene:addEventListener("show")
 scene:addEventListener("hide")
+
+Runtime:addEventListener("system", function (event)
+  if event.type=="applicationResume" then
+    composer.gotoScene("scenes.schedule")
+  end
+end)
 
 return scene
