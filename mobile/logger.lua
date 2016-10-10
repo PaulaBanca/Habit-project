@@ -54,6 +54,10 @@ function setPractices(practices)
   additionalData["practices"]=practices
 end
 
+function setAttempts(attempts)
+  additionalData["attempt"]=attempts
+end
+
 function setTotalMistakes(mistakes)
   additionalData["mistakes"]=mistakes
 end 

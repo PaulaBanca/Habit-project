@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS touch (
   bank INTEGER,
   score INTEGER,
   practices INTEGER,
+  attempt INTEGER,
   userid TEXT NOT NULL,
   timeIntoSequence INTEGER NOT NULL,
   intro TEXT NOT NULL,
@@ -59,10 +60,9 @@ CREATE TABLE IF NOT EXISTS questionnaires (
 ]]
 database.runSQLQuery(createTableCmd)
 
-local insertTouchCmd=[[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES ("%s",%d,%d,"%s","%s",%d,%s,"%s","%s",%s,%s,%s,%s,%s,%s,%s,%s,%d,"%s","%s","%s",%d);]]
 local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,date,time,userid) VALUES (%s,%s,%s,%s,"%s","%s","%s");]]
 
-local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,userid,timeIntoSequence,intro,mistakes) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:userid,:timeIntoSequence,:intro,:mistakes);]])
+local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,attempt,userid,timeIntoSequence,intro,mistakes) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:attempt,:userid,:timeIntoSequence,:intro,:mistakes);]])
 
 
 local queuedCommands={}

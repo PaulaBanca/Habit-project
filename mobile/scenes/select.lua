@@ -43,6 +43,8 @@ function scene:show(event)
     img.tap=function() 
       img:removeEventListener("tap")
       logger.setPractices(practice)
+      practicelogger.logAttempt(track)
+      logger.setAttempts(practicelogger.getAttempts(track))
       composer.gotoScene("scenes.play",{params={track=track,difficulty=math.ceil(practice/3),rewardType=noReward and "none" or ((i+self.modeSelect)%2+1==1 and "timed" or "random")}})
     end
     img:addEventListener("tap")
