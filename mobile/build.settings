@@ -6,6 +6,8 @@ settings={
   iphone={
     plist={
       ITSAppUsesNonExemptEncryption=false,
+      NSPhotoLibraryUsageDescription="Not Used",
+      NSCameraUsageDescription="Not Used",
       CFBundleIconFiles={
         "Icon-72.png",
         "Icon-72@2x.png",
