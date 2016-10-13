@@ -134,6 +134,7 @@ function create(eventFunc,networked,noLogging)
           data.time=os.date("%T")
           data.date=os.date("%F")
           data.appMillis=event.time
+          data.timeIntoSequence=event.time-group.setupTime
           data.delay=keyInstance.time and (event.time-keyInstance.time)
           data.wasCorrect=wasCorrect
           data.complete=complete
@@ -164,6 +165,7 @@ function create(eventFunc,networked,noLogging)
           data.time=os.date("%T")
           data.date=os.date("%F")
           data.appMillis=event.time
+          data.timeIntoSequence=event.time-group.setupTime
           data.delay=keyInstance.time and (event.time-keyInstance.time)
           data.wasCorrect=wasCorrect
           data.complete=complete
@@ -199,6 +201,11 @@ function create(eventFunc,networked,noLogging)
         keys[i]:highlight(not noHighlight)
       end
     end
+
+    if index==1 then
+      self.setupTime=system.getTimer()
+    end
+
     noFeedback=_noFeedback
     targetKeys={}
     local function setNote(key,scientificNote)

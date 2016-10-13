@@ -82,7 +82,6 @@ local function switchSong(newTrack)
   logger.setScore(0)
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(state.get("total mistakes"))
-  logger.setSequenceTime(state.getTime())
   logger.setTrack(track)
   logger.setBank(0)
   logger.setModesDropped(modesDropped)
@@ -168,7 +167,6 @@ local function madeMistake(bg)
     lastMistakeTime=time
   end
   state.startTimer()
-  logger.setSequenceTime(state.getTime())
   
   bg:toFront()
   bg.alpha=1
@@ -186,7 +184,6 @@ local function processBank()
   end
 
   logger.setScore(tonumber(scene.points.text)+earned)
-  logger.setSequenceTime(state.getTime())
   local t=display.newText({
     parent=scene.view,
     text=earned,
@@ -260,7 +257,6 @@ function completeRound()
 
   roundCompleteAnimation()
   state.startTimer()
-  logger.setSequenceTime(state.getTime())
 
   state.increment("iterations")
   state.clear("mistakes")
@@ -276,7 +272,6 @@ end
 function proceedToNextStep()
   scene.keys:clear(true)
   state.increment()
-  logger.setSequenceTime(state.getTime())
 end  
 
 function hasCompletedTask()
@@ -466,7 +461,6 @@ function scene:show(event)
     end
 
     logger.setIntro(isStart or false)
-    logger.setSequenceTime(0)
 
     restart()
     setupNextKeys()

@@ -46,10 +46,6 @@ function setIntro(intro)
   additionalData["intro"]=intro
 end
 
-function setSequenceTime(timeIntoSequence)
-  additionalData["timeIntoSequence"]=timeIntoSequence
-end
-
 function setPractices(practices)
   additionalData["practices"]=practices
 end
