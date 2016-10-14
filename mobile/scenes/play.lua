@@ -41,6 +41,7 @@ local modeIndex=1
 local isStart=false
 local headless=false
 local rewardType="none"
+local totalMistakes=0
 local modesDropped=0
 local state
 local intervalTime=5000
@@ -81,7 +82,8 @@ local function switchSong(newTrack)
   modesDropped=0
   logger.setScore(0)
   logger.setIterations(state.get("iterations"))
-  logger.setTotalMistakes(state.get("total mistakes"))
+  totalMistakes=0
+  logger.setTotalMistakes(totalMistakes)
   logger.setTrack(track)
   logger.setBank(0)
   logger.setModesDropped(modesDropped)
@@ -128,7 +130,6 @@ local function restart()
     modesDropped=modesDropped+1
     logger.setModesDropped(modesDropped)
     logger.setModeIndex(modeIndex)
-    logger.setTotalMistakes(state.get("total mistakes"))
     logger.setIterations(state.get("iterations"))
  
     scene.keys:disable()
@@ -162,10 +163,10 @@ local function madeMistake(bg)
   local time=system.getTimer()
   if time-lastMistakeTime>500 then
     state.increment("mistakes")
-    state.increment("total mistakes")
-    logger.setTotalMistakes(state.get("total mistakes"))
     lastMistakeTime=time
   end
+    totalMistakes=totalMistakes+1
+    logger.setTotalMistakes(totalMistakes)
   state.startTimer()
   
   bg:toFront()
