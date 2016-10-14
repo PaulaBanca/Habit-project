@@ -394,7 +394,6 @@ function scene:createKeys()
     if stepID and stepID~=state.get("stepID") then
       return
     end
-    timer.performWithDelay(1,function()
       if not wasCorrect then
         madeMistake(self.redBackground)
       else 
@@ -409,7 +408,6 @@ function scene:createKeys()
         setUpReward()
       end
       setupNextKeys()
-    end)
   end,headless,isStart)
   if self.keys then
     self.keys:removeSelf()
