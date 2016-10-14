@@ -218,8 +218,7 @@ end
 local function changeModeUp()
   state.pullState()
   state.clear("mistakes")
-  state.clear("iterations")
- 
+
   modeIndex=modeIndex+1
   if modeIndex>#modes then
     modeIndex=#modes
