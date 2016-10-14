@@ -225,6 +225,14 @@ local function changeModeUp()
   end
   scene.bg:setColour(modeIndex)
 
+  if modesDropped==0 then
+    state.clear("iterations")
+  else
+    while not hasCompletedRound() do
+      state.increment()
+    end
+  end
+
   modesDropped=modesDropped-1
   if modesDropped<=0 then
     scene.progress.isVisible=true
@@ -394,27 +402,32 @@ function scene:createKeys()
   if self.keyBounds then
     self.keyBounds:removeSelf()
   end
-  local keys=keys.create(function(wasCorrect,stepID)
+  local keys=keys.create(function(wasCorrect,stepID,data)
     if stepID and stepID~=state.get("stepID") then
       return
     end
-      if not wasCorrect then
-        madeMistake(self.redBackground)
-      else 
-        bankPoints()
-        if hasCompletedRound() then
-          completeRound()
-          if hasCompletedTask() then
-            return
-          end
+    if not wasCorrect then
+      madeMistake(self.redBackground)
+    else
       if getIndex()==1 then
         countMistakes=true 
       end
+      bankPoints()
+      if hasCompletedRound() then
+        completeRound()
+        if hasCompletedTask() then
+          return
         end
-        proceedToNextStep()
-        setUpReward()
       end
-      setupNextKeys()
+      proceedToNextStep()
+      setUpReward()
+    end
+    if data then
+      data.mistakes=totalMistakes
+      data.bank=tonumber(scene.bank:getScore())
+    end
+    setupNextKeys()
+
   end,headless,isStart)
   if self.keys then
     self.keys:removeSelf()
@@ -441,6 +454,8 @@ end
 function scene:show(event)
   if event.phase=="did" then
     composer.showOverlay("scenes.dataviewer")
+    totalMistakes=0
+    countMistakes=true
 
     logger.stopCatchUp()
     isStart=event.params and event.params.intro

@@ -101,6 +101,25 @@ function create(eventFunc,networked,noLogging)
         wasCorrect=targetKeys[i] and not currentlyPressedKeys[i] or networked
         currentlyPressedKeys[i]=true    
         stepID=keyInstance.stepID
+        local data
+        if logData then
+          data=logger.createLoggingTable()
+          endedLoggingTable=logger.createLoggingTable()
+          data.touchPhase=event.phase
+          data.x=event.x
+          data.y=event.y
+          data.time=os.date("%T")
+          data.date=os.date("%F")
+          data.appMillis=event.time
+          data.timeIntoSequence=event.time-group.setupTime
+          data.delay=keyInstance.time and (event.time-keyInstance.time)
+          data.wasCorrect=wasCorrect
+          data.complete=complete
+          data.instructionIndex=keyInstance.instructionIndex
+          data.keyIndex=keyInstance.index
+          endedLoggingTable.instructionIndex=keyInstance.instructionIndex
+        end
+
         if keyInstance.onPress then
           keyInstance.onPress(wasCorrect)
         end
@@ -116,7 +135,7 @@ function create(eventFunc,networked,noLogging)
           
           complete=_.isEqual(targetKeys,currentlyPressedKeys)
         else
-          eventFunc(false or networked,stepID)
+          eventFunc(false or networked,stepID,data)
         end
         local note=keyInstance.note
         if note then
@@ -125,26 +144,10 @@ function create(eventFunc,networked,noLogging)
           end
           keyInstance.setPressed(true)
         end
-        if logData then
-          local data=logger.createLoggingTable()
-          endedLoggingTable=logger.createLoggingTable()
-          data.touchPhase=event.phase
-          data.x=event.x
-          data.y=event.y
-          data.time=os.date("%T")
-          data.date=os.date("%F")
-          data.appMillis=event.time
-          data.timeIntoSequence=event.time-group.setupTime
-          data.delay=keyInstance.time and (event.time-keyInstance.time)
-          data.wasCorrect=wasCorrect
-          data.complete=complete
-          data.instructionIndex=keyInstance.instructionIndex
-          data.keyIndex=keyInstance.index
-          endedLoggingTable.instructionIndex=keyInstance.instructionIndex
-
+        
+        if data then
           logger.log(data)
         end
-
         display.getCurrentStage():setFocus(event.target,event.id)
         return true
       end
@@ -155,9 +158,10 @@ function create(eventFunc,networked,noLogging)
           clientloop.sendEvent({type="key released",note=keyInstance. 
             index})
         end
-    
+      
+        local data
         if logData then
-          local data=endedLoggingTable
+          data=endedLoggingTable
           assert(data)
           data.touchPhase=event.phase
           data.x=event.x
@@ -170,19 +174,22 @@ function create(eventFunc,networked,noLogging)
           data.wasCorrect=wasCorrect
           data.complete=complete
           data.keyIndex=keyInstance.index
-          logger.log(data)
           endedLoggingTable=nil
         end
 
         if wasCorrect and not complete then
-          eventFunc(false or networked,stepID)
+          eventFunc(false or networked,stepID,data)
         end
 
         if complete and not next(currentlyPressedKeys) then
           complete=false
-          eventFunc(true,stepID)
+          eventFunc(true,stepID,data)
         end
 
+        if data then
+          logger.log(data)
+        end
+        
         timer.performWithDelay(100, function()          
           keyInstance:stopSparks()
           keyInstance.setPressed(false)
