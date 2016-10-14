@@ -122,6 +122,7 @@ end
 local function restart()
   if state.get("mistakes")>3 and modeIndex>1 and not headless then
     state.clear("mistakes")
+    lastMistakeTime=system.getTimer()
     state:pushState()
     modeIndex=modeIndex-1
     scene.progress.isVisible=false
@@ -158,16 +159,20 @@ local function restart()
   scene.keys:clear()
 end
 
-local lastMistakeTime=0
+local countMistakes
+local lastMistakeTime=system.getTimer()
 local function madeMistake(bg)
   sound.playSound("wrong")
   local time=system.getTimer()
-  if time-lastMistakeTime>500 then
+  if time-lastMistakeTime>500 then 
     state.increment("mistakes")
     lastMistakeTime=time
   end
+  if countMistakes then
+    countMistakes=false
     totalMistakes=totalMistakes+1
     logger.setTotalMistakes(totalMistakes)
+  end
   state.startTimer()
   
   bg:toFront()
@@ -403,6 +408,9 @@ function scene:createKeys()
           if hasCompletedTask() then
             return
           end
+      if getIndex()==1 then
+        countMistakes=true 
+      end
         end
         proceedToNextStep()
         setUpReward()
