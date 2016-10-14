@@ -121,6 +121,7 @@ end
 
 local function restart()
   if state.get("mistakes")>3 and modeIndex>1 and not headless then
+    state.clear("mistakes")
     state:pushState()
     modeIndex=modeIndex-1
     scene.progress.isVisible=false
