@@ -122,6 +122,7 @@ function scene:show(event)
     data["time"]=os.date("%T")
     logger.log(data)
     composer.gotoScene("scenes.schedule")
+    logger.startCatchUp()
   end)
   done.isVisible=false
   done.anchorChildren=true
