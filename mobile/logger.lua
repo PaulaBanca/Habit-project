@@ -82,11 +82,11 @@ params.body=json.encode({dataField,dataField,dataField})
 function send(getFunc,clearFunc,doneFunc)
   local b
   local lastID
-  local cols={}
-  getFunc(function(col,done)
+  local rows={}
+  getFunc(function(row,done)
     if done then
-      if #cols==0 then
-        return
+      if #rows==0 then
+        return doneFunc()
       end
 
       local quitOut
@@ -118,19 +118,20 @@ function send(getFunc,clearFunc,doneFunc)
 
       local params={}
       params.progress="upload"
-      params.body=json.encode(cols)
+      params.body=json.encode(rows)
       network.request("http://multipad-server.herokuapp.com/submit", "POST", listener, params)
+      -- network.request("http://localhost:8080/submit", "POST", listener, params)
+      
       return
     end
-    for k,v in pairs(col) do
+    for k,v in pairs(row) do
       if v=="NULL" then
-        col[k]=nil
+        row[k]=nil
       end
     end
-    cols[#cols+1]=col
-    lastID=col.ID
+    rows[#rows+1]=row
+    lastID=row.ID
   end)
-  return true
 end
 
 local syncMessage
@@ -153,21 +154,12 @@ function startCatchUp()
   unsent.flushQueuedCommands(function()
     syncMessage.text="Background Syncing..."
     syncMessage:setTextColor(1)
-    local sendData
-    sendData=function()
-      if paused then 
-        return
-      end
-      local nothingToSync=true
-      nothingToSync=nothingToSync and send(unsent.getTouches,unsent.clearUpTo,sendData)
-      nothingToSync=nothingToSync and send(unsent.getQs,unsent.clearQsUpTo,sendData)
-
-      if nothingToSync and syncMessage then
+    send(unsent.getTouches,unsent.clearUpTo,function()
+      send(unsent.getQs,unsent.clearQsUpTo,function()
         syncMessage:removeSelf()
-        syncMessage=nil
-      end
-    end
-    sendData()
+        syncMessage=nil  
+      end)
+    end)
   end)
 end
 
