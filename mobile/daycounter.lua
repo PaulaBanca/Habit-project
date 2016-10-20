@@ -5,6 +5,7 @@ local jsonreader=require "jsonreader"
 local os=os
 local system=system
 local math=math
+local pairs=pairs
 local type=type
 
 setfenv(1,M)
@@ -33,20 +34,35 @@ elseif data.version==1 then
 end  
 
 local function secsToDays(secs)
-  return math.ceil(secs/60/60/24)
+  return math.floor(secs/60/60/24)
+end
+
+
+local function getDayStartDate(d)
+  local n={}
+  for k,v in pairs(d) do
+    n[k]=v
+  end
+  n.hour=0
+  n.min=0
+  n.sec=0
+  return n
+end
+
+function getDaysDiff(d1,d2)
+  local diffsecs=os.difftime(os.time(getDayStartDate(d1)), os.time(getDayStartDate(data.start)))
+  return secsToDays(diffsecs)
 end
 
 function getDaysMissed()
   if not lastDate then
     return nil
   end
-  local diffsecs=os.difftime(os.time(today), os.time(lastDate))
-  return secsToDays(diffsecs)
+  return getDaysDiff(today,lastDate)
 end
 
 function getDayCount()
-  local diffsecs=os.difftime(os.time(today), os.time(data.start))
-  return secsToDays(diffsecs)
+  return getDaysDiff(today,data.start)
 end
 
 local practiceDay
