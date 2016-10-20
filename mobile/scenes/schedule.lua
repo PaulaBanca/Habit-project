@@ -4,6 +4,7 @@ local scene=composer.newScene()
 local widget=require "widget"
 local stimuli=require "stimuli"
 local daycounter=require "daycounter"
+local incompletetasks=require "incompletetasks"
 local user=require "user"
 local display=display
 local native=native
@@ -17,6 +18,10 @@ local MAX_DAYS=31
 
 function scene:show(event)
   if event.phase=="did" then
+    return
+  end
+
+  if incompletetasks.getNext() then
     return
   end
 

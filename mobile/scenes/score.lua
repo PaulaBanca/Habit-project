@@ -4,6 +4,7 @@ local scene=composer.newScene()
 local stimuli=require "stimuli"
 local jsonreader=require "jsonreader"
 local daycounter=require "daycounter"
+local incompletetasks=require "incompletetasks"
 local user=require "user"
 local display=display
 local system=system
@@ -94,8 +95,13 @@ function scene:show(event)
       qd[candiate]=true
       quizzed[d]=qd
       user.store("quizzed",quizzed)
+      local scene,params="scenes.pleasure",{melody=candiate,rounds=1}
+      incompletetasks.push(scene,params)
+
+      composer.gotoScene(scene,{params=params})
+    else
+      composer.gotoScene("scenes.schedule")
     end
-    composer.gotoScene(candiate and "scenes.pleasure" or "scenes.schedule",{params={melody=candiate,rounds=1}})
   end)
 end
 

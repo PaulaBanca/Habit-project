@@ -5,6 +5,7 @@ local stimuli=require "stimuli"
 local button=require "ui.button"
 local logger=require "logger"
 local serpent=require "serpent"
+local incompletetasks=require "incompletetasks"
 local display=display
 local os=os
 local math=math    
@@ -121,6 +122,11 @@ function scene:show(event)
     data["date"]=os.date("%F")
     data["time"]=os.date("%T")
     logger.log(data)
+    if event.params.resumed then
+      incompletetasks.removeFirst("scenes.pleasure")
+    else
+      incompletetasks.removeLast("scenes.pleasure")
+    end
     composer.gotoScene("scenes.schedule")
     logger.startCatchUp()
   end)
