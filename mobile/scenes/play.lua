@@ -17,6 +17,7 @@ local background=require "ui.background"
 local playstate=require "playstate"
 local daycounter=require "daycounter"
 local logger=require "logger"
+local deadmansswitch=require "ui.deadmansswitch"
 local unpack=unpack
 local display=display
 local math=math
@@ -289,6 +290,13 @@ function proceedToNextStep()
 end  
 
 function hasCompletedTask()
+  return state.get("rounds")==maxLearningLength*2
+end
+
+function completeTask()
+  if not hasCompletedTask() then
+    return 
+  end
   if state.get("rounds")==maxLearningLength*2 then
     scene.keys:removeSelf()
     practicelogger.logPractice(track)
@@ -297,12 +305,6 @@ function hasCompletedTask()
       composer.gotoScene("scenes.score",{params={score=tonumber(scene.points.text),track=track}})
       composer.hideOverlay()
     end)
-    return true
-  end
-  if isStart then
-    composer.hideOverlay()
-    composer.gotoScene("scenes.schedule")
-    return true
   end
 end
 
@@ -415,10 +417,15 @@ function scene:createKeys()
       bankPoints()
       if hasCompletedRound() then
         completeRound()
-        if hasCompletedTask() then
+        if completeTask() then
           return
         end
       end
+      if isStart then
+        composer.hideOverlay()
+        composer.gotoScene("scenes.schedule")
+      end
+
       proceedToNextStep()
       setUpReward()
     end
@@ -453,7 +460,7 @@ end
 
 function scene:show(event)
   if event.phase=="did" then
-    composer.showOverlay("scenes.dataviewer")
+    -- composer.showOverlay("scenes.dataviewer")
     totalMistakes=0
     countMistakes=true
 
@@ -488,6 +495,13 @@ function scene:show(event)
     setupNextKeys()
     setUpReward()
 
+    deadmansswitch.start(function() 
+      if hasCompletedTask() then
+        return
+      end
+      madeMistake(self.redBackground)
+      setupNextKeys()
+    end)
     if not isStart and rewardType~="none" then
       scene.points=display.newText({
         parent=scene.view,
@@ -534,6 +548,9 @@ function scene:show(event)
 end
 
 function scene:hide(event)
+  if event.phase=="will" then
+    deadmansswitch.stop()
+  end
   if event.phase=="did" then
     logger.startCatchUp()
     
