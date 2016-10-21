@@ -18,6 +18,7 @@ local playstate=require "playstate"
 local daycounter=require "daycounter"
 local logger=require "logger"
 local deadmansswitch=require "ui.deadmansswitch"
+local _=require "util.moses"
 local unpack=unpack
 local display=display
 local math=math
@@ -536,7 +537,7 @@ function scene:show(event)
       end
     end
   else
-    local p=progress.create(200,40,{maxLearningLength,maxLearningLength})
+    local p=progress.create(200,40,_.rep(maxLearningLength,rounds))
     p.anchorChildren=true
     p.anchorX=0
     p.anchorY=0
