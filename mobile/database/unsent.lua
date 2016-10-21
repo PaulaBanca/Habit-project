@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS touch (
   bank INTEGER,
   score INTEGER,
   practices INTEGER,
+  isPractice TEXT,
   attempt INTEGER,
   userid TEXT NOT NULL,
   timeIntoSequence INTEGER NOT NULL,
@@ -62,7 +63,7 @@ database.runSQLQuery(createTableCmd)
 
 local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,date,time,userid) VALUES (%s,%s,%s,%s,"%s","%s","%s");]]
 
-local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,attempt,userid,timeIntoSequence,intro,mistakes) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:attempt,:userid,:timeIntoSequence,:intro,:mistakes);]])
+local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes);]])
 
 
 local queuedCommands={}
@@ -80,7 +81,8 @@ function log(t)
     t.bank =tostring(t.bank or "NULL")
     t.score =tostring(t.score or "NULL")
     t.intro=tostring(t.intro)
-    t.mistakes=(t.mistakes or 0)    
+    t.mistakes=(t.mistakes or 0)
+    t.isPractice=tostring(t.isPractice)
     queuedCommands[#queuedCommands+1]=t
   else
     database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.date,t.time,t.userid))

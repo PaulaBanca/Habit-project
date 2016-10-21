@@ -476,7 +476,11 @@ function scene:show(event)
     rewardType=event.params and event.params.rewardType or "none"
     nextScene=event.params and event.params.nextScene or "scenes.score"
     isScheduledPractice=event.params and event.params.isScheduledPractice
-
+    logger.setIsScheduled(isScheduledPractice or false)
+    if not isScheduledPractice then
+      logger.setPractices(-1)
+      logger.setAttempts(-1)
+    end
     if headless then
       rewardType="none"
     end

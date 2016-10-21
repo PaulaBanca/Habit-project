@@ -42,6 +42,10 @@ function setBank(bank)
   additionalData["bank"]=bank
 end
 
+function setIsScheduled(scheduled)
+  additionalData["isPractice"]=scheduled
+end
+
 function setIntro(intro)
   additionalData["intro"]=intro
 end
