@@ -35,6 +35,7 @@ setfenv(1,scene)
 
 local sequence
 local maxLearningLength=10
+local rounds=2
 local learningLength=maxLearningLength
 local track=1
 local modes={"learning","recall","blind","invisible"}
@@ -58,11 +59,6 @@ local startInstructions={
   {chord={"a3","c4","e4","a4"},forceLayout=true},
   {chord={"f3","a4","c4","f4"},forceLayout=true},
 }
-
-function setMaxLearningLength(v)
-  maxLearningLength=v
-  learningLength=maxLearningLength
-end
 
 local function switchSong(newTrack)
   if scene.img then
@@ -290,14 +286,14 @@ function proceedToNextStep()
 end  
 
 function hasCompletedTask()
-  return state.get("rounds")==maxLearningLength*2
+  return modesDropped==0 and state.get("rounds")==maxLearningLength*rounds
 end
 
 function completeTask()
   if not hasCompletedTask() then
     return 
   end
-  if state.get("rounds")==maxLearningLength*2 then
+  if state.get("rounds")==maxLearningLength*rounds then
     scene.keys:removeSelf()
     practicelogger.logPractice(track)
     daycounter.completedPractice(track)
@@ -459,6 +455,9 @@ function scene:createKeys()
 end
 
 function scene:show(event)
+  rounds=event.params.rounds or 2
+  maxLearningLength=event.params.iterations or 10
+    
   if event.phase=="did" then
     -- composer.showOverlay("scenes.dataviewer")
     totalMistakes=0

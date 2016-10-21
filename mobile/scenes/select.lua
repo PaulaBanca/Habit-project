@@ -45,7 +45,14 @@ function scene:show(event)
       logger.setPractices(practice)
       practicelogger.logAttempt(track)
       logger.setAttempts(practicelogger.getAttempts(track))
-      composer.gotoScene("scenes.play",{params={track=track,difficulty=math.ceil(practice/3),rewardType=noReward and "none" or ((i+self.modeSelect)%2+1==1 and "timed" or "random")}})
+      composer.gotoScene("scenes.play",{params={
+        track=track,
+        difficulty=math.ceil(practice/3),
+        rewardType=noReward and "none" or 
+            ((i+self.modeSelect)%2+1==1 and "timed" or "random"),
+        isScheduledPractice=true,
+        iterations=self.iterations}
+      })
     end
     img:addEventListener("tap")
     local text=display.newText({

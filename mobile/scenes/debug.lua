@@ -10,7 +10,7 @@ setfenv(1,scene)
 local options={
   {label="Melody Length",options={6,5,4,3},default=1,selectFunc=function(v) tunes.setMaxLength(v) end},
   {label="Phase Length",options={10,8,6,4},default=1,selectFunc=function(v)
-    play.setMaxLearningLength(v)
+    composer.getScene("scenes.select").iterations=v
    end},
 }
 
