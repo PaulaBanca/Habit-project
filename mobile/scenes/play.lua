@@ -50,6 +50,7 @@ local state
 local intervalTime=5000
 local intervalSpread=3000
 local nextRewardTime
+local nextScene
 
 local startInstructions={
   {chord={"c4","none","none","none"},forceLayout=true},
@@ -85,9 +86,6 @@ local function switchSong(newTrack)
   logger.setTrack(track)
   logger.setBank(0)
   logger.setModesDropped(modesDropped)
-    
-  learningLength=maxLearningLength
-  setupNextKeys()
 end
 
 local function roundCompleteAnimation()
@@ -296,10 +294,15 @@ function completeTask()
   end
   if state.get("rounds")==maxLearningLength*rounds then
     scene.keys:removeSelf()
-    practicelogger.logPractice(track)
-    daycounter.completedPractice(track)
+    if isScheduledPractice then 
+      practicelogger.logPractice(track)
+      daycounter.completedPractice(track)
+    end
     timer.performWithDelay(600, function()
-      composer.gotoScene("scenes.score",{params={score=tonumber(scene.points.text),track=track}})
+      composer.gotoScene(nextScene,{params={
+        score=rewardType~="none" and tonumber(scene.points.text),
+        track=track}
+      })
       composer.hideOverlay()
     end)
   end
@@ -428,7 +431,9 @@ function scene:createKeys()
     end
     if data then
       data.mistakes=totalMistakes
-      data.bank=tonumber(scene.bank:getScore())
+      if rewardType~="none" then
+        data.bank=tonumber(scene.bank:getScore())
+      end
     end
     setupNextKeys()
 
@@ -469,6 +474,9 @@ function scene:show(event)
     headless=event.params and event.params.headless
     self.onClose=event.params and event.params.onClose
     rewardType=event.params and event.params.rewardType or "none"
+    nextScene=event.params and event.params.nextScene or "scenes.score"
+    isScheduledPractice=event.params and event.params.isScheduledPractice
+
     if headless then
       rewardType="none"
     end
@@ -481,7 +489,6 @@ function scene:show(event)
     scene.bg:setColour(modeIndex)
     scene:createKeys()
 
-    learningLength=maxLearningLength
     switchSong(event.params and event.params.track)
     sequence=isStart and startInstructions or sequence
     if isStart or headless then

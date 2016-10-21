@@ -5,20 +5,34 @@ local composer=require "composer"
 local jsonreader=require "jsonreader"
 local system=system
 local table=table
-local assert=asset
+local assert=assert
 
 setfenv(1,M)
 
 local path=system.pathForFile("incomplete.json",system.DocumentsDirectory)
 local data=jsonreader.load(path) or {}
 
+local lastDest
 function getNext()
   if #data==0 then
     return false
   end
-  local dest=table.remove(data, 1)
+  local dest=data[1]
+  lastDest=dest
   composer.gotoScene(dest.scene,{params=dest.params})
   return true
+end
+
+function lastCompleted()
+  for i=1,#data do
+    if lastDest==data[i] then
+      assert(table.remove(data, i)==lastDest)
+      jsonreader.store(path,data)
+      lastDest=nil
+      return
+    end
+  end
+  assert(not lastDest)
 end
 
 function push(scene,params)

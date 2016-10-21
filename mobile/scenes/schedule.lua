@@ -20,7 +20,7 @@ function scene:show(event)
   if event.phase=="did" then
     return
   end
-
+  incompletetasks.lastCompleted()
   if incompletetasks.getNext() then
     return
   end

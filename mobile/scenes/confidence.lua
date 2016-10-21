@@ -123,11 +123,22 @@ function scene:show(event)
     data["time"]=os.date("%T")
     logger.log(data)
     if event.params.resumed then
-      incompletetasks.removeFirst("scenes.pleasure")
+      incompletetasks.lastCompleted()
     else
       incompletetasks.removeLast("scenes.pleasure")
     end
-    composer.gotoScene("scenes.schedule")
+    local scene,params="scenes.message",{
+      text="Play the following sequence five times as quickly as possible.",
+      nextScene="scenes.play",
+      nextParams={
+        nextScene="scenes.schedule",
+        track=event.params.melody,
+        iterations=5,
+        rounds=1
+      }
+    }
+    incompletetasks.push(scene,params)
+    composer.gotoScene(scene,{params=params})
     logger.startCatchUp()
   end)
   done.isVisible=false
