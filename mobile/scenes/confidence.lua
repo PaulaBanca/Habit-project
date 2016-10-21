@@ -138,7 +138,7 @@ function scene:show(event)
       }
     }
     incompletetasks.push(scene,params)
-    composer.gotoScene(scene,{params=params})
+    incompletetasks.getNext()
     logger.startCatchUp()
   end)
   done.isVisible=false
