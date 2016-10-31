@@ -90,14 +90,14 @@ function send(getFunc,clearFunc,doneFunc)
   getFunc(function(row,done)
     if done then
       if #rows==0 then
-        return doneFunc()
+        return doneFunc(true)
       end
 
       local quitOut
       local function doneWrapper()
         assert(not quitOut,"Done Wrapper called twice!")
         quitOut=true
-        doneFunc()
+        doneFunc(false)
       end
       local listener=function(event)
         if event.isError then
@@ -139,10 +139,10 @@ function send(getFunc,clearFunc,doneFunc)
 end
 
 local syncMessage
-local paused
 function startCatchUp()
-  paused=false
-
+  if syncMessage then
+    return
+  end
   if not syncMessage then
     syncMessage=display.newText({
       text="Saving do not close!",
@@ -158,17 +158,23 @@ function startCatchUp()
   unsent.flushQueuedCommands(function()
     syncMessage.text="Background Syncing..."
     syncMessage:setTextColor(1)
-    send(unsent.getTouches,unsent.clearUpTo,function()
-      send(unsent.getQs,unsent.clearQsUpTo,function()
+    local sendTouches,sendQuestionnaires
+    sendQuestionnaires=function(complete)
+      if complete then
         syncMessage:removeSelf()
-        syncMessage=nil  
-      end)
-    end)
+        syncMessage=nil
+        return
+      end
+      send(unsent.getQs,unsent.clearQsUpTo,sendQuestionnaires)
+    end
+    sendTouches=function(complete)
+      if complete then
+        return sendQuestionnaires()
+      end
+      send(unsent.getTouches,unsent.clearUpTo,sendTouches)
+    end
+    sendTouches()
   end)
-end
-
-function stopCatchUp()
-  paused=true
 end
 
 return M

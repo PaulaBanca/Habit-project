@@ -494,7 +494,6 @@ function scene:show(event)
     totalMistakes=0
     countMistakes=true
 
-    logger.stopCatchUp()
     isStart=event.params and event.params.intro
     headless=event.params and event.params.headless
     self.onClose=event.params and event.params.onClose
