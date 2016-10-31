@@ -312,7 +312,7 @@ function setupNextKeys()
   if scene.keys:hasPendingInstruction() or headless then
     return
   end
-  
+  scene.keys:enable()  
   state.increment("stepID")
   local index=getIndex()
   local nextIntruction=sequence[index]

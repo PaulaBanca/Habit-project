@@ -197,8 +197,6 @@ function create(eventFunc,networked,noLogging)
         return true
       end
     end
-    img:addEventListener("tap")
-    img:addEventListener("touch")
   end
 
   function group:setup(instruction,noAid,_noFeedback,noHighlight,index,stepID)
@@ -278,11 +276,28 @@ function create(eventFunc,networked,noLogging)
     return keys[1].contentHeight
   end
 
+  local enabled=false
   function group:disable()
+    if not enabled then
+      return
+    end
+    enabled=false
     for i=1, #keys do 
       local img=keys[i].getTouchImg()
       img:removeEventListener("touch")
       img:removeEventListener("tap")
+    end
+  end
+
+  function group:enable()
+    if enabled then
+      return
+    end
+    enabled=true
+    for i=1, #keys do 
+      local img=keys[i].getTouchImg()
+      img:addEventListener("tap")
+      img:addEventListener("touch")
     end
   end
 
