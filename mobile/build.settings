@@ -8,6 +8,9 @@ settings={
       ITSAppUsesNonExemptEncryption=false,
       NSPhotoLibraryUsageDescription="Not Used",
       NSCameraUsageDescription="Not Used",
+      NSAppTransportSecurity={
+        NSAllowsArbitraryLoads=true,
+      },
       ITSAppUsesNonExemptEncryption=false,
       CFBundleIconFiles={
         "Icon-72.png",
