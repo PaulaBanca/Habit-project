@@ -609,6 +609,7 @@ scene:addEventListener("hide")
 Runtime:addEventListener("system", function (event)
   if event.type=="applicationResume" then
     composer.gotoScene("scenes.schedule")
+    logger.startCatchUp()
   end
 end)
 

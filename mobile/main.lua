@@ -22,6 +22,7 @@ function login(force)
       local logger=require "logger"
       local func=newUser and logger.create or logger.login
       func(user.getID(),user.getPassword(),function (ok,err)
+      logger.startCatchUp()
         if not ok then
           if type(err) == "table" then
             err=err.error
