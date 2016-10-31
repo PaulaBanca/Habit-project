@@ -17,6 +17,7 @@ function start(noTouchesFunc)
   if system.getInfo("environment")=="simulator" then
     return
   end
+  instructionGroup.isHitTestable=true
   local instruction=display.newText({
     parent=instructionGroup,
     text="Please keep a digit from your inactive hand touching the screen throughout the practice",
@@ -29,14 +30,22 @@ function start(noTouchesFunc)
   bg:toBack()
   bg:setFillColor(0, 0.6)
 
-  instructionGroup:translate(display.contentCenterX, display.contentCenterY)
+  local hitSensor=display.newRect(instructionGroup,0,0,display.actualContentWidth,display.actualContentHeight)
+  hitSensor.isHitTestable=true
+  hitSensor.isVisible=false
 
+  instructionGroup:translate(display.contentCenterX, display.contentCenterY)
   local restingTouches={}
   
   local listener=function(event)
     if event.phase=="began" then
       restingTouches[event.id]=true
+      local first=instructionGroup.isVisible
+      if first then 
+        display.getCurrentStage():setFocus(hitSensor,event.id)
+      end
       instructionGroup.isVisible=false
+      return first
     end
     if event.phase=="cancelled" or event.phase=="ended" then
       restingTouches[event.id]=nil
@@ -46,12 +55,7 @@ function start(noTouchesFunc)
       end
     end
   end
-  Runtime:addEventListener("touch", listener)
-
-  function instructionGroup:finalize()
-    Runtime:removeEventListener("touch", listener)
-  end
-  instructionGroup:addEventListener("finalize")  
+  hitSensor:addEventListener("touch", listener)
 end
 
 function stop()
