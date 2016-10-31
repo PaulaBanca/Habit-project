@@ -32,7 +32,7 @@ function lastCompleted()
       return
     end
   end
-  assert(not lastDest)
+  assert(not lastDest, "incompletetasks.lua: lastDest does not match entry in data file")
 end
 
 function push(scene,params)

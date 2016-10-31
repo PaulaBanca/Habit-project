@@ -162,7 +162,7 @@ function create(eventFunc,networked,noLogging)
         local data
         if logData then
           data=endedLoggingTable
-          assert(data)
+          assert(data, "keys.lua: endedLoggingTable is nil")
           data.touchPhase=event.phase
           data.x=event.x
           data.y=event.y

@@ -7,6 +7,7 @@ local tostring=tostring
 local ipairs=ipairs
 local io=io
 local assert=assert
+local tostring=tostring
 
 setfenv(1,M)
 
@@ -20,7 +21,7 @@ local function testFileExists(path)
 end
 
 local function appendToFile(path,line)
-	local fh=assert(io.open(path,"a+"))
+	local fh=assert(io.open(path,"a+"), "csv.lua: " .. tostring(path) .. " could not be opened")
 	fh:write(line.."\n")
 	fh:close()
 end
