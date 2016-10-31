@@ -106,41 +106,51 @@ local function getIndex()
   return state.get("count")%#sequence+1
 end
 
-local function restart()
-  if state.get("mistakes")>3 and modeIndex>1 and not headless then
-    state.clear("mistakes")
-    lastMistakeTime=system.getTimer()
-    state:pushState()
-    modeIndex=modeIndex-1
-    scene.progress.isVisible=false
-    scene.bg:setColour(modeIndex)
-    
-    learningLength=3
-    modesDropped=modesDropped+1
-    logger.setModesDropped(modesDropped)
-    logger.setModeIndex(modeIndex)
-    logger.setIterations(state.get("iterations"))
- 
-    scene.keys:disable()
-    scene.keys:clear()
-    transition.to(scene.keys,{y=-scene.keys.height,
-      onComplete=function(obj)
-      obj:removeSelf() 
-    end})
-    scene.keys=nil
-    scene:createKeys()
-    scene.keys.alpha=0
-    transition.to(scene.keys,{alpha=1})
+local function resetBank()  
+  if not scene.bank then
+    return
   end
+  scene.bank.isVisible=false
+  scene.bank:setScore(0)
+  if scene.rewardPoints then
+    scene.rewardPoints:removeSelf()
+    scene.rewardPoints=nil
+  end
+end
 
-  if scene.bank then
-    scene.bank.isVisible=false
-    scene.bank:setScore(0)
-    if scene.rewardPoints then
-      scene.rewardPoints:removeSelf()
-      scene.rewardPoints=nil
-    end
-  end
+local function shouldDropModeDown()
+  return state.get("mistakes")>3 and modeIndex>1 and not headless
+end
+
+local function dropModeDown()
+  state.clear("mistakes")
+  lastMistakeTime=system.getTimer()
+  state:pushState()
+  modeIndex=modeIndex-1
+  scene.progress.isVisible=false
+  scene.bg:setColour(modeIndex)
+  
+  learningLength=3
+  modesDropped=modesDropped+1
+  logger.setModesDropped(modesDropped)
+  logger.setModeIndex(modeIndex)
+  logger.setIterations(state.get("iterations"))
+
+  scene.keys:disable()
+  scene.keys:clear()
+  transition.to(scene.keys,{y=-scene.keys.height,
+    onComplete=function(obj)
+    obj:removeSelf() 
+  end})
+  scene.keys=nil
+  scene:createKeys()
+  scene.keys.alpha=0
+  transition.to(scene.keys,{alpha=1})
+end
+
+
+local function restart()
+  resetBank()
 
   state.restart()
   scene.keys:clear()
@@ -165,7 +175,14 @@ local function madeMistake(bg)
   bg:toFront()
   bg.alpha=1
   transition.to(bg,{alpha=0})
+
+  local modesDropped=shouldDropModeDown()
+  if modesDropped then
+    dropModeDown()
+  end
+
   restart()
+  return modesDropped
 end
 
 local function processBank()
@@ -433,8 +450,12 @@ function scene:createKeys()
     end
     setupNextKeys()
   end,function(allReleased,stepID,data)
-    madeMistake(self.redBackground)
-    mistakeInLastTouches=true
+    if madeMistake(self.redBackground) then
+      mistakeInLastTouches=false
+      setupNextKeys()
+    else
+      mistakeInLastTouches=true
+    end
     if data then
       data.mistakes=totalMistakes
       if rewardType~="none" then
