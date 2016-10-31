@@ -76,16 +76,7 @@ local function switchSong(newTrack)
   img:translate(display.contentCenterX, 0)
   img:scale(0.5,0.5)
   scene.img=img
-  state=playstate.create()
-  state.startTimer()
-  modesDropped=0
-  logger.setScore(0)
-  logger.setIterations(state.get("iterations"))
-  totalMistakes=0
-  logger.setTotalMistakes(totalMistakes)
   logger.setTrack(track)
-  logger.setBank(0)
-  logger.setModesDropped(modesDropped)
 end
 
 local function roundCompleteAnimation()
@@ -493,7 +484,23 @@ function scene:show(event)
     scene.bg:setColour(modeIndex)
     scene:createKeys()
 
-    switchSong(event.params and event.params.track)
+    local setTrack=event.params and event.params.track
+    if setTrack=="random" then
+      trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
+      setTrack=table.remove(trackList, 1)
+    end
+    switchSong(setTrack)
+
+    state=playstate.create()
+    state.startTimer()
+    modesDropped=0
+    totalMistakes=0
+    logger.setScore(0)
+    logger.setIterations(state.get("iterations"))
+    logger.setTotalMistakes(totalMistakes)
+    logger.setBank(0)
+    logger.setModesDropped(modesDropped)
+
     sequence=isStart and startInstructions or sequence
     if isStart or headless then
       scene.img.isVisible=false
