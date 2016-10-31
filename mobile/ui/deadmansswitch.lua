@@ -5,6 +5,7 @@ local display=display
 local next=next
 local Runtime=Runtime
 local assert=assert
+local system=system
 
 setfenv(1,M)
 
@@ -13,6 +14,9 @@ function start(noTouchesFunc)
   assert(not instructionGroup,"deadmansswitch: group not null")
 
   instructionGroup=display.newGroup()
+  if system.getInfo("environment")=="simulator" then
+    return
+  end
   local instruction=display.newText({
     parent=instructionGroup,
     text="Please keep a digit from your inactive hand touching the screen throughout the practice",
