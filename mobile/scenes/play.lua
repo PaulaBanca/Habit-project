@@ -395,13 +395,12 @@ function scene:createKeys()
   if self.keyBounds then
     self.keyBounds:removeSelf()
   end
-  local keys=keys.create(function(wasCorrect,stepID,data)
+  local mistakeInLastTouches=false
+  local keys=keys.create(function(stepID,data)
     if stepID and stepID~=state.get("stepID") then
       return
     end
-    if not wasCorrect then
-      madeMistake(self.redBackground)
-    else
+    if not mistakeInLastTouches then
       if getIndex()==1 then
         countMistakes=true 
       end
@@ -411,23 +410,37 @@ function scene:createKeys()
         if completeTask() then
           return
         end
+        if trackList then
+          switchSong(table.remove(trackList))
+          if #trackList==0 then 
+            trackList=nil
+          end
+        end
       end
-      if isStart then
+      if isStart and getIndex()==#sequence then
         composer.hideOverlay()
         composer.gotoScene("scenes.schedule")
       end
 
       proceedToNextStep()
-      setUpReward()
     end
+    mistakeInLastTouches=false
+    setUpReward()
     if data then
-      data.mistakes=totalMistakes
       if rewardType~="none" then
         data.bank=tonumber(scene.bank:getScore())
       end
     end
     setupNextKeys()
-
+  end,function(allReleased,stepID,data)
+    madeMistake(self.redBackground)
+    mistakeInLastTouches=true
+    if data then
+      data.mistakes=totalMistakes
+      if rewardType~="none" then
+        data.bank=tonumber(scene.bank:getScore())
+      end
+    end  
   end,headless,isStart)
   if self.keys then
     self.keys:removeSelf()

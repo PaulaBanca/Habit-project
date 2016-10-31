@@ -40,7 +40,7 @@ local function configureSparks(colour)
   return json  
 end
 
-function create(eventFunc,networked,noLogging)
+function create(allReleasedFunc,mistakeFunc,networked,noLogging)
   local group=display.newGroup()
   networked=networked or false
   local keys={}
@@ -98,9 +98,11 @@ function create(eventFunc,networked,noLogging)
     local stepID
     img.touch=function(self,event) 
       if event.phase=="began" then
+        display.getCurrentStage():setFocus(event.target,event.id)
         wasCorrect=targetKeys[i] and not currentlyPressedKeys[i] or networked
         currentlyPressedKeys[i]=true    
         stepID=keyInstance.stepID
+        self.touchID=event.id
         local data
         if logData then
           data=logger.createLoggingTable()
@@ -135,7 +137,7 @@ function create(eventFunc,networked,noLogging)
           
           complete=_.isEqual(targetKeys,currentlyPressedKeys)
         else
-          eventFunc(false or networked,stepID,data)
+          mistakeFunc(false,stepID,data)
         end
         local note=keyInstance.note
         if note then
@@ -148,8 +150,10 @@ function create(eventFunc,networked,noLogging)
         if data then
           logger.log(data)
         end
-        display.getCurrentStage():setFocus(event.target,event.id)
         return true
+      end
+      if self.touchID~=event.id then
+        return
       end
       if event.phase=="ended" or event.phase=="cancelled" then
         display.getCurrentStage():setFocus(event.target,nil)
@@ -177,15 +181,14 @@ function create(eventFunc,networked,noLogging)
           endedLoggingTable=nil
         end
 
-        if wasCorrect and not complete then
-          eventFunc(false or networked,stepID,data)
-        end
-
-        if complete and not next(currentlyPressedKeys) then
+        if not next(currentlyPressedKeys) then
+          if wasCorrect and not complete then
+            mistakeFunc(true,stepID,data)
+          end
+          allReleasedFunc(stepID,data)
           complete=false
-          eventFunc(true,stepID,data)
         end
-
+       
         if data then
           logger.log(data)
         end
@@ -210,6 +213,7 @@ function create(eventFunc,networked,noLogging)
     if index==1 then
       self.setupTime=system.getTimer()
     end
+    assert(self.setupTime,"Setup time is nil. Index is " .. tostring(index))
 
     noFeedback=_noFeedback
     targetKeys={}
