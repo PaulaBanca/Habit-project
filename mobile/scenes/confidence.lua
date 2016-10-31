@@ -6,6 +6,10 @@ local button=require "ui.button"
 local logger=require "logger"
 local serpent=require "serpent"
 local incompletetasks=require "incompletetasks"
+local practicelogger=require "practicelogger"
+local daycounter=require "daycounter"
+local user=require "user"
+
 local display=display
 local os=os
 local math=math    
@@ -127,6 +131,7 @@ function scene:show(event)
     else
       incompletetasks.removeLast("scenes.pleasure")
     end
+    local difficulty=math.ceil(practicelogger.getPractices(event.params.melody)/3)
     local scene,params="scenes.message",{
       text="Play the following sequence five times as quickly as possible.",
       nextScene="scenes.play",
@@ -134,10 +139,39 @@ function scene:show(event)
         nextScene="scenes.schedule",
         track=event.params.melody,
         iterations=5,
-        rounds=1
+        rounds=1,
+        difficulty=difficulty
       }
     }
     incompletetasks.push(scene,params)
+    
+    local d=daycounter.getPracticeDay()
+    local practiced=daycounter.getPracticed(d)
+    local quizzed=user.get("quizzed") or {}
+    local qd=quizzed[d] or {}
+    local candiate
+    local switchTest=true
+    for i=1,2 do 
+      if not qd[i] or practiced[i]<2 then
+        switchTest=false
+        break
+      end
+    end
+    if switchTest then
+      local scene,params="scenes.message",{
+        text="Now the sequences will random switch. Try to play them as quickly as possible",
+        nextScene="scenes.play",
+        nextParams={
+          nextScene="scenes.schedule",
+          track="random",
+          iterations=10,
+          rounds=1,
+          difficulty=difficulty    
+        }
+      }
+      incompletetasks.push(scene,params)
+    end
+    
     incompletetasks.getNext()
     logger.startCatchUp()
   end)
