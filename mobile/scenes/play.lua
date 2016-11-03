@@ -91,15 +91,7 @@ end
 
 local function keyChangeAnimation()
   scene.keys:disable()
-  transition.to(scene.keys,{y=display.contentHeight+scene.keys.height,
-    onComplete=function(obj) 
-    if obj.removeSelf then
-      obj:removeSelf()
-    end
-  end})
-  scene:createKeys()
-  scene.keys.alpha=0
-  transition.to(scene.keys,{alpha=1})
+  scene.keyLayers:switchTo(modeIndex)
 end
 
 local function getIndex()
@@ -137,15 +129,7 @@ local function dropModeDown()
   logger.setIterations(state.get("iterations"))
 
   scene.keys:disable()
-  scene.keys:clear()
-  transition.to(scene.keys,{y=-scene.keys.height,
-    onComplete=function(obj)
-    obj:removeSelf() 
-  end})
-  scene.keys=nil
-  scene:createKeys()
-  scene.keys.alpha=0
-  transition.to(scene.keys,{alpha=1})
+  keyChangeAnimation()
 end
 
 
@@ -227,7 +211,6 @@ local function changeModeUp()
   if modeIndex>#modes then
     modeIndex=#modes
   end
-  scene.bg:setColour(modeIndex)
 
   if modesDropped==0 then
     state.clear("iterations")
@@ -409,11 +392,9 @@ function scene:create(event)
 end
 
 function scene:createKeys()
-  if self.keyBounds then
-    self.keyBounds:removeSelf()
-  end
   local mistakeInLastTouches=false
-  local keys=keys.create(function(stepID,data)
+  local group=display.newGroup()
+  local ks=keys.create(function(stepID,data)
     if stepID and stepID~=state.get("stepID") then
       return
     end
@@ -463,26 +444,109 @@ function scene:createKeys()
       end
     end  
   end,headless,isStart)
-  if self.keys then
-    self.keys:removeSelf()
-  end
-  self.view:insert(keys)
-  self.keys=keys
-
-  self.keyBounds=display.newGroup()
-  self.view:insert(self.keyBounds)
-  local xmin=self.keys.contentBounds.xMin
-  local xmax=self.keys.contentBounds.xMax
-  display.newRect(self.keyBounds,xmin/2,display.contentCenterY,xmin,display.contentHeight)
+  
+  local keyBounds=display.newGroup()
+  group:insert(keyBounds)
+  local xmin=ks.contentBounds.xMin
+  local xmax=ks.contentBounds.xMax
+  display.newRect(keyBounds,xmin/2,display.contentCenterY,xmin,display.contentHeight)
   local rw=display.contentWidth-xmax
-  display.newRect(self.keyBounds,xmax+rw/2,display.contentCenterY,rw,display.contentHeight)
-  self.keyBounds:toBack()
+  display.newRect(keyBounds,xmax+rw/2,display.contentCenterY,rw,display.contentHeight)
+  keyBounds:toBack()
 
-  for i=1, self.keyBounds.numChildren do
-    self.keyBounds[i].fill.effect="generator.custom.stripes"
-    self.keyBounds[i].blendMode="multiply"
+  for i=1, keyBounds.numChildren do
+    keyBounds[i].fill.effect="generator.custom.stripes"
+    keyBounds[i].blendMode="multiply"
   end
-  self.bg:toBack()
+  group:insert(ks)
+
+  function group:getKeys()
+    return ks
+  end
+  return group
+end
+
+function scene:setUpKeyLayers()
+  local layers=display.newGroup()
+  self.view:insert(layers)
+  for i=1,#modes do
+    local group=display.newGroup()
+    layers:insert(group)
+    local bg=display.newRect(group,display.contentCenterX,display.contentCenterY,display.actualContentWidth,display.actualContentHeight)
+    local colour={0.5,0.5,0.5}
+    if i>#colour then
+      colour={0,0.5,0} 
+    else
+      colour[i]=0
+    end
+    bg:setFillColor(unpack(colour))
+    bg.blendMode="multiply"
+    bg.strokeWidth=8
+    bg:setStrokeColor(1)
+
+    local bg=display.newRect(group,display.contentCenterX+5,display.contentCenterY+5,display.actualContentWidth,display.actualContentHeight)
+    bg:setFillColor(0, 0)
+    bg.strokeWidth=8
+    bg:setStrokeColor(0)
+    bg:toBack()
+    
+    local ks=scene:createKeys()
+    function group:getKeys()
+      return ks:getKeys()
+    end
+    group.yOff=ks.contentBounds.yMax-display.actualContentHeight
+    group:insert(ks)
+    local offset=#modes-i
+    group.anchorChildren=true
+    group.anchorX=1
+    group.anchorY=1
+    group:translate(display.actualContentWidth+offset*-10, display.actualContentHeight+offset*-10+group.yOff)
+  end
+
+  function layers:switchTo(layer)
+    local count=0
+    for i=layer+1,layers.numChildren do
+      local l=layers[i]
+      l.anchorChildren=true
+      local offset=i-layer
+      l:getKeys():disable()
+      local delay=count*250
+      transition.to(l,{
+        time=200,
+        anchorX=1,
+        anchorY=1,
+        x=display.actualContentWidth+offset*-10,
+        y=display.actualContentHeight+offset*-10+l.yOff,
+        onComplete=function()
+          transition.to(l,{rotation=90,delay=delay,alpha=0})
+        end
+      })
+      count=count+1
+    end
+
+    count=0
+    for i=1,layer do
+      local l=layers[i]
+      l.anchorChildren=true
+      local offset=layer-i
+      local delay=count*250
+      transition.to(l,{
+        time=200,
+        anchorX=1,
+        anchorY=1,
+        x=display.actualContentWidth+offset*-10,
+        y=display.actualContentHeight+offset*-10+l.yOff,
+        onComplete=function()
+          transition.to(l,{rotation=0,delay=delay,alpha=1})
+        end
+      })
+      if l.rotation~=0 then
+        count=count+1
+      end
+    end
+    scene.keys=layers[layer]:getKeys()
+  end
+  self.keyLayers=layers
 end
 
 function scene:show(event)
@@ -514,8 +578,12 @@ function scene:show(event)
     else
       logger.setModeIndex(modeIndex)
     end
-    scene.bg:setColour(modeIndex)
-    scene:createKeys()
+
+    scene:setUpKeyLayers()
+    if self.progress then
+      self.progress:toFront()
+    end
+    scene.keyLayers:switchTo(modeIndex)
 
     local setTrack=event.params and event.params.track
     if setTrack=="random" then
