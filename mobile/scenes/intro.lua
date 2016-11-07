@@ -16,7 +16,8 @@ local instructions={
     local k=keys.create(function() end,false,true) 
     scene.view:insert(k)
     k:toBack()
-    local targetKeys=k:setup({chord={"a3","f4","c4"}})
+    k:enable()
+    local targetKeys=k:setup({chord={"a3","f4","c4"}},false,false,false,1)
     local hint=chordbar.create(targetKeys)
     if hint then
       hint:translate(0,-k:getKeyHeight()/2)
@@ -24,10 +25,11 @@ local instructions={
     end
   end},
   {text="Colours will guide you until you learn the sequences. After a while they will be removed",y=5,width=display.contentWidth*7/8,onShow=function() 
-    local k=keys.create(function() end,false,true) 
+    local k=keys.create(function() end,false,true)
     scene.view:insert(k)
     k:toBack()
-    local targetKeys=k:setup({chord={"c3","g4"}})
+    k:enable()
+    local targetKeys=k:setup({chord={"c3","g4"}},false,false,false,1)
     local hint=chordbar.create(targetKeys)
     if hint then
       hint:translate(0,-k:getKeyHeight()/2)
