@@ -531,6 +531,9 @@ function scene:setUpKeyLayers()
   end
 
   function layers:switchTo(layer)
+    if scene.keys then
+      scene.keys:disable()
+    end
     local count=0
     for i=layer+1,layers.numChildren do
       local l=layers[i]
@@ -572,6 +575,7 @@ function scene:setUpKeyLayers()
       end
     end
     scene.keys=layers[layer]:getKeys()
+    scene.keys:enable()
   end
   self.keyLayers=layers
 end
