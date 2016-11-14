@@ -183,6 +183,7 @@ local function processBank()
     parent=scene.view,
     text=earned,
     fontSize=40,
+    font="Chunkfive.otf",
   })
   t:setFillColor(0.478,0.918,0)
   t.x=scene.bank.x
@@ -490,6 +491,30 @@ function scene:setUpKeyLayers()
     bg.strokeWidth=strokeWidth
     bg:setStrokeColor(0)
     bg:toBack()
+
+    local num=display.newText({
+      parent=group,
+      text=i,
+      fontSize=47,
+      font="Chunkfive.otf",
+      x=display.actualContentWidth/2-20,
+      y=-display.actualContentHeight/4
+    })
+    num:setFillColor(0.4)
+    num.anchorX=1
+    num.blendMode="add"
+
+    local text=display.newText({
+      parent=group,
+      text="Layer ",
+      font="Chunkfive.otf",
+      fontSize=32,
+      x=num.x-num.width,
+      y=-display.actualContentHeight/4
+    })
+    text:setFillColor(0.4)
+    text.anchorX=1
+    text.blendMode="add"
     
     local ks=scene:createKeys()
     function group:getKeys()
@@ -629,9 +654,11 @@ function scene:show(event)
         text=0,
         x=display.contentWidth-self.cross.width,
         y=20,
-        fontSize=40
+        fontSize=40,
+        font="Chunkfive.otf",
       })
       scene.points.anchorX=1
+      scene.points:translate(0, 16)
 
       if rewardType~="none" then
         scene.bank=display.newGroup()
@@ -642,6 +669,7 @@ function scene:show(event)
           parent=scene.bank,
           text=0,
           fontSize=40,
+          font="Chunkfive.otf",
         })
         text:setFillColor(0.478,0.918,0)
         local bg=display.newImage(scene.bank,"img/blurbox.png")
