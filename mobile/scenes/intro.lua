@@ -36,7 +36,8 @@ local instructions={
       scene.view:insert(hint)
     end
   end},
-  {text="Now lets practice a simple melody a few times",y=display.contentCenterY-40}
+  {text="Now lets practice a simple melody a few times.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro"}},
+  {text="There are different layers. The higher the number of the layer, the less feedback you will get. Lets play the same sequence on each of the layers.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,modeProgression=true,nextScene="scenes.intro"}}
 }
 
 function scene:show(event)
@@ -48,7 +49,7 @@ function scene:show(event)
   local step=table.remove(instructions,1)
   if not step or loaded then
     jsonreader.store(path,{done=true})
-    return composer.gotoScene(loaded and "scenes.schedule" or "scenes.play",{params={intro=true}})
+    return composer.gotoScene("scenes.schedule")
   end
 
   if step.onShow then
@@ -80,7 +81,7 @@ function scene:show(event)
     for i=scene.view.numChildren,1,-1 do
       scene.view[i]:removeSelf()
     end
-    composer.gotoScene("scenes.intro")
+    composer.gotoScene(step.scene and step.scene or "scenes.intro",{params=step.params})
   end)
 
 end

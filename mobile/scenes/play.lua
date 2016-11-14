@@ -42,6 +42,7 @@ local track=1
 local modes={"learning","recall","blind","invisible"}
 local modeIndex=1
 local isStart=false
+local startModeProgression=false
 local headless=false
 local rewardType="none"
 local totalMistakes=0
@@ -417,11 +418,17 @@ function scene:createKeys()
         end
       end
       if isStart and getIndex()==#sequence then
-        composer.hideOverlay()
-        composer.gotoScene("scenes.schedule")
+        local done=modeIndex==#modes
+        changeModeUp()
+        sequence=startInstructions
+        restart()
+        if done or not startModeProgression then
+          composer.hideOverlay()
+          composer.gotoScene(nextScene)
+        end
+      else
+        proceedToNextStep()
       end
-
-      proceedToNextStep()
     end
     mistakeInLastTouches=false
     setUpReward()
@@ -590,6 +597,7 @@ function scene:show(event)
     countMistakes=true
 
     isStart=event.params and event.params.intro
+    startModeProgression=event.params and event.params.modeProgression
     headless=event.params and event.params.headless
     self.onClose=event.params and event.params.onClose
     rewardType=event.params and event.params.rewardType or "none"
