@@ -610,6 +610,8 @@ function scene:show(event)
     if self.progress then
       self.progress:toFront()
     end
+    self.cross:toFront()
+    self.cross.isVisible=not isStart
     scene.keyLayers:switchTo(modeIndex)
 
     local setTrack=event.params and event.params.track
