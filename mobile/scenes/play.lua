@@ -470,9 +470,10 @@ function scene:setUpKeyLayers()
   local layers=display.newGroup()
   self.view:insert(layers)
   for i=1,#modes do
-    local group=display.newGroup()
-    layers:insert(group)
-    local bg=display.newRect(group,display.contentCenterX,display.contentCenterY,display.actualContentWidth,display.actualContentHeight)
+    local group=display.newContainer(layers, display.actualContentWidth, display.actualContentHeight)
+    group.anchorChildren=true
+    local strokeWidth=8
+    local bg=display.newRect(group,0,0,display.actualContentWidth-strokeWidth,display.actualContentHeight-strokeWidth)
     local colour={0.5,0.5,0.5}
     if i>#colour then
       colour={0,0.5,0} 
@@ -484,9 +485,9 @@ function scene:setUpKeyLayers()
     bg.strokeWidth=8
     bg:setStrokeColor(1)
 
-    local bg=display.newRect(group,display.contentCenterX+5,display.contentCenterY+5,display.actualContentWidth,display.actualContentHeight)
+    local bg=display.newRect(group,5,5,display.actualContentWidth-strokeWidth,display.actualContentHeight-strokeWidth)
     bg:setFillColor(0, 0)
-    bg.strokeWidth=8
+    bg.strokeWidth=strokeWidth
     bg:setStrokeColor(0)
     bg:toBack()
     
@@ -496,6 +497,7 @@ function scene:setUpKeyLayers()
     end
     group.yOff=ks.contentBounds.yMax-display.actualContentHeight
     group:insert(ks)
+    ks:translate(-display.actualContentWidth/2, -display.actualContentHeight/2)
     local offset=#modes-i
     group.anchorChildren=true
     group.anchorX=1
@@ -516,7 +518,7 @@ function scene:setUpKeyLayers()
         anchorX=1,
         anchorY=1,
         x=display.actualContentWidth+offset*-10,
-        y=display.actualContentHeight+offset*-10+l.yOff,
+        y=display.actualContentHeight+offset*-10,
         onComplete=function()
           transition.to(l,{rotation=90,delay=delay,alpha=0})
         end
@@ -535,7 +537,7 @@ function scene:setUpKeyLayers()
         anchorX=1,
         anchorY=1,
         x=display.actualContentWidth+offset*-10,
-        y=display.actualContentHeight+offset*-10+l.yOff,
+        y=display.actualContentHeight+offset*-10,
         onComplete=function()
           transition.to(l,{rotation=0,delay=delay,alpha=1})
         end
