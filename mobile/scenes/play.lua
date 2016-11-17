@@ -719,6 +719,9 @@ function scene:hide(event)
     
     self.progress:removeSelf()
     self.progress=nil
+    self.keyLayers:removeSelf()
+    self.keyLayers=nil
+    self.keys=nil
     if self.points then
       self.points:removeSelf()
       self.points=nil
