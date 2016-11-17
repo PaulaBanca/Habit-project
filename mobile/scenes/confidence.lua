@@ -125,6 +125,7 @@ function scene:show(event)
 
     data["date"]=os.date("%F")
     data["time"]=os.date("%T")
+    data["practice"]=event.params.practice
     logger.log(data)
     if event.params.resumed then
       incompletetasks.lastCompleted()
@@ -180,7 +181,6 @@ function scene:show(event)
   done.anchorY=1
   done:translate(display.contentCenterX, display.contentHeight*3/4)
   scene.view:insert(done)
-
 
   local query=display.newText({
     text="How confident are you that you know this sequence by heart?",

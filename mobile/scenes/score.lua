@@ -4,6 +4,7 @@ local scene=composer.newScene()
 local stimuli=require "stimuli"
 local jsonreader=require "jsonreader"
 local daycounter=require "daycounter"
+local practicelogger=require "practicelogger"
 local incompletetasks=require "incompletetasks"
 local user=require "user"
 local display=display
@@ -95,7 +96,7 @@ function scene:show(event)
       qd[candiate]=true
       quizzed[d]=qd
       user.store("quizzed",quizzed)
-      local scene,params="scenes.pleasure",{melody=candiate,rounds=1}
+      local scene,params="scenes.pleasure",{melody=candiate,rounds=1,practice=practicelogger.getPractices(candiate)}
       incompletetasks.push(scene,params)
 
       composer.gotoScene(scene,{params=params})
