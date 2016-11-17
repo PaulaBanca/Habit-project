@@ -180,7 +180,6 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
           data.keyIndex=keyInstance.index
           endedLoggingTable=nil
         end
-
         if not next(currentlyPressedKeys) then
           if wasCorrect and not complete then
             mistakeFunc(true,stepID,data)
@@ -285,6 +284,7 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
     if not enabled then
       return
     end
+    currentlyPressedKeys={}
     enabled=false
     for i=1, #keys do 
       local img=keys[i].getTouchImg()
@@ -298,6 +298,7 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
       return
     end
     enabled=true
+    currentlyPressedKeys={}
     for i=1, #keys do 
       local img=keys[i].getTouchImg()
       img:addEventListener("tap")
