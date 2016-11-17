@@ -231,7 +231,7 @@ local function changeModeUp()
   end
   modesDropped=modesDropped-1
   if modesDropped<=0 then
-    scene.progress.isVisible=true
+    scene.progress.isVisible=not isStart
     modesDropped=0
   end 
   learningLength=modesDropped==0 and maxLearningLength or 3
@@ -484,6 +484,7 @@ end
 function scene:setUpKeyLayers()
   if self.keyLayers then
     self.keyLayers:removeSelf()
+    self.keys=nil
   end
   local layers=display.newGroup()
   self.view:insert(layers)
@@ -738,6 +739,9 @@ function scene:show(event)
       end
     end
   else
+    if self.progress then
+      self.progress:removeSelf()
+    end
     local p=progress.create(200,40,_.rep(maxLearningLength,rounds))
     p.anchorChildren=true
     p.anchorX=0
