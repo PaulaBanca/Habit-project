@@ -31,6 +31,7 @@ local table=table
 local easing=easing
 local tonumber=tonumber
 local Runtime=Runtime
+local pairs=pairs
 
 setfenv(1,scene)
 
@@ -537,54 +538,74 @@ function scene:setUpKeyLayers()
     group:translate(display.actualContentWidth+offset*-10, display.actualContentHeight+offset*-10+group.yOff)
   end
 
-  function layers:switchTo(layer)
+  function layers:switchTo(layer,noAnim)
     if scene.keys then
       scene.keys:disable()
     end
     local count=0
-    for i=layer+1,layers.numChildren do
-      local l=layers[i]
+    for i=layer+1,self.numChildren do
+      local l=self[i]
       l.anchorChildren=true
       local offset=i-layer
       l:getKeys():disable()
       local delay=count*250
-      transition.to(l,{
+      local opts={
         time=200,
         anchorX=1,
         anchorY=1,
         x=display.actualContentWidth+offset*-10,
         y=display.actualContentHeight+offset*-10,
-        onComplete=function()
+      }
+      if noAnim then
+        opts.time=nil
+        opts.rotation=90
+        opts.alpha=0
+        for k,v in pairs(opts) do
+          l[k]=v
+        end
+      else
+        opts.onComplete=function()
           transition.to(l,{rotation=90,delay=delay,alpha=0})
         end
-      })
+    
+        transition.to(l,opts)
+      end
       count=count+1
     end
 
     count=0
     for i=1,layer do
-      local l=layers[i]
+      local l=self[i]
       l.anchorChildren=true
       local offset=layer-i
       local delay=count*250
-      transition.to(l,{
+      local opts={
         time=200,
         anchorX=1,
         anchorY=1,
         x=display.actualContentWidth+offset*-10,
-        y=display.actualContentHeight+offset*-10,
-        onComplete=function()
+        y=display.actualContentHeight+offset*-10,       
+      }
+      if noAnim then
+        opts.time=nil
+        opts.rotation=0
+        opts.alpha=1
+        for k,v in pairs(opts) do
+          l[k]=v
+        end
+      else
+        opts.onComplete=function()
           transition.to(l,{rotation=0,delay=delay,alpha=1})
         end
-      })
+        transition.to(l,opts)
+      end
       if l.rotation~=0 then
         count=count+1
       end
     end
-    scene.keys=layers[layer]:getKeys()
+    scene.keys=self[layer]:getKeys()
     scene.keys:enable()
   end
-  self.keyLayers=layers
 end
 
 function scene:show(event)
@@ -624,8 +645,8 @@ function scene:show(event)
     end
     self.cross:toFront()
     self.cross.isVisible=not isStart
-    scene.keyLayers:switchTo(modeIndex)
-
+    scene.keyLayers:switchTo(modeIndex,true)
+   
     local setTrack=event.params and event.params.track
     if setTrack=="random" then
       trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
