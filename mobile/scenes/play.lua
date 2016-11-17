@@ -122,7 +122,6 @@ local function dropModeDown()
   state:pushState()
   modeIndex=modeIndex-1
   scene.progress.isVisible=false
-  scene.bg:setColour(modeIndex)
   
   learningLength=3
   modesDropped=modesDropped+1
@@ -133,7 +132,6 @@ local function dropModeDown()
   scene.keys:disable()
   keyChangeAnimation()
 end
-
 
 local function restart()
   resetBank()
