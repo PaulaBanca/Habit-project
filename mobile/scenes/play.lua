@@ -183,11 +183,13 @@ local function processBank()
     parent=scene.view,
     text=earned,
     fontSize=40,
+    align="center",
     font="Chunkfive.otf",
   })
+  t:scale(4,4)
   t:setFillColor(0.478,0.918,0)
-  t.x=scene.bank.x
-  t.y=scene.bank.y
+  t.x=scene.img.x
+  t.y=scene.img.y+scene.img.height/2
   
   scene.bank:setScore(0)
   scene.bank.isVisible=false
