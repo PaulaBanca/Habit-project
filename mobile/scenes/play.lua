@@ -482,8 +482,13 @@ function scene:createKeys()
 end
 
 function scene:setUpKeyLayers()
+  if self.keyLayers then
+    self.keyLayers:removeSelf()
+  end
   local layers=display.newGroup()
   self.view:insert(layers)
+  self.keyLayers=layers
+
   for i=1,#modes do
     local group=display.newContainer(layers, display.actualContentWidth, display.actualContentHeight)
     group.anchorChildren=true
