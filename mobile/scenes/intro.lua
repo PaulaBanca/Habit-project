@@ -37,7 +37,8 @@ local instructions={
     end
   end},
   {text="Now lets practice a simple melody a few times.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro"}},
-  {text="There are different layers. The higher the number of the layer, the less feedback you will get. Lets play the same sequence on each of the layers.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,modeProgression=true,nextScene="scenes.intro"}}
+  {text="Gradually the amount of feedback you get will decrease. Lets play a simple sequence twice at different levels and see how they compare.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,modeProgression=2,nextScene="scenes.intro"}},
+  {text="Now lets play that sequence again, but going through all the different levels. The sequence is the same at each level.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,modeProgression=4,nextScene="scenes.intro"}}
 }
 
 function scene:show(event)

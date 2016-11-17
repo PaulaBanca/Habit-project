@@ -64,6 +64,13 @@ local startInstructions={
   {chord={"f3","a4","c4","f4"},forceLayout=true},
 }
 
+local modeProgressionSequence={
+  {chord={"c4","none","none","none"},forceLayout=true},
+  {chord={"none","a4","none","none"},forceLayout=true},
+  {chord={"none","none","d4","none"},forceLayout=true},
+  {chord={"none","none","none","g4"},forceLayout=true},
+}
+
 local function switchSong(newTrack)
   if scene.img then
     scene.img:removeSelf()
@@ -113,7 +120,7 @@ local function resetBank()
 end
 
 local function shouldDropModeDown()
-  return state.get("mistakes")>3 and modeIndex>1 and not headless
+  return state.get("mistakes")>3 and modeIndex>1 and not headless and not isStart
 end
 
 local function dropModeDown()
@@ -222,7 +229,6 @@ local function changeModeUp()
       state.increment()
     end
   end
-
   modesDropped=modesDropped-1
   if modesDropped<=0 then
     scene.progress.isVisible=true
@@ -419,9 +425,9 @@ function scene:createKeys()
         end
       end
       if isStart and getIndex()==#sequence then
-        local done=modeIndex==#modes
+        local done=modeIndex==startModeProgression
         changeModeUp()
-        sequence=startInstructions
+        sequence=startModeProgression and modeProgressionSequence or startInstructions
         restart()
         if done or not startModeProgression then
           composer.hideOverlay()
@@ -664,7 +670,13 @@ function scene:show(event)
     logger.setBank(0)
     logger.setModesDropped(modesDropped)
 
-    sequence=isStart and startInstructions or sequence
+    if isStart then
+      if startModeProgression then
+        sequence=modeProgressionSequence
+      else
+        sequence=startInstructions
+      end
+    end
     if isStart or headless then
       scene.img.isVisible=false
       scene.progress.isVisible=false
