@@ -1,7 +1,9 @@
 local M={}
 playstate=M
 
+local serpent=require "serpent"
 local system=system
+local print=print
 
 setfenv(1,M)
 
@@ -58,6 +60,10 @@ function create()
 
   function t.clear(key)
     state[key]=blankState()[key] 
+  end
+
+  function t.print()
+    print (serpent.block(state,{comment=false}))
   end
   return t
 end
