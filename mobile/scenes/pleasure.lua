@@ -114,7 +114,7 @@ function scene:show(event)
     for i=self.view.numChildren,1,-1 do
       self.view[i]:removeSelf()
     end
-    composer.gotoScene("scenes.confidence",{params={melody=event.params.melody,rounds=event.params.rounds,data=data,resumed=event.params.resumed,practice=event.params.practice}})
+    composer.gotoScene("scenes.confidence",{params={melody=event.params.melody,rounds=event.params.rounds,data=data,resumed=event.params.resumed,practice=event.params.practice,track=event.params.track}})
   end)
   done.isVisible=false
   done.anchorChildren=true

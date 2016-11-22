@@ -96,7 +96,7 @@ function scene:show(event)
       qd[candiate]=true
       quizzed[d]=qd
       user.store("quizzed",quizzed)
-      local scene,params="scenes.pleasure",{melody=candiate,rounds=1,practice=practicelogger.getPractices(candiate)}
+      local scene,params="scenes.pleasure",{melody=candiate,rounds=1,practice=practicelogger.getPractices(candiate),track=candiate}
       incompletetasks.push(scene,params)
 
       composer.gotoScene(scene,{params=params})
