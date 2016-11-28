@@ -694,13 +694,24 @@ function scene:show(event)
     setupNextKeys()
     setUpReward()
 
-    deadmansswitch.start(function() 
+    if system.getInfo("environment")~="simulator" then
+      self.keys:disable()
+    end
+    local group=deadmansswitch.start(self.view,function()
+      self.keys:enable()
+      scene.keys:setLogData(true)
+    end,function()
+      scene.keys:setLogData(false)
       if hasCompletedTask() then
+        self.keys:disable()
         return
       end
       madeMistake(self.redBackground)
       setupNextKeys()
+      self.keys:disable()
     end)
+    self.view:insert(group)
+    group:toFront()
     if not isStart and rewardType~="none" then
       scene.points=display.newText({
         parent=scene.view,

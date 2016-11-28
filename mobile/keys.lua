@@ -306,6 +306,10 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
     end
   end
 
+  function group:setLogData(on)
+    logData=on
+  end
+
   function group:addCoin(callback)
     local i=math.random(NUM_KEYS)
     local k=keys[i]
