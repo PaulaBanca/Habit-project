@@ -5,6 +5,7 @@ local stimuli=require "stimuli"
 local practicelogger=require "practicelogger"
 local daycounter=require "daycounter"
 local logger=require "logger"
+local _=require "util.moses"
 local display=display
 local native=native
 local math=math
@@ -32,14 +33,15 @@ function scene:show(event)
   text.x=display.contentCenterX
   text.y=display.contentCenterY*0.5
   local noReward=daycounter.getPracticeDay()>20
-  for i=1, 2 do
-    local img=stimuli.getStimulus(i)
+  local order=_.shuffle({1,2})
+  for i=1, #order do
+    local track=order[i]
+    local img=stimuli.getStimulus(track)
     scene.view:insert(img)
     img.x=display.contentCenterX-(img.contentWidth/2)*(i*2-3)
     img.y=display.contentCenterY
     img:scale(0.5,0.5)
-    local track=i
-    local practice=practicelogger.getPractices(i)
+    local practice=practicelogger.getPractices(track)
     img.tap=function() 
       img:removeEventListener("tap")
       logger.setPractices(practice)
@@ -49,7 +51,7 @@ function scene:show(event)
         track=track,
         difficulty=math.ceil(practice/3),
         rewardType=noReward and "none" or 
-            ((i+self.modeSelect)%2+1==1 and "timed" or "random"),
+            ((track+self.modeSelect)%2+1==1 and "timed" or "random"),
         isScheduledPractice=true,
         practice=practice,
         mode="practice",
