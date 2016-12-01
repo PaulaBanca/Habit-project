@@ -626,6 +626,7 @@ function scene:show(event)
   maxLearningLength=event.params.iterations or 10
     
   if event.phase=="did" then
+   
     -- composer.showOverlay("scenes.dataviewer")
     totalMistakes=0
     countMistakes=true
@@ -638,6 +639,7 @@ function scene:show(event)
     nextScene=event.params and event.params.nextScene or "scenes.score"
     isScheduledPractice=event.params and event.params.isScheduledPractice
     logger.setIsScheduled(isScheduledPractice or false)
+    logger.setMode(event.params and event.params.mode)
     if not isScheduledPractice then
       logger.setPractices(-1)
       logger.setAttempts(-1)

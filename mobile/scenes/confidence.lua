@@ -142,7 +142,8 @@ function scene:show(event)
         track=event.params.melody,
         iterations=5,
         rounds=1,
-        difficulty=difficulty
+        difficulty=difficulty,
+        mode="timed"
       }
     }
     incompletetasks.push(scene,params)
@@ -168,7 +169,8 @@ function scene:show(event)
           track="random",
           iterations=10,
           rounds=1,
-          difficulty=difficulty    
+          difficulty=difficulty,
+          mode="switch"
         }
       }
       incompletetasks.push(scene,params)

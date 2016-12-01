@@ -66,6 +66,10 @@ function setTrack(track)
   additionalData["track"]=track
 end 
 
+function setMode(mode)
+  additionalData["mode"]=mode
+end 
+
 function setDeadmansSwitchID(id)
   additionalData["deadmanSwitchRelease"]=id
 end

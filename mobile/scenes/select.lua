@@ -52,6 +52,7 @@ function scene:show(event)
             ((i+self.modeSelect)%2+1==1 and "timed" or "random"),
         isScheduledPractice=true,
         practice=practice,
+        mode="practice",
         iterations=self.iterations}
       })
     end

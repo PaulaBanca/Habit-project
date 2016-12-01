@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS touch (
   userid TEXT NOT NULL,
   timeIntoSequence INTEGER NOT NULL,
   intro TEXT NOT NULL,
+  mode TEXT NOT NULL,
   mistakes INTEGER NOT NULL,
   deadmanSwitchRelease INTEGER,
   FOREIGN KEY(deadmanSwitchRelease) REFERENCES switchreleases(ID)
@@ -83,7 +84,7 @@ local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,c
 
 local preparedSwitchRelease=database.prepare([[INSERT INTO switchreleases (releaseTime,practice,track,date,time,appMillis,userid) VALUES (:releaseTime,:practice,:track,:date,:time,:appMillis,:userid);]])
 
-local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease);]])
+local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease,mode) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease,:mode);]])
 
 
 local queuedCommands={}
