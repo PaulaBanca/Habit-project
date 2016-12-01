@@ -66,6 +66,10 @@ function setTrack(track)
   additionalData["track"]=track
 end 
 
+function setDeadmansSwitchID(id)
+  additionalData["deadmanSwitchRelease"]=id
+end
+
 function createLoggingTable()
   local t={}
   for k, v in pairs(additionalData) do
@@ -76,7 +80,7 @@ end
 
 function log(t)
   t.userid=user.getID()
-  unsent.log(t)
+  return unsent.log(t)
 end
 
 local params={}
@@ -173,7 +177,13 @@ function startCatchUp()
       end
       send(unsent.getTouches,unsent.clearUpTo,sendTouches)
     end
-    sendTouches()
+    sendSwitchReleases=function(complete)
+      if complete then
+        return sendTouches()
+      end
+      send(unsent.getSwitchReleases,unsent.clearSwitchReleasedUpTo,sendSwitchReleases)
+    end
+    sendSwitchReleases()
   end)
 end
 

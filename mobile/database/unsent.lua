@@ -41,7 +41,9 @@ CREATE TABLE IF NOT EXISTS touch (
   userid TEXT NOT NULL,
   timeIntoSequence INTEGER NOT NULL,
   intro TEXT NOT NULL,
-  mistakes INTEGER NOT NULL
+  mistakes INTEGER NOT NULL,
+  deadmanSwitchRelease INTEGER,
+  FOREIGN KEY(deadmanSwitchRelease) REFERENCES switchreleases(ID)
 );
 ]]
 
@@ -63,9 +65,25 @@ CREATE TABLE IF NOT EXISTS questionnaires (
 ]]
 database.runSQLQuery(createTableCmd)
 
+local createTableCmd=[[
+CREATE TABLE IF NOT EXISTS switchreleases (
+  ID INTEGER PRIMARY KEY ASC AUTOINCREMENT,
+  date TEXT NOT NULL,
+  time TEXT NOT NULL,
+  appMillis INTEGER NOT NULL,
+  practice INTEGER,
+  track INTEGER,
+  releaseTime INTEGER,
+  userid TEXT NOT NULL
+);
+]]
+database.runSQLQuery(createTableCmd)
+
 local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,practice,track,date,time,userid) VALUES (%s,%s,%s,%s,%s,%s,"%s","%s","%s");]]
 
-local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes);]])
+local preparedSwitchRelease=database.prepare([[INSERT INTO switchreleases (releaseTime,practice,track,date,time,appMillis,userid) VALUES (:releaseTime,:practice,:track,:date,:time,:appMillis,:userid);]])
+
+local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease);]])
 
 
 local queuedCommands={}
@@ -85,7 +103,11 @@ function log(t)
     t.intro=tostring(t.intro)
     t.mistakes=(t.mistakes or 0)
     t.isPractice=tostring(t.isPractice)
+    t.deadmanSwitchRelease=t.deadmanSwitchRelease or "NULL"
     queuedCommands[#queuedCommands+1]=t
+  elseif t.releaseTime then
+    preparedSwitchRelease:bind_names(t)
+    database.step(preparedSwitchRelease)
   else
     database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.practice,t.track,t.date,t.time,t.userid))
   end
@@ -96,6 +118,8 @@ local hasTouchesCmd="select exists (select 1 from touch); "
 local preparedGetTouches=database.prepare([[SELECT * FROM touch ORDER BY ID ASC limit 50;]])
 local hasQuestionnairesCmd="select exists (select 1 from questionnaires); "
 local preparedGetQuestionnaires=database.prepare([[SELECT * FROM questionnaires ORDER BY ID ASC limit 50;]])
+local hasSwitchReleasesCmd="select exists (select 1 from switchreleases); "
+local preparedGetSwitchReleases=database.prepare([[SELECT * FROM switchreleases ORDER BY ID ASC limit 50;]])
 
 function fetch50(preparedStmt,callback)
   preparedStmt:reset()
@@ -131,6 +155,16 @@ function clearQsUpTo(id)
   database.runSQLQuery(removeSentQsCmd:format(id))
 end
 
+function getSwitchReleases(callback)
+  fetch50(preparedGetSwitchReleases,callback)
+end
+
+local removeSentSwitchReleasesCmd=[[DELETE FROM switchreleases WHERE ID <= %d;]]
+function clearSwitchReleasedUpTo(id)
+  database.runSQLQuery(removeSentSwitchReleasesCmd:format(id))
+end
+
+
 function flushQueuedCommands(onComplete)
   local total=#queuedCommands
   if total==0 then
@@ -160,6 +194,13 @@ function hasDataToSend()
     return true
   end
   database.runSQLQuery(hasTouchesCmd,function(udata,cols,values,names)
+    hasData=hasData or values[1]>0
+    return 0
+  end)
+  if hasData then
+    return true
+  end
+  database.runSQLQuery(hasSwitchReleasesCmd,function(udata,cols,values,names)
     hasData=hasData or values[1]>0
     return 0
   end)

@@ -31,6 +31,7 @@ local table=table
 local easing=easing
 local tonumber=tonumber
 local Runtime=Runtime
+local os=os
 local pairs=pairs
 
 setfenv(1,scene)
@@ -697,15 +698,33 @@ function scene:show(event)
     if system.getInfo("environment")~="simulator" then
       self.keys:disable()
     end
+
+    local practice=event.params and event.params.practice
+    local releaseTime
     local group=deadmansswitch.start(self.view,function()
       self.keys:enable()
       scene.keys:setLogData(true)
+      if not releaseTime then
+        return
+      end
+
+      local rowid=logger.log({
+        releaseTime=system.getTimer()-releaseTime,
+        time=os.date("%T"),
+        date=os.date("%F"),
+        appMillis=system.getTimer(),
+        practice=practice,
+        track=track,
+      })
+      logger.setDeadmansSwitchID(rowid)
+      releaseTime=nil
     end,function()
       scene.keys:setLogData(false)
       if hasCompletedTask() then
         self.keys:disable()
         return
       end
+      releaseTime=system.getTimer()
       madeMistake(self.redBackground)
       setupNextKeys()
       self.keys:disable()

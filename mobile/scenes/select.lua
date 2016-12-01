@@ -51,6 +51,7 @@ function scene:show(event)
         rewardType=noReward and "none" or 
             ((i+self.modeSelect)%2+1==1 and "timed" or "random"),
         isScheduledPractice=true,
+        practice=practice,
         iterations=self.iterations}
       })
     end
