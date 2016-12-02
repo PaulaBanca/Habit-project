@@ -705,8 +705,8 @@ function scene:show(event)
     local releaseTime
     local group=deadmansswitch.start(self.view,function()
       self.keys:enable()
-      scene.keys:setLogData(true)
-      if not releaseTime then
+      scene.keys:setLogData(not isStart)
+      if not releaseTime or isStart then
         return
       end
 
