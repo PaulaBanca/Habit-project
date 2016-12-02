@@ -166,7 +166,7 @@ function startCatchUp()
   unsent.flushQueuedCommands(function()
     syncMessage.text="Background Syncing..."
     syncMessage:setTextColor(1)
-    local sendTouches,sendQuestionnaires
+    local sendTouches,sendQuestionnaires,sendSwitchReleases
     sendQuestionnaires=function(complete)
       if complete then
         syncMessage:removeSelf()
