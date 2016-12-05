@@ -55,7 +55,7 @@ function lastRowID()
   return db:last_insert_rowid()
 end
 
-local function onSystemEvent( event )
+local function onSystemEvent(event) 
   if event.type=="applicationExit" then
     if db and db:isopen() then
       db:close()

@@ -82,9 +82,9 @@ function createLoggingTable()
   return t
 end
 
-function log(t)
+function log(type,t)
   t.userid=user.getID()
-  return unsent.log(t)
+  return unsent.log(type,t)
 end
 
 local params={}

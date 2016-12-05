@@ -148,7 +148,7 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
         end
         
         if data then
-          logger.log(data)
+          logger.log("touch",data)
         end
         return true
       end
@@ -189,7 +189,7 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
         end
        
         if data then
-          logger.log(data)
+          logger.log("touch",data)
         end
         
         timer.performWithDelay(100, function()          

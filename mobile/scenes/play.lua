@@ -710,7 +710,7 @@ function scene:show(event)
         return
       end
 
-      local rowid=logger.log({
+      local rowid=logger.log("switchRelease",{
         releaseTime=system.getTimer()-releaseTime,
         time=os.date("%T"),
         date=os.date("%F"),

@@ -127,7 +127,7 @@ function scene:show(event)
     data["time"]=os.date("%T")
     data["practice"]=event.params.practice
     data["track"]=event.params.track
-    logger.log(data)
+    logger.log("questionnaire",data)
     if event.params.resumed then
       incompletetasks.lastCompleted()
     else

@@ -87,9 +87,19 @@ local preparedSwitchRelease=database.prepare([[INSERT INTO switchreleases (relea
 local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease,mode) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease,:mode);]])
 
 
+local function preparedHandler(stmt,t)
+  for k,v in pairs(t) do
+    if not v then
+      t[k]="NULL"
+    end
+  end
+  stmt:bind_names(t)
+  database.step(stmt)
+end
+
 local queuedCommands={}
-function log(t)
-  if t.touchPhase then
+local logHandler={
+  touch=function(t)
     t.delay=tostring(t.delay or "-1")
     t.wasCorrect =tostring(t.wasCorrect or "false")
     t.complete=tostring(t.complete)
@@ -106,12 +116,17 @@ function log(t)
     t.isPractice=tostring(t.isPractice)
     t.deadmanSwitchRelease=t.deadmanSwitchRelease or "NULL"
     queuedCommands[#queuedCommands+1]=t
-  elseif t.releaseTime then
-    preparedSwitchRelease:bind_names(t)
-    database.step(preparedSwitchRelease)
-  else
+  end,
+  switchRelease=function(t)
+    preparedHandler(preparedSwitchRelease,t)
+  end,
+  questionnaire=function(t)
     database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.practice,t.track,t.date,t.time,t.userid))
   end
+}
+
+function log(type,t)
+  logHandler[type](t)
   return database.lastRowID()
 end
 
