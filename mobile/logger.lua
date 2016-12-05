@@ -87,12 +87,11 @@ function log(type,t)
   return unsent.log(type,t)
 end
 
-
-function send(getFunc,clearFunc,doneFunc)
+function send(tableName,getFunc,clearFunc,doneFunc)
   local b
   local lastID
   local rows={}
-  getFunc(function(row,done)
+  getFunc(tableName,function(row,done)
     if done then
       if #rows==0 then
         return doneFunc(true)
@@ -115,7 +114,7 @@ function send(getFunc,clearFunc,doneFunc)
           elseif event.phase=="ended" then
             if event.status>=200 and event.status<=201 then
               if event.response=="OK" then
-                clearFunc(lastID)
+                clearFunc(tableName,lastID)
               end
             else
               print("Network error: ", event.response, " Status " , event.status)
@@ -163,28 +162,22 @@ function startCatchUp()
   unsent.flushQueuedCommands(function()
     syncMessage.text="Background Syncing..."
     syncMessage:setTextColor(1)
-    local sendTouches,sendQuestionnaires,sendSwitchReleases
-    sendQuestionnaires=function(complete)
+    local tables=unsent.getTableNames()
+    local cur=1
+    local process
+    process=function(complete)
       if complete then
-        syncMessage:removeSelf()
-        syncMessage=nil
-        return
+        cur=cur+1
+        if cur>#tables then
+          syncMessage:removeSelf()
+          syncMessage=nil
+          return
+        end
       end
-      send(unsent.getQs,unsent.clearQsUpTo,sendQuestionnaires)
+      local table=tables[cur]
+      send(table,unsent.getData,unsent.clearDataUpTo,process)
     end
-    sendTouches=function(complete)
-      if complete then
-        return sendQuestionnaires()
-      end
-      send(unsent.getTouches,unsent.clearUpTo,sendTouches)
-    end
-    sendSwitchReleases=function(complete)
-      if complete then
-        return sendTouches()
-      end
-      send(unsent.getSwitchReleases,unsent.clearSwitchReleasedUpTo,sendSwitchReleases)
-    end
-    sendSwitchReleases()
+    process()
   end)
 end
 

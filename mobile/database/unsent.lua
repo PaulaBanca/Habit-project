@@ -87,12 +87,56 @@ local preparedSwitchRelease=database.prepare([[INSERT INTO switchreleases (relea
 local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease,mode) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease,:mode);]])
 
 
-local function preparedHandler(stmt,t)
-  for k,v in pairs(t) do
-    if not v then
-      t[k]="NULL"
+local function getNullColumns(tablename)
+  local nullColumns={}
+  database.runSQLQuery(([[PRAGMA table_info("%s");]]):format(tablename),function(udata,cols,values,names)
+      for i=1,#names do
+        if names[i]=="notnull" and values[i]=="0" then
+          for k=1,#names do
+            if names[k]=="name" and values[k]~="ID" then
+              nullColumns[values[k]]="NULL"
+            end
+          end
+        end
+      end
+      return 0
+  end)
+  return nullColumns
+end
+
+local nullValues={}
+local tableNames={}
+  
+local function readTableNamesFromDatabase()
+  database.runSQLQuery([[SELECT name FROM sqlite_master WHERE type='table';]],function(udata,cols,values,names)
+    if values[1]~="sqlite_sequence" then
+      tableNames[#tableNames+1]=values[1]
+    end
+    return 0
+  end)
+  for i=1, #tableNames do
+    nullValues[tableNames[i]]=getNullColumns(tableNames[i])
+  end
+end
+
+readTableNamesFromDatabase()
+
+nullValues["touch"]["delay"]=-1
+nullValues["touch"]["wasCorrect"]=false
+nullValues["touch"]["mistakes"]=0
+
+local function fillInNulls(tablename,t)
+  for k,v in pairs(nullValues[tablename]) do
+    if t[k]==nil then
+      t[k]=v
     end
   end
+  for k,v in pairs(t) do
+    t[k]=tostring(v)
+  end
+end
+
+local function preparedHandler(stmt,t)
   stmt:bind_names(t)
   database.step(stmt)
 end
@@ -100,27 +144,18 @@ end
 local queuedCommands={}
 local logHandler={
   touch=function(t)
-    t.delay=tostring(t.delay or "-1")
-    t.wasCorrect =tostring(t.wasCorrect or "false")
-    t.complete=tostring(t.complete)
-    t.track =tostring(t.track or "NULL")
-    t.instructionIndex =tostring(t.instructionIndex or "NULL")
-    t.modesDropped =tostring(t.modesDropped or "NULL")
-    t.iterations =tostring(t.iterations or "NULL")
-    t.modeIndex =tostring(t.modeIndex or "NULL")
-    t.keyIndex =tostring(t.keyIndex or "NULL")
-    t.bank =tostring(t.bank or "NULL")
-    t.score =tostring(t.score or "NULL")
-    t.intro=tostring(t.intro)
-    t.mistakes=(t.mistakes or 0)
-    t.isPractice=tostring(t.isPractice)
-    t.deadmanSwitchRelease=t.deadmanSwitchRelease or "NULL"
     queuedCommands[#queuedCommands+1]=t
   end,
   switchRelease=function(t)
+    fillInNulls("switchreleases", t)
     preparedHandler(preparedSwitchRelease,t)
   end,
+  session=function(t)
+    fillInNulls("sessions", t)
+    preparedHandler(preparedSession,t)
+  end,
   questionnaire=function(t)
+    fillInNulls("questionnaires", t)
     database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.practice,t.track,t.date,t.time,t.userid))
   end
 }
@@ -130,12 +165,16 @@ function log(type,t)
   return database.lastRowID()
 end
 
-local hasTouchesCmd="select exists (select 1 from touch); "
-local preparedGetTouches=database.prepare([[SELECT * FROM touch ORDER BY ID ASC limit 50;]])
-local hasQuestionnairesCmd="select exists (select 1 from questionnaires); "
-local preparedGetQuestionnaires=database.prepare([[SELECT * FROM questionnaires ORDER BY ID ASC limit 50;]])
-local hasSwitchReleasesCmd="select exists (select 1 from switchreleases); "
-local preparedGetSwitchReleases=database.prepare([[SELECT * FROM switchreleases ORDER BY ID ASC limit 50;]])
+local hasDataCmd={}
+local getDataCmd={}
+local deleteDataCmd={}
+
+for i=1, #tableNames do
+  local table=tableNames[i]
+  hasDataCmd[table]=("select exists (select 1 from %s); "):format(table)
+  getDataCmd[table]=database.prepare(([[SELECT * FROM %s ORDER BY ID ASC limit 50;]]):format(table))
+  deleteDataCmd[table]=([[DELETE FROM %s WHERE ID <= %s;]]):format(table,"%s")
+end
 
 function fetch50(preparedStmt,callback)
   preparedStmt:reset()
@@ -153,33 +192,17 @@ function fetch50(preparedStmt,callback)
   end
 end
 
-function getTouches(callback)
-  fetch50(preparedGetTouches,callback)
+function getTableNames()
+  return tableNames
 end
 
-local removeSentCmd=[[DELETE FROM touch WHERE ID <= %d;]]
-function clearUpTo(id)
-  database.runSQLQuery(removeSentCmd:format(id))
+function getData(tablename,callback)
+  fetch50(getDataCmd[tablename],callback)
 end
 
-function getQs(callback)
-  fetch50(preparedGetQuestionnaires,callback)
+function clearDataUpTo(tablename,id)
+  database.runSQLQuery(deleteDataCmd[tablename]:format(id))
 end
-
-local removeSentQsCmd=[[DELETE FROM questionnaires WHERE ID <= %d;]]
-function clearQsUpTo(id)
-  database.runSQLQuery(removeSentQsCmd:format(id))
-end
-
-function getSwitchReleases(callback)
-  fetch50(preparedGetSwitchReleases,callback)
-end
-
-local removeSentSwitchReleasesCmd=[[DELETE FROM switchreleases WHERE ID <= %d;]]
-function clearSwitchReleasedUpTo(id)
-  database.runSQLQuery(removeSentSwitchReleasesCmd:format(id))
-end
-
 
 function flushQueuedCommands(onComplete)
   local total=#queuedCommands
@@ -190,7 +213,9 @@ function flushQueuedCommands(onComplete)
   timer.performWithDelay(1, function()
     database.runSQLQuery("BEGIN TRANSACTION;")
     for i=1, #queuedCommands do
-      preparedInsert:bind_names(queuedCommands[i])
+      local q=queuedCommands[i]
+      fillInNulls("touch", q)
+      preparedInsert:bind_names(q)
       database.step(preparedInsert)
     end
     database.runSQLQuery("END TRANSACTION;")
@@ -201,27 +226,17 @@ function flushQueuedCommands(onComplete)
 end
 
 function hasDataToSend()
-  local hasData=false
-  database.runSQLQuery(hasQuestionnairesCmd,function(udata,cols,values,names)
-    hasData=hasData or values[1]>0
-    return 0
-  end)
-  if hasData then
-    return true
+  for k,v in pairs(hasDataCmd) do
+    local foundData=false
+    database.runSQLQuery(v,function(udata,cols,values,names)
+      foundData=foundData or values[1]>0
+      return 0
+    end)
+    if foundData then
+      return true
+    end
   end
-  database.runSQLQuery(hasTouchesCmd,function(udata,cols,values,names)
-    hasData=hasData or values[1]>0
-    return 0
-  end)
-  if hasData then
-    return true
-  end
-  database.runSQLQuery(hasSwitchReleasesCmd,function(udata,cols,values,names)
-    hasData=hasData or values[1]>0
-    return 0
-  end)
-
-  return hasData
+  return false
 end
 
 function getUnsent()
