@@ -40,7 +40,7 @@ function step(prepared)
     if res==sqlite3.DONE then
       break
     end
-    if res==sqlite3.ERROR then
+    if res==sqlite3.ERROR or res==sqlite3.CONSTRAINT then
       error(db:errmsg())
     end
     if res==sqlite3.BUSY then
