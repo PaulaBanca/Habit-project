@@ -87,9 +87,6 @@ function log(type,t)
   return unsent.log(type,t)
 end
 
-local params={}
-params.progress="upload"
-params.body=json.encode({dataField,dataField,dataField})
 
 function send(getFunc,clearFunc,doneFunc)
   local b
