@@ -80,12 +80,27 @@ CREATE TABLE IF NOT EXISTS switchreleases (
 ]]
 database.runSQLQuery(createTableCmd)
 
+local createTableCmd=[[
+CREATE TABLE IF NOT EXISTS sessions (
+  ID INTEGER PRIMARY KEY ASC AUTOINCREMENT,
+  date TEXT NOT NULL,
+  time TEXT NOT NULL,
+  appMillis INTEGER NOT NULL,
+  type TEXT NOT NULL,
+  practicesStarted INTEGER,
+  practicesCompleted INTEGER,
+  userid TEXT NOT NULL
+);
+]]
+database.runSQLQuery(createTableCmd)
+
 local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,practice,track,date,time,userid) VALUES (%s,%s,%s,%s,%s,%s,"%s","%s","%s");]]
 
 local preparedSwitchRelease=database.prepare([[INSERT INTO switchreleases (releaseTime,practice,track,date,time,appMillis,userid) VALUES (:releaseTime,:practice,:track,:date,:time,:appMillis,:userid);]])
 
 local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease,mode) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease,:mode);]])
 
+local preparedSession=database.prepare([[INSERT INTO sessions (type,practicesStarted,practicesCompleted,date,time,appMillis,userid) VALUES (:type,:practicesStarted,:practicesCompleted,:date,:time,:appMillis,:userid);]])
 
 local function getNullColumns(tablename)
   local nullColumns={}

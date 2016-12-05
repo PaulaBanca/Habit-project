@@ -5,6 +5,7 @@ local stimuli=require "stimuli"
 local practicelogger=require "practicelogger"
 local daycounter=require "daycounter"
 local logger=require "logger"
+local sessionlogger=require "sessionlogger"
 local _=require "util.moses"
 local display=display
 local native=native
@@ -47,6 +48,7 @@ function scene:show(event)
       logger.setPractices(practice)
       practicelogger.logAttempt(track)
       logger.setAttempts(practicelogger.getAttempts(track))
+      sessionlogger.logPracticeStarted()
       composer.gotoScene("scenes.play",{params={
         track=track,
         difficulty=math.ceil(practice/3),

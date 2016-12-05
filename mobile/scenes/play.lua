@@ -17,6 +17,7 @@ local background=require "ui.background"
 local playstate=require "playstate"
 local daycounter=require "daycounter"
 local logger=require "logger"
+local sessionlogger=require "sessionlogger"
 local deadmansswitch=require "ui.deadmansswitch"
 local _=require "util.moses"
 local unpack=unpack
@@ -298,6 +299,7 @@ function completeTask()
     if isScheduledPractice then 
       practicelogger.logPractice(track)
       daycounter.completedPractice(track)
+      sessionlogger.logPracticeCompleted()
     end
     timer.performWithDelay(600, function()
       composer.gotoScene(nextScene,{params={
