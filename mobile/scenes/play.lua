@@ -48,7 +48,7 @@ local isStart=false
 local startModeProgression=false
 local headless=false
 local rewardType="none"
-local totalMistakes=0
+local mistakesPerMode=_.rep(0,#modes)
 local modesDropped=0
 local state
 local intervalTime=5000
@@ -160,8 +160,8 @@ local function madeMistake(bg)
   end
   if countMistakes then
     countMistakes=false
-    totalMistakes=totalMistakes+1
-    logger.setTotalMistakes(totalMistakes)
+    mistakesPerMode[modeIndex]=mistakesPerMode[modeIndex]+1
+    logger.setTotalMistakes(mistakesPerMode[modeIndex])
   end
   state.startTimer()
   
@@ -458,7 +458,7 @@ function scene:createKeys()
       mistakeInLastTouches=true
     end
     if data then
-      data.mistakes=totalMistakes
+      data.mistakes=mistakesPerMode[modeIndex]
       if rewardType~="none" then
         data.bank=tonumber(scene.bank:getScore())
       end
@@ -632,7 +632,7 @@ function scene:show(event)
   if event.phase=="did" then
    
     -- composer.showOverlay("scenes.dataviewer")
-    totalMistakes=0
+    mistakesPerMode=_.rep(0,#modes)
     countMistakes=true
 
     isStart=event.params and event.params.intro
@@ -676,10 +676,9 @@ function scene:show(event)
     state=playstate.create()
     state.startTimer()
     modesDropped=0
-    totalMistakes=0
     logger.setScore(0)
     logger.setIterations(state.get("iterations"))
-    logger.setTotalMistakes(totalMistakes)
+    logger.setTotalMistakes(mistakesPerMode[modeIndex])
     logger.setBank(0)
     logger.setModesDropped(modesDropped)
 
