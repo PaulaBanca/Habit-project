@@ -298,6 +298,8 @@ function completeTask()
     scene.keys:removeSelf()
     if isScheduledPractice then 
       practicelogger.logPractice(track)
+      practicelogger.resetAttempts(track)
+
       daycounter.completedPractice(track)
       sessionlogger.logPracticeCompleted()
     end

@@ -23,6 +23,11 @@ function logAttempt(track)
   jsonreader.store(path,data)
 end
 
+function resetAttempts(track)
+  data.attempts[track]=0
+  jsonreader.store(path,data)
+end
+
 function getAttempts(track)
   return data.attempts[track] or 0
 end
