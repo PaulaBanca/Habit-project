@@ -6,6 +6,7 @@ local user=require "user"
 local json=require "json"
 local serpent=require "serpent"
 local unsent=require "database.unsent"
+local _=require "util.moses"
 local system=system
 local print=print
 local assert=assert
@@ -22,56 +23,29 @@ local network=network
 setfenv(1,M)
 
 local additionalData={}
-function setModesDropped(modes)
-  additionalData["modesDropped"]=modes
+local validKeys={
+  modesDropped="setModesDropped",
+  iterations="setIterations",
+  modeIndex="setModeIndex",
+  score="setScore",
+  bank="setBank",
+  isPractice="setIsScheduled",
+  intro="setIntro",
+  practices="setPractices",
+  attempt="setAttempts",
+  mistakes="setTotalMistakes",
+  track="setTrack",
+  mode="setMode",
+  deadmanSwitchRelease="setDeadmansSwitchID",
+  practiceProgress="setProgress",
+}
+function set(key,value)
+  assert(validKeys[key],tostring(key) .. " not recognised")
+  additionalData[key]=value
 end
 
-function setIterations(iterations)
-  additionalData["iterations"]=iterations
-end
-
-function setModeIndex(modeIndex)
-  additionalData["modeIndex"]=modeIndex
-end
-
-function setScore(score)
-  additionalData["score"]=score
-end
-
-function setBank(bank)
-  additionalData["bank"]=bank
-end
-
-function setIsScheduled(scheduled)
-  additionalData["isPractice"]=scheduled
-end
-
-function setIntro(intro)
-  additionalData["intro"]=intro
-end
-
-function setPractices(practices)
-  additionalData["practices"]=practices
-end
-
-function setAttempts(attempts)
-  additionalData["attempt"]=attempts
-end
-
-function setTotalMistakes(mistakes)
-  additionalData["mistakes"]=mistakes
-end 
-
-function setTrack(track)
-  additionalData["track"]=track
-end 
-
-function setMode(mode)
-  additionalData["mode"]=mode
-end 
-
-function setDeadmansSwitchID(id)
-  additionalData["deadmanSwitchRelease"]=id
+for k,v in pairs(validKeys) do
+  M[v]=_.bind(set,k)
 end
 
 function createLoggingTable()
