@@ -263,6 +263,7 @@ function completeRound()
     local rounds=state.get("rounds")
     if rounds==maxLearningLength then
       mistakesPerMode=_.rep(0,#modes)
+      logger.setProgress("midpoint")
     end
     if rounds<maxLearningLength*2 then
       scene.progress:mark(rounds,state.get("mistakes")==0)
@@ -313,6 +314,7 @@ function completeTask()
       })
       composer.hideOverlay()
     end)
+    return true
   end
 end
 
@@ -415,6 +417,7 @@ function scene:createKeys()
     if stepID and stepID~=state.get("stepID") then
       return
     end
+    logger.setProgress(nil)
     if not mistakeInLastTouches then
       if getIndex()==1 then
         countMistakes=true 
@@ -685,6 +688,7 @@ function scene:show(event)
     logger.setTotalMistakes(mistakesPerMode[modeIndex])
     logger.setBank(0)
     logger.setModesDropped(modesDropped)
+    logger.setProgress("start")
 
     if isStart then
       if startModeProgression then
