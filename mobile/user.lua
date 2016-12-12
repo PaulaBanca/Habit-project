@@ -69,7 +69,7 @@ function setup(whenDone,force)
 end
 
 function getID()
-  return data.id or (system.getInfo("environment")=="simulator" and "test")
+  return data and data.id or (system.getInfo("environment")=="simulator" and "test")
 end
 
 function getPassword()
