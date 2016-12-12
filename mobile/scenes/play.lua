@@ -706,6 +706,7 @@ function scene:show(event)
 
     local practice=event.params and event.params.practice
     local releaseTime
+    logger.setDeadmansSwitchID(nil)
     local group=deadmansswitch.start(self.view,function()
       self.keys:enable()
       scene.keys:setLogData(not isStart)
