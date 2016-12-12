@@ -261,6 +261,9 @@ function completeRound()
   if not isStart and modesDropped==0 then
     state.increment("rounds")
     local rounds=state.get("rounds")
+    if rounds==maxLearningLength then
+      mistakesPerMode=_.rep(0,#modes)
+    end
     if rounds<maxLearningLength*2 then
       scene.progress:mark(rounds,state.get("mistakes")==0)
     end
@@ -445,6 +448,7 @@ function scene:createKeys()
     mistakeInLastTouches=false
     setUpReward()
     if data then
+      data.mistakes=mistakesPerMode[modeIndex]
       if rewardType~="none" then
         data.bank=tonumber(scene.bank:getScore())
       end
