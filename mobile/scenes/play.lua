@@ -709,8 +709,8 @@ function scene:show(event)
     end
 
     local practice=event.params and event.params.practice
-    local releaseTime
     logger.setDeadmansSwitchID(nil)
+    local releaseTimeMillis,releaseTime
     local group=deadmansswitch.start(self.view,function()
       self.keys:enable()
       scene.keys:setLogData(not isStart)
@@ -719,8 +719,9 @@ function scene:show(event)
       end
 
       local rowid=logger.log("switchRelease",{
-        releaseTime=system.getTimer()-releaseTime,
-        time=os.date("%T"),
+        releaseDuration=system.getTimer()-releaseTimeMillis,
+        releaseTime=releaseTime,
+        pressedTime=os.date("%T"),
         date=os.date("%F"),
         appMillis=system.getTimer(),
         practice=practice,
@@ -734,7 +735,8 @@ function scene:show(event)
         self.keys:disable()
         return
       end
-      releaseTime=system.getTimer()
+      releaseTimeMillis=system.getTimer()
+      releaseTime=os.date("%T")
       madeMistake(self.redBackground)
       setupNextKeys()
       self.keys:disable()
