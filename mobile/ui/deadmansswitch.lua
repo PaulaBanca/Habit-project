@@ -20,7 +20,7 @@ function start(group,startFunc,noTouchesFunc)
   instructionGroup.isHitTestable=true
   local instruction=display.newText({
     parent=instructionGroup,
-    text="Please keep a digit from your inactive hand touching the screen throughout the practice",
+    text="Before playing hold a spare finger or thumb on the screen",
     width=display.actualContentWidth-40,
     align="center",
     fontSize=24
