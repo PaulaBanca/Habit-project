@@ -6,7 +6,6 @@ local particles=require "particles"
 local clientloop=require "clientloop"
 local tunes=require "tunes"
 local stimuli=require "stimuli"
-local progress=require "ui.progress"
 local keys=require "keys"
 local playlayout=require "playlayout"
 local practicelogger=require "practicelogger"
@@ -672,9 +671,6 @@ function scene:show(event)
     end
 
     scene:setUpKeyLayers()
-    if self.progress then
-      self.progress:toFront()
-    end
     self.cross:toFront()
     self.cross.isVisible=not isStart
     scene.keyLayers:switchTo(modeIndex,true)
@@ -788,17 +784,56 @@ function scene:show(event)
         end
       end
     end
-  else
+  
     if self.progress then
       self.progress:removeSelf()
     end
-    local p=progress.create(200,40,_.rep(maxLearningLength,rounds))
-    p.anchorChildren=true
-    p.anchorX=0
-    p.anchorY=0
-    p:translate(20,20)
-    self.view:insert(p)
-    self.progress=p
+
+    local totalRounds=maxLearningLength*rounds
+    local imgW,imgH=scene.img.contentWidth,scene.img.contentHeight
+    local imgPeriphery=imgW*2+imgH*2
+    self.progress=display.newGroup()
+    local x,y=self.img.x,self.img.y
+    for i=0, totalRounds-1 do
+      local ratio=i/totalRounds
+      local distance=imgPeriphery*ratio
+
+      function getLen(side)
+        return ((side%2==0) and imgH or (side~=3 and imgW/2 or imgW))
+      end
+
+      local side=1
+      while distance>getLen(side) do
+        distance=distance-getLen(side)
+        side=side+1
+      end
+
+      if side==2 then
+        display.newCircle(self.progress, imgW/2, distance, 10)
+      elseif side==4 then
+        display.newCircle(self.progress, -imgW/2, imgH-distance, 10)
+      elseif side==3 then
+        display.newCircle(self.progress, imgW/2-distance, imgH, 10)
+      elseif side==1 then
+        display.newCircle(self.progress, distance, 0, 10)
+      elseif side==5 then
+        display.newCircle(self.progress, -imgW/2+distance, 0, 10)
+      end
+    end
+    for i=1, self.progress.numChildren do
+      self.progress[i].strokeWidth=2
+      self.progress[i]:setFillColor(0.2)
+    end
+
+    function self.progress:mark(i)
+      self[i]:setFillColor(0,1,0)
+    end
+
+    self.view:insert(self.progress)
+    self.img:toFront()
+    self.points:toFront()
+    self.img:translate(0, 5)
+    self.progress:translate(self.img.x, self.img.y)
   end
 end
 
