@@ -700,11 +700,7 @@ function scene:show(event)
         sequence=startInstructions
       end
     end
-    if isStart or headless then
-      scene.img.isVisible=false
-      scene.progress.isVisible=false
-    end
-
+  
     logger.setIntro(isStart or false)
 
     restart()
@@ -835,6 +831,11 @@ function scene:show(event)
     self.points:toFront()
     self.img:translate(0, 5)
     self.progress:translate(self.img.x, self.img.y)
+
+    if isStart or headless then
+      scene.img.isVisible=false
+      scene.progress.isVisible=false
+    end
   end
 end
 
