@@ -272,7 +272,7 @@ function completeRound()
       mistakesPerMode=_.rep(0,#modes)
       logger.setProgress("midpoint")
     end
-    if rounds<maxLearningLength*2 then
+    if rounds<=maxLearningLength*2 then
       scene.progress:mark(rounds,state.get("mistakes")==0)
     end
     processBank()
