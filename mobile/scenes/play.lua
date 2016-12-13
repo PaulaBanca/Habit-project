@@ -83,7 +83,7 @@ local function switchSong(newTrack)
   local img=stimuli.getStimulus(index)
   scene.view:insert(img)
   img.anchorY=0
-  img:translate(display.contentCenterX, 0)
+  img:translate(display.contentCenterX, 5)
   img:scale(0.5,0.5)
   scene.img=img
   logger.setTrack(track)
@@ -757,7 +757,7 @@ function scene:show(event)
         font="Chunkfive.otf",
       })
       scene.points.anchorY=1
-      scene.points:translate(scene.img.x, scene.img.y+scene.img.contentHeight+10)
+      scene.points:translate(scene.img.x, scene.img.y+scene.img.contentHeight)
 
       if rewardType~="none" then
         scene.bank=display.newGroup()
