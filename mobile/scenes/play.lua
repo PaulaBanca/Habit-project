@@ -388,10 +388,11 @@ function scene:create(event)
     end})
   end)
 
+  switchSong(1)
   local cross=display.newImage(self.view,"img/cross.png")
-  cross.anchorX=1
+  cross.anchorX=0
   cross.anchorY=0
-  cross.x=display.contentWidth-20
+  cross.x=self.img.x+self.img.contentWidth/2+20
   cross.y=20
   cross:scale(0.5,0.5)
 
