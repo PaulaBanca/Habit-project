@@ -793,10 +793,13 @@ function scene:show(event)
     local x,y=self.img.x,self.img.y
     for i=0, totalRounds-1 do
       local ratio=i/totalRounds
+      if totalRounds%2==1 then
+        ratio=ratio+(imgW/(2*imgPeriphery))
+      end
       local distance=imgPeriphery*ratio
 
       function getLen(side)
-        return ((side%2==0) and imgH or (side~=3 and imgW/2 or imgW))
+        return (side%2==0) and imgH or imgW
       end
 
       local side=1
@@ -812,14 +815,15 @@ function scene:show(event)
       elseif side==3 then
         display.newCircle(self.progress, imgW/2-distance, imgH, 10)
       elseif side==1 then
-        display.newCircle(self.progress, distance, 0, 10)
-      elseif side==5 then
         display.newCircle(self.progress, -imgW/2+distance, 0, 10)
       end
     end
     for i=1, self.progress.numChildren do
       self.progress[i].strokeWidth=2
       self.progress[i]:setFillColor(0.2)
+      if i<=maxLearningLength then
+        self.progress[i]:setStrokeColor(0.5)
+      end
     end
 
     function self.progress:mark(i)
@@ -828,8 +832,9 @@ function scene:show(event)
 
     self.view:insert(self.progress)
     self.img:toFront()
-    self.points:toFront()
-    self.img:translate(0, 5)
+    if self.points then
+      self.points:toFront()
+    end
     self.progress:translate(self.img.x, self.img.y)
 
     if isStart or headless then
