@@ -93,11 +93,17 @@ end
 local function roundCompleteAnimation()
   local p=display.newEmitter(particles.load("sequenceright"))
   p.blendMode="add"
+  scene.view:insert(p)
   p:translate(display.contentCenterX, display.contentCenterY)
   sound.playSound("correct")
-  transition.to(p, {time=2000,alpha=0,onComplete=function() 
+
+  local t=transition.to(p, {time=2000,alpha=0,onComplete=function() 
     p:removeSelf()
   end})
+  function p:finalize()
+    transition.cancel(t)
+  end
+  p:addEventListener("finalize")
 end
 
 local function keyChangeAnimation()
@@ -198,12 +204,12 @@ local function processBank()
   t:scale(4,4)
   t:setFillColor(0.478,0.918,0)
   t.x=scene.img.x
-  t.y=scene.img.y+scene.img.height/2
+  t.y=display.contentHeight
   
   scene.bank:setScore(0)
   scene.bank.isVisible=false
 
-  transition.to(t,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=1,onComplete=function(obj)
+  transition.to(t,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=scene.points.anchorX,anchorY=scene.points.anchorY,onComplete=function(obj)
     obj:removeSelf()
     if scene.points then
       scene.points.text=tonumber(scene.points.text)+earned
@@ -258,6 +264,7 @@ function completeRound()
     return
   end
 
+  roundCompleteAnimation()
   if not isStart and modesDropped==0 then
     state.increment("rounds")
     local rounds=state.get("rounds")
@@ -271,7 +278,6 @@ function completeRound()
     processBank()
   end
 
-  roundCompleteAnimation()
   state.startTimer()
 
   state.increment("iterations")
@@ -751,13 +757,11 @@ function scene:show(event)
       scene.points=display.newText({
         parent=scene.view,
         text=0,
-        x=display.contentWidth-self.cross.width,
-        y=20,
         fontSize=40,
         font="Chunkfive.otf",
       })
-      scene.points.anchorX=1
-      scene.points:translate(0, 16)
+      scene.points.anchorY=1
+      scene.points:translate(scene.img.x, scene.img.y+scene.img.contentHeight+10)
 
       if rewardType~="none" then
         scene.bank=display.newGroup()
