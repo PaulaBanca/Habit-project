@@ -89,6 +89,11 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
       self.sparks=nil
     end
 
+    function keyInstance:finalize()
+      self:stopSparks()
+    end
+    keyInstance:addEventListener("finalize")
+
     local wasCorrect=false
     local img=keyInstance.getTouchImg()
     img.tap=function(self,event)
