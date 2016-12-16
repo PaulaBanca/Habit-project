@@ -83,8 +83,8 @@ local function switchSong(newTrack)
   local img=stimuli.getStimulus(index)
   scene.view:insert(img)
   img.anchorY=0
-  img:translate(display.contentCenterX, 5)
-  img:scale(0.5,0.5)
+  img:translate(display.contentCenterX, 12)
+  img:scale(0.35,0.35)
   scene.img=img
   logger.setTrack(track)
 end
@@ -136,7 +136,9 @@ local function dropModeDown()
   state:pushState()
   modeIndex=modeIndex-1
   scene.progress.isVisible=false
-  
+  if scene.points then
+    scene.points.isVisible=false
+  end
   learningLength=3
   modesDropped=modesDropped+1
   logger.setModesDropped(modesDropped)
@@ -196,7 +198,7 @@ local function processBank()
   local t=display.newText({
     parent=scene.view,
     text=earned,
-    fontSize=40,
+    fontSize=30,
     align="center",
     font="Chunkfive.otf",
   })
@@ -239,6 +241,9 @@ local function changeModeUp()
   modesDropped=modesDropped-1
   if modesDropped<=0 then
     scene.progress.isVisible=not isStart
+    if scene.points then
+      scene.points.isVisible=scene.progress.isVisible
+    end
     modesDropped=0
   end 
   learningLength=modesDropped==0 and maxLearningLength or 3
@@ -392,7 +397,7 @@ function scene:create(event)
   local cross=display.newImage(self.view,"img/cross.png")
   cross.anchorX=0
   cross.anchorY=0
-  cross.x=self.img.x+self.img.contentWidth/2+20
+  cross.x=self.img.x+self.img.contentWidth+20
   cross.y=20
   cross:scale(0.5,0.5)
 
@@ -478,19 +483,6 @@ function scene:createKeys()
     end  
   end,headless,isStart)
   
-  local keyBounds=display.newGroup()
-  group:insert(keyBounds)
-  local xmin=ks.contentBounds.xMin
-  local xmax=ks.contentBounds.xMax
-  display.newRect(keyBounds,xmin/2,display.contentCenterY,xmin,display.contentHeight)
-  local rw=display.contentWidth-xmax
-  display.newRect(keyBounds,xmax+rw/2,display.contentCenterY,rw,display.contentHeight)
-  keyBounds:toBack()
-
-  for i=1, keyBounds.numChildren do
-    keyBounds[i].fill.effect="generator.custom.stripes"
-    keyBounds[i].blendMode="multiply"
-  end
   group:insert(ks)
 
   function group:getKeys()
@@ -750,7 +742,7 @@ function scene:show(event)
       scene.points=display.newText({
         parent=scene.view,
         text=0,
-        fontSize=40,
+        fontSize=30,
         font="Chunkfive.otf",
       })
       scene.points.anchorY=1
@@ -764,7 +756,7 @@ function scene:show(event)
         local text=display.newText({
           parent=scene.bank,
           text=0,
-          fontSize=40,
+          fontSize=30,
           font="Chunkfive.otf",
         })
         text:setFillColor(0.478,0.918,0)
@@ -785,62 +777,67 @@ function scene:show(event)
     if self.progress then
       self.progress:removeSelf()
     end
+    self.progress=display.newGroup()
+    self.view:insert(self.progress)
+    self.progress.isVisible=not isStart
 
     local totalRounds=maxLearningLength*rounds
-    local imgW,imgH=scene.img.contentWidth,scene.img.contentHeight
-    local imgPeriphery=imgW*2+imgH*2
-    self.progress=display.newGroup()
-    local x,y=self.img.x,self.img.y
-    for i=0, totalRounds-1 do
-      local ratio=i/totalRounds
-      if totalRounds%2==1 then
-        ratio=ratio+(imgW/(2*imgPeriphery))
-      end
-      local distance=imgPeriphery*ratio
+    local imgW,imgH=scene.img.contentWidth*2,scene.img.contentHeight
+    local strokeWidth=2
+    local x,y=self.img.x,13
+    
+    local height=40
+    self.img:translate(0, height-strokeWidth)
+    local bg=display.newRect(self.progress,x,y,imgW-strokeWidth,height-strokeWidth)
+    bg:setFillColor(0)
+    bg:setStrokeColor(1)
+    bg.strokeWidth=strokeWidth
+    bg.anchorY=0
+    local bg=display.newRect(self.progress,x,y+strokeWidth,imgW-strokeWidth*2-2,height-strokeWidth*4)
+    bg:setFillColor(0)
+    bg.strokeWidth=strokeWidth
+    bg.anchorY=0
 
-      function getLen(side)
-        return (side%2==0) and imgH or imgW
-      end
-
-      local side=1
-      while distance>getLen(side) do
-        distance=distance-getLen(side)
-        side=side+1
-      end
-
-      if side==2 then
-        display.newCircle(self.progress, imgW/2, distance, 10)
-      elseif side==4 then
-        display.newCircle(self.progress, -imgW/2, imgH-distance, 10)
-      elseif side==3 then
-        display.newCircle(self.progress, imgW/2-distance, imgH, 10)
-      elseif side==1 then
-        display.newCircle(self.progress, -imgW/2+distance, 0, 10)
-      end
-    end
-    for i=1, self.progress.numChildren do
-      self.progress[i].strokeWidth=2
-      self.progress[i]:setFillColor(0.2)
-      if i<=maxLearningLength then
-        self.progress[i]:setStrokeColor(0.5)
-      end
+    local innerX=x-imgW/2+bg.strokeWidth
+    local innerY=bg.strokeWidth/2+y
+    local innerWidth=imgW-bg.strokeWidth*2
+    for i=0,rounds-1 do
+      local bar=display.newRect(self.progress,innerX+i*innerWidth/rounds,innerY,innerWidth/rounds,height-bg.strokeWidth*2)
+      bar:setFillColor(0.2*i)
+      bar.anchorX=0
+      bar.anchorY=0
     end
 
+    local bar=display.newRect(self.progress,innerX,innerY,innerWidth,height-bg.strokeWidth*2)
+    bar:setFillColor(0,1,0)
+    bar.anchorX=0
+    bar.anchorY=0
+    bar.isVisible=false
     function self.progress:mark(i)
-      self[i]:setFillColor(0,1,0)
+      bar.isVisible=true
+      bar.xScale=i/totalRounds
     end
 
-    self.view:insert(self.progress)
-    self.img:toFront()
-    if self.points then
-      self.points:toFront()
+    for i=1, totalRounds do
+      local line=display.newLine(self.progress, innerX+i*innerWidth/totalRounds, bar.y, innerX+i*innerWidth/totalRounds, bar.y+bar.height-bar.strokeWidth*3)
+      line.strokeWidth=1
+      line:setStrokeColor(0)
+      line.alpha=0.4
     end
-    self.progress:translate(self.img.x, self.img.y)
 
-    if isStart or headless then
-      scene.img.isVisible=false
-      scene.progress.isVisible=false
+    for i=1,rounds-1 do
+      local line=display.newLine(self.progress, innerX+i*innerWidth/rounds, bar.y, innerX+i*innerWidth/rounds, bar.y+bar.height-bar.strokeWidth*3)
+      line.strokeWidth=3
+      line:setStrokeColor(0.4)
     end
+
+    if scene.points then
+      scene.points.anchorY=0.5
+      scene.points.x=scene.img.x
+      scene.points.y=bar.y+bar.height/2+4
+      scene.points:toFront()
+    end
+    group:toFront()
   end
 end
 
