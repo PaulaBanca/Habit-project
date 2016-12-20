@@ -110,6 +110,13 @@ local function keyChangeAnimation()
   scene.keyLayers:switchTo(modeIndex)
 end
 
+local function mistakeAnimation(bg)
+  sound.playSound("wrong")
+  bg:toFront()
+  bg.alpha=1
+  transition.to(bg,{alpha=0})
+end
+
 local function getIndex()
   return state.get("count")%#sequence+1
 end
@@ -144,7 +151,7 @@ local function dropModeDown()
   logger.setModesDropped(modesDropped)
   logger.setModeIndex(modeIndex)
   logger.setIterations(state.get("iterations"))
-
+  logger.setTotalMistakes(mistakesPerMode[modeIndex])
   scene.keys:disable()
   keyChangeAnimation()
 end
@@ -158,8 +165,7 @@ end
 
 local countMistakes
 local lastMistakeTime=system.getTimer()
-local function madeMistake(bg)
-  sound.playSound("wrong")
+local function madeMistake()
   local time=system.getTimer()
   if time-lastMistakeTime>500 then 
     state.increment("mistakes")
@@ -170,19 +176,6 @@ local function madeMistake(bg)
     mistakesPerMode[modeIndex]=mistakesPerMode[modeIndex]+1
     logger.setTotalMistakes(mistakesPerMode[modeIndex])
   end
-  state.startTimer()
-  
-  bg:toFront()
-  bg.alpha=1
-  transition.to(bg,{alpha=0})
-
-  local modesDropped=shouldDropModeDown()
-  if modesDropped then
-    dropModeDown()
-  end
-
-  restart()
-  return modesDropped
 end
 
 local function processBank()
@@ -461,15 +454,17 @@ function scene:createKeys()
     end
     mistakeInLastTouches=false
     setUpReward()
+    setupNextKeys()
+  end,function(allReleased,stepID,data)
+    madeMistake()
+    mistakeAnimation(self.redBackground)
+
     if data then
       data.mistakes=mistakesPerMode[modeIndex]
       if rewardType~="none" then
         data.bank=tonumber(scene.bank:getScore())
       end
-    end
-    setupNextKeys()
-  end,function(allReleased,stepID,data)
-    if madeMistake(self.redBackground) then
+    end  
       mistakeInLastTouches=false
       setupNextKeys()
     else
@@ -732,7 +727,8 @@ function scene:show(event)
       end
       releaseTimeMillis=system.getTimer()
       releaseTime=os.date("%T")
-      madeMistake(self.redBackground)
+      mistakeAnimation(self.redBackground)
+      restart()
       setupNextKeys()
       self.keys:disable()
     end)
