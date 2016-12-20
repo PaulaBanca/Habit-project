@@ -139,6 +139,8 @@ end
 
 local function dropModeDown()
   state.clear("mistakes")
+  logger.setLives(3-state.get("mistakes"))
+    
   lastMistakeTime=system.getTimer()
   state:pushState()
   modeIndex=modeIndex-1
@@ -169,6 +171,7 @@ local function madeMistake()
   local time=system.getTimer()
   if time-lastMistakeTime>500 then 
     state.increment("mistakes")
+    logger.setLives(3-state.get("mistakes"))
     lastMistakeTime=time
   end
   if countMistakes then
@@ -218,6 +221,7 @@ end
 local function changeModeUp()
   state.pullState()
   state.clear("mistakes")
+  logger.setLives(3-state.get("mistakes"))
 
   modeIndex=modeIndex+1
   if modeIndex>#modes then
@@ -281,6 +285,8 @@ function completeRound()
 
   state.increment("iterations")
   state.clear("mistakes")
+  logger.setLives(3-state.get("mistakes"))
+    
   scene.keys:clear()
 
   if shouldChangeModeUp() then
@@ -469,6 +475,7 @@ function scene:createKeys()
 
     if data then
       data.mistakes=mistakesPerMode[modeIndex]
+      data.lives=3-state.get("mistakes")
       if rewardType~="none" then
         data.bank=tonumber(scene.bank:getScore())
       end
@@ -488,6 +495,8 @@ function scene:createKeys()
     end
 
     data.mistakes=mistakesPerMode[modeIndex]
+    data.lives=3-state.get("mistakes")
+      
     if rewardType~="none" then
       data.bank=tonumber(scene.bank:getScore())
     end
@@ -691,6 +700,8 @@ function scene:show(event)
     logger.setScore(0)
     logger.setIterations(state.get("iterations"))
     logger.setTotalMistakes(mistakesPerMode[modeIndex])
+    logger.setLives(3-state.get("mistakes"))
+    
     logger.setBank(0)
     logger.setModesDropped(modesDropped)
     logger.setProgress("start")

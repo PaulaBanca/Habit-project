@@ -36,6 +36,7 @@ local validKeys={
   mistakes="setTotalMistakes",
   track="setTrack",
   mode="setMode",
+  lives="setLives",
   deadmanSwitchRelease="setDeadmansSwitchID",
   practiceProgress="setProgress",
 }
@@ -44,8 +45,14 @@ function set(key,value)
   additionalData[key]=value
 end
 
+function get(key)
+  assert(validKeys[key],tostring(key) .. " not recognised")
+  return additionalData[key]
+end
+
 for k,v in pairs(validKeys) do
   M[v]=_.bind(set,k)
+  M[v:gsub("set","get")]=_.bind(get,k)
 end
 
 function createLoggingTable()
