@@ -13,7 +13,7 @@ setfenv(1,scene)
 local instructions={
   {text="Welcome\nThis app will help you learn 2 sequences of finger presses",y=display.contentCenterY-40},
   {text="You'll tap the sequences out on circles like the ones below.\nIn the example below you should tap 3 fingers at once",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function() 
-    local k=keys.create(function() end,function() end,false,true) 
+    local k=keys.create(function() end,function() end,function() end,false,true) 
     scene.view:insert(k)
     k:toBack()
     k:enable()

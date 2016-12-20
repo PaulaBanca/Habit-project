@@ -476,7 +476,15 @@ function scene:createKeys()
         data.bank=tonumber(scene.bank:getScore())
       end
     end  
-  end,headless,isStart)
+   end,function (data) 
+    if not data then
+    end
+
+    data.mistakes=mistakesPerMode[modeIndex]
+    if rewardType~="none" then
+      data.bank=tonumber(scene.bank:getScore())
+    end
+   end,headless,isStart)
   
   group:insert(ks)
 

@@ -40,7 +40,7 @@ local function configureSparks(colour)
   return json  
 end
 
-function create(allReleasedFunc,mistakeFunc,networked,noLogging)
+function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
   local group=display.newGroup()
   networked=networked or false
   local keys={}
@@ -111,7 +111,6 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
         local data
         if logData then
           data=logger.createLoggingTable()
-          endedLoggingTable=logger.createLoggingTable()
           data.touchPhase=event.phase
           data.x=event.x
           data.y=event.y
@@ -124,7 +123,6 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
           data.complete=complete
           data.instructionIndex=keyInstance.instructionIndex
           data.keyIndex=keyInstance.index
-          endedLoggingTable.instructionIndex=keyInstance.instructionIndex
         end
 
         if keyInstance.onPress then
@@ -154,6 +152,7 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
         
         if data then
           logger.log("touch",data)
+          endedLoggingTable=_.clone(data,true)
         end
         return true
       end
@@ -186,7 +185,9 @@ function create(allReleasedFunc,mistakeFunc,networked,noLogging)
           data.complete=complete
           data.keyIndex=keyInstance.index
           endedLoggingTable=nil
+          releaseFunc(data)
         end
+
         if not next(currentlyPressedKeys) then
           if wasCorrect and not complete then
             mistakeFunc(true,stepID,data)
