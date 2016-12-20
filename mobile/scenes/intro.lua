@@ -25,7 +25,7 @@ local instructions={
     end
   end},
   {text="Let’s practice a simple sequence a few times.\n\nFollow the coloured circles.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true}},
-  {text="Different levels of difficulty will help you memorizing the sequences.\n\nYou start with an easy level: colours and sounds will guide you.\n\nLater on, you will tap out the sequences with less and less help.",y=display.contentCenterY-140},
+  {text="Different levels of difficulty will help you memorizing the sequences.\n\nYou start with an easy level: colours and sounds will guide you.\n\nLater on, you will tap out the sequences with less and less help.",y=display.contentCenterY-140,width=display.contentWidth/2+80},
   {text="We will now guide you through the different levels of difficulty.\n\nTry the same sequence at each level.",y=display.contentCenterY-120},
   {text="Level 1:\n\nColoured circles show you where to tap",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=1,difficulty=1}},
   {text="Level 2:\n\nThe circles are all grey, but still play sounds.\n\nYou need to remember the sequence!",y=display.contentCenterY-100,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=2,difficulty=2}},
