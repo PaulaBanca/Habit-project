@@ -15,6 +15,11 @@ function start(group,startFunc,noTouchesFunc)
 
   instructionGroup=display.newGroup()
   if system.getInfo("environment")=="simulator" then
+    function instructionGroup:finalize(event)
+      instructionGroup=nil
+    end
+    instructionGroup:addEventListener("finalize")
+   
     return instructionGroup
   end
   instructionGroup.isHitTestable=true
@@ -60,12 +65,16 @@ function start(group,startFunc,noTouchesFunc)
   hitSensor:addEventListener("touch", listener)
   function instructionGroup:finalize(event)
     hitSensor:removeSelf()
+    instructionGroup=nil
   end
   instructionGroup:addEventListener("finalize")
   return instructionGroup
 end
 
 function stop()
+  if not instructionGroup then
+    return
+  end
   instructionGroup:removeSelf()
   instructionGroup=nil
 end

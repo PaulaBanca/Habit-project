@@ -60,9 +60,9 @@ local startInstructions={
   {chord={"none","a4","none","none"},forceLayout=true},
   {chord={"none","none","d4","none"},forceLayout=true},
   {chord={"none","none","none","g4"},forceLayout=true},
-  {chord={"c3","e4","g4","c4"},forceLayout=true},
-  {chord={"a3","c4","e4","a4"},forceLayout=true},
-  {chord={"f3","a4","c4","f4"},forceLayout=true},
+  {chord={"c3","none","g4","none"},forceLayout=true},
+  {chord={"none","c4","e4","a4"},forceLayout=true},
+  {chord={"f3","none","none","c4"},forceLayout=true},
 }
 
 local modeProgressionSequence={
