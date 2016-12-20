@@ -546,7 +546,7 @@ function scene:setUpKeyLayers()
 
     local text=display.newText({
       parent=group,
-      text="Layer ",
+      text="Level ",
       font="Chunkfive.otf",
       fontSize=32,
       x=num.x-num.width,
