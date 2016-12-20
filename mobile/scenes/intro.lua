@@ -11,8 +11,8 @@ local jsonreader=require "jsonreader"
 setfenv(1,scene)
 
 local instructions={
-  {text="Welcome\nThis app will help you learn 2 sequences of finger presses",y=display.contentCenterY-40},
-  {text="You'll tap the sequences out on circles like the ones below.\nIn the example below you should tap 3 fingers at once",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function() 
+  {text="Welcome!\n\nThis App will help you to learn 2 sequences of finger presses",y=display.contentCenterY-40},
+  {text="You will tap out the sequences on circles like the ones below.\n\nGive it a go! Tap the three coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function() 
     local k=keys.create(function() end,function() end,function() end,false,true) 
     scene.view:insert(k)
     k:toBack()
@@ -24,21 +24,19 @@ local instructions={
       scene.view:insert(hint)
     end
   end},
-  {text="Colours will guide you until you learn the sequences. After a while they will be removed",y=5,width=display.contentWidth*7/8,onShow=function() 
-    local k=keys.create(function() end,function() end,false,true)
-    scene.view:insert(k)
-    k:toBack()
-    k:enable()
-    local targetKeys=k:setup({chord={"c3","g4"}},false,false,false,1)
-    local hint=chordbar.create(targetKeys)
-    if hint then
-      hint:translate(0,-k:getKeyHeight()/2)
-      scene.view:insert(hint)
-    end
-  end},
-  {text="Now lets practice a simple melody a few times.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro"}},
-  {text="Gradually the amount of feedback you get will decrease. Lets play a simple sequence twice at different levels and see how they compare.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,modeProgression=2,nextScene="scenes.intro"}},
-  {text="Now lets play that sequence again, but going through all the different levels. The sequence is the same at each level.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,modeProgression=4,nextScene="scenes.intro"}}
+  {text="Let’s practice a simple sequence a few times.\n\nFollow the coloured circles.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true}},
+  {text="Different levels of difficulty will help you memorizing the sequences.\n\nYou start with an easy level: colours and sounds will guide you.\n\nLater on, you will tap out the sequences with less and less help.",y=display.contentCenterY-140},
+  {text="We will now guide you through the different levels of difficulty.\n\nTry the same sequence at each level.",y=display.contentCenterY-120},
+  {text="Level 1:\n\nColoured circles show you where to tap",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=1,difficulty=1}},
+  {text="Level 2:\n\nThe circles are all grey, but still play sounds.\n\nYou need to remember the sequence!",y=display.contentCenterY-100,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=2,difficulty=2}},
+  {text="Level 3:\n\nThe circles do not play any sounds.\n\nAt this level you should know the sequence by heart. Try now!",y=display.contentCenterY-80,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=3,difficulty=3}},
+  {text="Level 4:\n\nThe circles are blank. Give it a go!",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=4,difficulty=4}},
+  {text="The App only works if you keep a spare finger touching the screen while playing.\n\nHere are some examples of how to hold your phone.",y=display.contentCenterY-120},
+  {img="img/instructions1.png"},
+  {img="img/instructions2.png"},
+  {img="img/instructions3.png"},
+  {text="Now, let’s play the same sequence as last time. Play it once at each of the different levels.\n\nDon’t forget to place a spare finger one the screen while playing!",y=display.contentCenterY-120,scene="scenes.play",params={intro=true,modeProgression=4,nextScene="scenes.intro"}},
+  {text="Now you are ready to start practising your sequences.\n\nYou have a month to master the sequences!\n\nGood luck!",y=display.contentCenterY-120},
 }
 
 function scene:show(event)
@@ -57,18 +55,32 @@ function scene:show(event)
     step.onShow()
   end
 
-  local text=display.newText({
-    parent=scene.view,
-    x=display.contentCenterX,
-    y=step.y or display.contentCenterY,
-    width=step.width or display.contentWidth/2,
-    text=step.text,
-    align="center",
-    fontSize=step.fontSize or 20
-  })
-  text.anchorY=0
+  local obj
+  if step.text then
+    obj=display.newText({
+      parent=scene.view,
+      x=display.contentCenterX,
+      y=step.y or display.contentCenterY,
+      width=step.width or display.contentWidth/2,
+      text=step.text,
+      align="center",
+      fontSize=step.fontSize or 20
+    })
+    obj.anchorY=0
+  elseif step.img then
+    obj=display.newImage(self.view,step.img,display.contentCenterX,20)
+    obj.anchorY=0
+    if obj.width>display.actualContentWidth-40 then
+      obj.xScale=(display.actualContentWidth-40)/obj.width
+      obj.yScale=obj.xScale
+    end
+    if obj.contentHeight+70>display.actualContentHeight then
+      local scale=(display.actualContentHeight-70)/obj.contentHeight
+      obj:scale(scale,scale)
+    end
+  end
 
-  local bg=display.newRect(scene.view,display.contentCenterX, text.y+text.height+20,100 ,30)
+  local bg=display.newRect(scene.view,display.contentCenterX, obj.y+obj.contentHeight+20,100 ,30)
   bg:setFillColor(83/255, 148/255, 250/255)
   display.newText({
     parent=scene.view,
