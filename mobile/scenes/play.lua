@@ -242,6 +242,7 @@ local function changeModeUp()
   learningLength=modesDropped==0 and maxLearningLength or 3
   logger.setModesDropped(modesDropped)
   logger.setModeIndex(modeIndex)
+  logger.setTotalMistakes(mistakesPerMode[modeIndex])
   keyChangeAnimation()
 end
 
@@ -267,6 +268,7 @@ function completeRound()
     local rounds=state.get("rounds")
     if rounds==maxLearningLength then
       mistakesPerMode=_.rep(0,#modes)
+      logger.setTotalMistakes(mistakesPerMode[modeIndex])
       logger.setProgress("midpoint")
     end
     if rounds<=maxLearningLength*2 then
@@ -422,6 +424,12 @@ function scene:createKeys()
       return
     end
     logger.setProgress(nil)
+    if data then
+      data.mistakes=mistakesPerMode[modeIndex]
+      if rewardType~="none" then
+        data.bank=tonumber(scene.bank:getScore())
+      end
+    end
     if not mistakeInLastTouches then
       if getIndex()==1 then
         countMistakes=true 
@@ -465,17 +473,16 @@ function scene:createKeys()
         data.bank=tonumber(scene.bank:getScore())
       end
     end  
+ 
+    local modesDropped=shouldDropModeDown()
+    restart()
+    if modesDropped then
+      dropModeDown()
       mistakeInLastTouches=false
       setupNextKeys()
     else
       mistakeInLastTouches=true
     end
-    if data then
-      data.mistakes=mistakesPerMode[modeIndex]
-      if rewardType~="none" then
-        data.bank=tonumber(scene.bank:getScore())
-      end
-    end  
    end,function (data) 
     if not data then
     end
