@@ -849,6 +849,10 @@ function scene:show(event)
       scene.points:toFront()
     end
     group:toFront()
+    if event.params.noSwitch then
+      group:removeSelf()
+      self.keys:enable()  
+    end
   end
 end
 
