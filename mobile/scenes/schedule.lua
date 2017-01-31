@@ -57,7 +57,7 @@ function scene:show(event)
 
   local dates=daycounter.getDayCount()
   local step=60
-  local datePoints=math.min(MAX_DAYS,math.max(dates+3+1,10))
+  local datePoints=math.max(dates+3+1,10)
   local line=display.newLine(0,scroll.height/2,(datePoints+1)*step,scroll.height/2)
   line.strokeWidth=2
   scroll:insert(line)
@@ -150,8 +150,20 @@ function scene:show(event)
       t:toBack()
     end
   end
-  scroll:scrollToPosition({x=-practiceDate*step+scroll.width/2})
+  scroll:scrollToPosition({x=practiceDate and (-practiceDate*step+scroll.width/2) or -scroll.width/2})
 
+  if not practiceDate then
+    local t=display.newText({
+      parent=self.view,
+      text="Task Complete!",
+      x=display.contentCenterX,
+      y=display.contentCenterY,
+      fontSize=64
+    })
+    local bg=display.newRect(self.view, t.x, t.y, t.width+20, t.height+20)
+    t:toFront()
+    bg:setFillColor(0,0.5,0.2, 0.8)
+  end
   local connect=display.newImage(scene.view,"img/connect.png")
   connect.anchorX=1
   connect.anchorY=0
