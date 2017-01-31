@@ -22,53 +22,64 @@ function scene:show(event)
     return
   end
 
-  local text=display.newText({
-    text="Your Score: " .. event.params.score,
-    fontSize=20,
-    font=native.systemFont,
-    parent=scene.view
-  })
-  text.x=display.contentCenterX
-  text.y=display.contentCenterY*0.5
-  
-  local track=event.params.track
-  local img=stimuli.getStimulus(track)
-  scene.view:insert(img)
-  img.x=display.contentCenterX
-  img.y=display.contentCenterY
-  img:scale(0.5,0.5)
-
-  local prev=jsonreader.load(path)
-  local newScore=not prev or not prev[track]
-  if prev and prev[track] then
-    local prevtext=display.newText({
-      text="Previous Best Score: " .. prev[track].score,
+  if event.params.score then
+    local text=display.newText({
+      text="Your Score: " .. event.params.score,
       fontSize=20,
       font=native.systemFont,
       parent=scene.view
     })
-    prevtext.anchorY=0
-    prevtext:translate(img.x, img.y+img.contentHeight/2)
+    text.x=display.contentCenterX
+    text.y=display.contentCenterY*0.5
 
-    if prev[track].score<tonumber(event.params.score) then
-      local winner=display.newText({
-        text="Well done!\nNew Highscore!",
-        fontSize=25,
+    local track=event.params.track
+    local img=stimuli.getStimulus(track)
+    scene.view:insert(img)
+    img.x=display.contentCenterX
+    img.y=display.contentCenterY
+    img:scale(0.5,0.5)
+
+    local prev=jsonreader.load(path)
+    local newScore=not prev or not prev[track]
+    if prev and prev[track] then
+      local prevtext=display.newText({
+        text="Previous Best Score: " .. prev[track].score,
+        fontSize=20,
         font=native.systemFont,
-        parent=scene.view,
-        width=display.contentWidth/2,
-        align="center"
+        parent=scene.view
       })
-      winner.x=img.x
-      winner.anchorY=1
-      winner.y=text.y-text.height/2
-      newScore=true
+      prevtext.anchorY=0
+      prevtext:translate(img.x, img.y+img.contentHeight/2)
+
+      if prev[track].score<tonumber(event.params.score) then
+        local winner=display.newText({
+          text="Well done!\nNew Highscore!",
+          fontSize=25,
+          font=native.systemFont,
+          parent=scene.view,
+          width=display.contentWidth/2,
+          align="center"
+        })
+        winner.x=img.x
+        winner.anchorY=1
+        winner.y=text.y-text.height/2
+        newScore=true
+      end
     end
-  end
-  if newScore then
-    prev=prev or {}
-    prev[track]={score=tonumber(event.params.score)}
-    jsonreader.store(path,prev)
+    if newScore then
+      prev=prev or {}
+      prev[track]={score=tonumber(event.params.score)}
+      jsonreader.store(path,prev)
+    end
+  else
+     local text=display.newText({
+      text="Well done!",
+      fontSize=20,
+      font=native.systemFont,
+      parent=scene.view
+    })
+    text.x=display.contentCenterX
+    text.y=display.contentCenterY*0.5
   end
 
   local bg=display.newRect(self.view,display.contentCenterX,display.contentHeight-30,120,50)
