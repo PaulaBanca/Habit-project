@@ -526,12 +526,12 @@ function scene:setUpKeyLayers()
     local bg=display.newRect(group,0,0,display.actualContentWidth-strokeWidth,display.actualContentHeight-strokeWidth)
     local colour={0.5,0.5,0.5}
     if i>#colour then
-      colour={0,0.5,0} 
+      colour={0,0,0.5} 
     else
       colour[i]=0
     end
     bg:setFillColor(unpack(colour))
-    bg.blendMode="multiply"
+    -- bg.blendMode="multiply"
     bg.strokeWidth=8
     bg:setStrokeColor(1)
 
