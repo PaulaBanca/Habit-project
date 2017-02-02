@@ -98,6 +98,17 @@ function generateTunes()
       break
     end
   end
+
+  config[4]={tune=_.clone(config[1].tune,false),stimulus=1}
+  config[5]={tune=_.clone(config[2].tune,false),stimulus=2}
+  for tune=4,5 do
+    local t=config[tune].tune
+    for i=4,6 do
+      t[i].chord.invert=true
+    end
+  end
+  config[6]={tune=_.first(config[1].tune,5),stimulus=1}
+  config[7]={tune=_.first(config[2].tune,5),stimulus=2}
 end
 
 local maxLength=6
@@ -184,7 +195,7 @@ function printKeys()
   local function keyPattern(instruction)
     local pattern={}
     for i=1, NUM_KEYS do
-      pattern[i]=instruction[i]~="none" and "X" or "_"
+      pattern[i]=instruction[i]~="none" and (instruction.invert and "#" or "X") or "_"
     end
     return table.concat(pattern, "") 
   end
