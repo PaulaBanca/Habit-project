@@ -5,6 +5,7 @@ local display=display
 local palstyleshapes=require "palstyleshapes.palstyleshapes"
 local math=math
 local os=os
+local assert=assert
 
 setfenv(1,M)
 
@@ -24,6 +25,13 @@ function generateSeeds()
 end
 
 function getStimulus(n)
+  local truncated=n-3
+  if truncated>0 then
+    n=n%2+1
+    truncated=truncated>2 and 5 or 3
+  else
+    truncated=nil
+  end
   math.randomseed(seeds[n])
   local group=display.newGroup()
   local strokeWidth=8
@@ -34,6 +42,12 @@ function getStimulus(n)
   group:insert(shape)
   group.anchorChildren=true
   math.randomseed(os.time())
+
+  if truncated then
+    assert(truncated==3 or truncated==5)
+    display.newImage(group, "img/"..(truncated==3 and "three.png" or "five.png")).blendMode="add"
+    display.newImage(group, "img/"..(truncated==3 and "three.png" or "five.png"))
+  end
   function group:setSelected()
     bg.strokeWidth=16
     bg:setStrokeColor(0,1,0)
