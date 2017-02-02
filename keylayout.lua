@@ -45,6 +45,7 @@ function layout(instruction)
         notes[spareKeyIndex]=scientificNote
       end
     end
+    notes.invert=instruction.chord.invert
   else
     local scientificNote=instruction
     local found=false

@@ -23,12 +23,12 @@ function setPreferred(index)
   preferred=index
 end
 
-function getID(param)
+function getID(param,truncated)
   if param=="discarded" then
-    return discarded
+    return discarded+(truncated and truncated or 0)
   end
   if param=="preferred" then
-    return preferred
+    return preferred+(truncated and truncated or 0)
   end
   if param=="wildcard3" then
     return -3

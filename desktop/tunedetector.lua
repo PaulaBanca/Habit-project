@@ -39,8 +39,10 @@ end
 
 local function missingCorrectKey(keysPressed,keysRequired)
   for index,required in pairs(keysRequired) do
-    if not keysPressed[index] then
-      return true
+    if index~="invert" then
+      if not keysPressed[index] then
+        return true
+      end
     end
   end 
 end
@@ -61,13 +63,13 @@ end
 local function matchesTuneAtStep(tune,index,keysDown)
   local keys=tuneKeys[tune][math.min(index,#tuneKeys[tune])]
   if pressedWrongKey(keysDown,keys) then
-    return "none"
+    return keys.invert and "complete" or "none"
   end
   if missingCorrectKey(keysDown,keys) then
     return "partial"
   end
   
-  return "complete"
+  return keys.invert and "none" or "complete"
 end
 
 
@@ -87,8 +89,13 @@ function matchAgainstTunes(keysDown,released)
     local tuneCompleted
     for k,v in pairs(candidates) do
       if v.type=="partial" then
-        candidates[k]=nil
-      elseif v.type=="complete" then
+        if tuneKeys[k][math.min(v.step+1,#tuneKeys[k])].invert then
+          v.type="complete"
+        else
+          candidates[k]=nil
+        end
+      end
+      if v.type=="complete" then
         addMatch(k,v)
         if allReleased then
           v.step=v.step+1
@@ -126,7 +133,7 @@ function matchAgainstTunes(keysDown,released)
     end   
     for k,v in pairs(candidates) do
       local type=matchesTuneAtStep(k,v.step+1,keysDown)
-      if type=="none" then  
+      if type=="none" then
         candidates[k]=nil
       else
         candidates[k]={type=type,step=v.step}
