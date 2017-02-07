@@ -1,30 +1,13 @@
 local composer=require "composer"
 local scene=composer.newScene()
 
-local server=require "server"
 local events=require "events"
-local serpent=require "serpent"
-local tunes=require "tunes"
-local stimuli=require "stimuli"
-local countdown=require "ui.countdown"
 local tunemanager=require "tunemanager"
-local sound=require "sound"
 local keyeventslisteners=require "util.keyeventslisteners"
-local logger=require "util.logger"
-local progress=require "ui.progress"
-local transition=transition
 local display=display
-local table=table
-local pairs=pairs
 local print=print
 local timer=timer
-local tonumber=tonumber
-local next=next
-local native=native
-local os=os
-local system=system
 local math=math
-local NUM_KEYS=NUM_KEYS
 
 setfenv(1,scene)
 
@@ -41,7 +24,7 @@ function scene:show(event)
   scene.view:insert(img)
   img.x=display.contentCenterX
   img.y=display.contentCenterY
-  
+
   local mistakes=0
   local completed=0
   local shock=true
@@ -50,7 +33,6 @@ function scene:show(event)
     self.timer=nil
   end)
 
-  local steps=0
   local reset
   local function madeMistake()
     mistakes=mistakes+1
@@ -89,7 +71,6 @@ function scene:hide(event)
       self.onPlay=nil
       self.onRelease=nil
     end
-    composer.hideOverlay("scenes.shapecounter")
   else
     for i=self.view.numChildren,1,-1 do
       self.view[i]:removeSelf()
