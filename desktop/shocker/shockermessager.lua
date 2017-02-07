@@ -64,7 +64,8 @@ function startServer(path,onConnect)
   if isRunning>0 then
     return attemptConnect(onConnect)
   end
-  os.execute(path.." -a /dev/$(ls /dev | grep tty.usbmodem) -p %d &")
+  path=path:gsub("%s","\\ ")
+  os.execute(path..(" -a /dev/$(ls /dev | grep tty.usbmodem) -p %d &"):format(PORT))
   timer.performWithDelay(1000,function() startServer(path,onConnect) end)
 end
 
