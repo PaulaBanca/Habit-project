@@ -25,6 +25,9 @@ function generateSeeds()
 end
 
 function getStimulus(n)
+  if n<0 then
+    return getWildcardSimuli(-n)
+  end
   local truncated=n-3
   if truncated>0 then
     n=n%2+1
