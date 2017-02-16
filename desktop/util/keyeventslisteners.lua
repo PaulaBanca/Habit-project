@@ -89,7 +89,15 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     end
     local complete=tune or wildcardSteps==getWildCardLength()
     if complete and getSelectedTune then
-      complete=tune==getSelectedTune() or -wildcardSteps==getSelectedTune()
+      local wildcardCompleted=-wildcardSteps==getSelectedTune()
+      if wildcardCompleted then
+        for _,v in pairs(matchingTunes) do
+          if v.type=="complete" and v.step==wildcardSteps then
+            wildcardCompleted=false
+          end
+        end
+      end
+      complete=tune==getSelectedTune() or wildcardCompleted
     end
 
     logInput("sequence millis",startTime and (system.getTimer()-startTime) or "n/a")

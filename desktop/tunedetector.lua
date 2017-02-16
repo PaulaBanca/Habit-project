@@ -99,7 +99,7 @@ function matchAgainstTunes(keysDown,released)
           v.step=v.step+1
           if v.step==#tuneKeys[k] then
             tuneCompleted=k
-            candidates=nil
+            candidates[k]=nil
             break
           end
         end

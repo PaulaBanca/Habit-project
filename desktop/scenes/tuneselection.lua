@@ -124,12 +124,12 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
   local mistakes=0
   local reset
   local inMistakeStreak
-  local function madeMistake()
-    if getTuneSelected() and getTuneSelected()<0 then
+  local function madeMistake(force)
+    if not force and getTuneSelected() and getTuneSelected()<0 then
       return
     end
     sound.playSound("wrong")
-    reset()
+    reset(true)
     if not inMistakeStreak then
       mistakes=mistakes+1
       inMistakeStreak=true
@@ -169,7 +169,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
   local meterResetTimer
   local function tuneCompleted(tune)
     steps=0
-    reset()
+    reset(false)
     inMistakeStreak=false
     sound.playSound("correct")
     if onTuneCompleteEndFunc then
@@ -221,7 +221,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
   local onPlay,onRelease
   onPlay,onRelease,reset=keyeventslisteners.create(logInputFilename,function(tune)
     if tune~=getTuneSelected() then
-      madeMistake()
+      madeMistake(getTuneSelected()<0 and tune<=3)
       return
     end
     steps=0
@@ -270,17 +270,19 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
     end
 
     steps=steps+1
+    if getTuneSelected()>0 then
+      return
+    end
+
     local good=true
     if matchingTunes then
       for i=1, 3 do
         if matchingTunes[i] and matchingTunes[i].step==steps then
-          good=false            
+          good=false
         end
       end
     end
-    if left.tune>0 and right.tune>0 then 
-      return
-    end
+
     local wildMeter=left.tune<0 and self.leftMeter or self.rightMeter
     if steps>0 then
       wildMeter:mark(steps,good)
@@ -291,20 +293,21 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
 
     if steps==getWildCardLength() then
       steps=0
-      completeChain=0
       if good then
         tuneCompleted(left.tune<right.tune and left.tune or right.tune)
-      else
+      elseif getTuneSelected()<0 then
+        madeMistake(true)
         wildMeter:reset()
       end
     end
   end,getTuneSelected,true,getWildCardLength)
 
-  reset=_.wrap(reset,function(f,args)
-    resetMeters()
+  reset=_.wrap(reset,function(f,clearMeters)
+    if clearMeters then
+      resetMeters()
+    end
     f()
     steps=0
-    completeChain=0
   end)
 
   events.addEventListener("key played",onPlay)
