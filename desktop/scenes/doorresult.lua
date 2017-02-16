@@ -30,14 +30,13 @@ function scene:show(event)
   local chest=event.params.chest
   self.view:insert(matched)
   self.view:insert(notMatched)
-  
+
   local payout=event.params.payout
   local amount=payout and matched.reward or 0
   self.logger("date",os.date())
   self.logger("won",amount)
   self.logger("selected",matched.tune)
   self.logger("not selected",notMatched.tune)
-  
   local function createPayoutText(icon,wasChosen)
     local msg=(wasChosen  and "You got: " or "Not Chosen: ")
     local text=display.newText({
@@ -50,7 +49,7 @@ function scene:show(event)
     text.anchorY=1
     text.x=icon.x+icon.contentWidth/2-(icon.anchorX*icon.contentWidth)
     text.y=chest.y-chest.height-20
-    
+
     local text=display.newText({
       text=rewardtext.create(payout and icon.reward or 0),
       fontSize=120,
@@ -69,7 +68,7 @@ function scene:show(event)
     matched:toFront()
     transition.to(matched, {time=250,anchorX=0.5,x=display.contentCenterX})
     transition.to(chest,{time=250,anchorX=0.5,x=display.contentCenterX,onComplete=function()
-  
+
       if amount==0 then
         sound.playSound("failed")
       elseif amount>=10 then
@@ -77,7 +76,7 @@ function scene:show(event)
       else
         sound.playSound("win small")
       end
-      
+
       chest:open(amount>0)
       createPayoutText(matched,true)
     end})

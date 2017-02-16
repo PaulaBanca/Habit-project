@@ -59,7 +59,7 @@ function getStimulus(n)
     bg.strokeWidth=strokeWidth
     bg:setStrokeColor(1,1,1)
   end
-  return group 
+  return group
 end
 
 function getWildcardSimuli(presses)
@@ -73,7 +73,7 @@ function getWildcardSimuli(presses)
     self.strokeWidth=0
   end
 
-  return img 
+  return img
 end
 
 return M

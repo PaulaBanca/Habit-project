@@ -288,7 +288,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
     else
       wildMeter:reset()
     end
-   
+
     if steps==getWildCardLength() then
       steps=0
       completeChain=0

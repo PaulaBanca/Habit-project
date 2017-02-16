@@ -25,7 +25,7 @@ function scene:show(event)
   text:setFillColor(0)
   text.x=display.contentCenterX
   text.y=display.contentCenterY*0.5
-  
+
   local any=display.newText({
     parent=self.view,
     text="Press any key to close",
@@ -35,7 +35,7 @@ function scene:show(event)
     fontSize=40})
   any.anchorY=1
   any:setFillColor(0)
-  
+
   local nextScene
   nextScene=function(event)
     if event.phase=="up" then

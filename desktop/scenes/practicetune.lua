@@ -1,11 +1,8 @@
 local composer=require "composer"
 local scene=composer.newScene()
 
-local server=require "server"
 local events=require "events"
 local serpent=require "serpent"
-local tunes=require "tunes"
-local stimuli=require "stimuli"
 local countdown=require "ui.countdown"
 local tunemanager=require "tunemanager"
 local sound=require "sound"
@@ -14,12 +11,8 @@ local logger=require "util.logger"
 local progress=require "ui.progress"
 local transition=transition
 local display=display
-local table=table
-local pairs=pairs
-local print=print
 local timer=timer
 local tonumber=tonumber
-local next=next
 local native=native
 local os=os
 local system=system
@@ -64,7 +57,7 @@ function scene:show(event)
     y=img and (img.y-img.height-200) or display.contentCenterY
   })
   start:setFillColor(0)
-  
+
   local counter=countdown.create(3*1000,80)
   counter:translate(display.contentCenterX,start.y+counter.height)
   counter:start()
@@ -74,7 +67,7 @@ function scene:show(event)
     end
   end
   transition.to(counter,{alpha=0,delay=2500,time=500,onComplete=delete})
-  
+
   if event.params.countShapes then
     local shapeIntro=display.newGroup()
     self.view:insert(shapeIntro)
@@ -119,7 +112,7 @@ function scene:show(event)
         logField("sequences completed",tunePracticing and completedSequences or "n/a")
         logField("mistakes",tunePracticing and mistakes or "n/a")
         logField("date",os.date())
-              
+
         if event.params.countShapes then
           composer.hideOverlay("scenes.shapecounter")
           if tuneCount then
@@ -133,9 +126,9 @@ function scene:show(event)
             elseif event.phase == "ended" or event.phase == "submitted" and tonumber(event.target.text) then
               logField("user counted",event.target.text,true)
               logField("shapes",composer.getVariable("shapes"),true)
-                         
+
               defaultField:removeSelf()
-              composer.gotoScene("scenes.practiceintro",{params={page=page}}) 
+              composer.gotoScene("scenes.practiceintro",{params={page=page}})
             elseif event.phase == "editing" then
               instruction.text="Press Enter to submit"
             end
@@ -155,12 +148,11 @@ function scene:show(event)
           instruction.y=display.contentCenterY-40-20
           instruction:setFillColor(0)
           display.newRect(self.view,display.contentCenterX, display.contentCenterY, 184, 84 ):setFillColor(0)
-
        else
           logField("user counted","n/a")
           logField("shapes","n/a")
-          
-          composer.gotoScene("scenes.practiceintro",{params={page=event.params.page}}) 
+
+          composer.gotoScene("scenes.practiceintro",{params={page=event.params.page}})
        end
       end)
     end
@@ -188,7 +180,7 @@ function scene:show(event)
       count:setFillColor(0)
 
       local timeField=logger.create("practice_tune_times",{"sequence","date","time to complete"})
-     
+
       local steps=0
       local reset
       local inMistakeStreak
@@ -199,11 +191,12 @@ function scene:show(event)
         reset()
         sound.playSound("wrong")
         time=system.getTimer()
-        
+
         if not inMistakeStreak then
           mistakes=mistakes+1
           inMistakeStreak=true
         end
+
         local t=display.newText({
           text=notunes and "No trained sequences!" or "Mistake, start again!",
           fontSize=120,
@@ -213,7 +206,7 @@ function scene:show(event)
         })
         t.anchorY=0
         t:setFillColor(1,0,0)
-        local delete=function(obj) 
+        local delete=function(obj)
           if obj.removeSelf then
             obj:removeSelf()
           end
@@ -253,11 +246,11 @@ function scene:show(event)
         else
           inMistakeStreak=false
           self.meter:mark(6,true)
-          markCompleted() 
+          markCompleted()
           if MAX_ITER==tonumber(count.text) then
-            composer.gotoScene("scenes.practiceintro",{params={page=PAGE_N}}) 
+            composer.gotoScene("scenes.practiceintro",{params={page=PAGE_N}})
           end
-          steps=0    
+          steps=0
         end
       end,madeMistake,function(event)
        if not event.phase=="released" or not event.allReleased then
@@ -274,13 +267,13 @@ function scene:show(event)
             self.meter:mark(completed,true)
             inMistakeStreak=false
           end
-        elseif tunePracticing<1 then 
+        elseif tunePracticing<1 then
           steps=steps+1
           local good=true
           if event.matchingTunes then
             for i=1, 3 do
               if event.matchingTunes[i] and event.matchingTunes[i].step==steps then
-                good=false            
+                good=false
               end
             end
           end

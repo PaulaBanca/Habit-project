@@ -30,24 +30,24 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     for i=1, NUM_KEYS do
       pattern[i]=keysDown[i] and "X" or "_"
     end
-    return table.concat(pattern, "") 
+    return table.concat(pattern, "")
   end
 
   local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake", "completed step", "phase","finished sequence","sequence millis"})
-  
+
   local function matchesNoTune(matchingTunes)
     if allowWildCard then
       return false
     end
     if not getSelectedTune or not getSelectedTune() then
-      return not matchingTunes 
+      return not matchingTunes
     end
     return getSelectedTune()>0 and (not matchingTunes or not matchingTunes[getSelectedTune()])
   end
 
   local isComplete
   local wildcardSteps=0
-  local onPlay=function(event) 
+  local onPlay=function(event)
     local mistake=false
     if keysDown[event.note] then
       mistake=true
@@ -66,7 +66,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     local tune,matchingTunes=tunedetector.matchAgainstTunes(keysDown)
     mistake=mistake or matchesNoTune(matchingTunes)
     logInput("mistake",mistake)
-    
+
     if mistake then
       onMistake()
     elseif not tune then

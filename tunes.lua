@@ -4,12 +4,10 @@ tunes=M
 local tunegenerator=require "tunegenerator"
 local keylayout=require "keylayout"
 local _=require "util.moses"
-local serpent=require "serpent"
 local math=math
 local type=type
 local table=table
 local NUM_KEYS=NUM_KEYS
-local system=system
 local print=print
 
 setfenv(1,M)
@@ -71,26 +69,26 @@ function generateTunes()
         end
       end
     end
-    return true 
+    return true
   end
 
   local recipe={
     length=6,
     multipleTouches={2,2,2,3}
   }
-  
+
   while true do
     config={}
     local tuneKeys={}
     for i=1,3 do
       local instructions=tunegenerator.create(recipe)
       config[i]={tune=instructions,stimulus=i}
-      
+
       keylayout.reset()
       local keys={}
       for k=1, #instructions do
         keys[k]=keylayout.layout(instructions[k])
-      end 
+      end
       tuneKeys[i]=keys
     end
 
@@ -197,9 +195,9 @@ function printKeys()
     for i=1, NUM_KEYS do
       pattern[i]=instruction[i]~="none" and (instruction.invert and "#" or "X") or "_"
     end
-    return table.concat(pattern, "") 
+    return table.concat(pattern, "")
   end
-  
+
   _.eachi(config,function(k,v)
      print (_(v.tune):map(function(k,v) return keyPattern(v.chord) end):concat(" "):value())
   end)

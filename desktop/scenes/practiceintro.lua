@@ -1,15 +1,14 @@
 local composer=require "composer"
 local scene=composer.newScene()
 
-local transition=transition
 local display=display
 local Runtime=Runtime
 local tunemanager=require "tunemanager"
 local doorschedule=require "doorschedule"
 local vischedule=require "util.vischedule"
 local vrschedule=require "util.vrschedule"
-local winnings=require "winnings"
 local stimuli=require "stimuli"
+local winnings=require "winnings"
 local _=require "util.moses"
 local math=math
 local timer=timer
@@ -25,7 +24,7 @@ local pageSetup={
     end},
   {
     text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go.\n\nSelect the sequences using the left and right pads.",
-    onKeyPress=function() 
+    onKeyPress=function()
       local options={leftTune=tunemanager.getID("discarded"),rightTune="preferred"}
       local switch=composer.getVariable("preferencetest")[3].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
@@ -33,13 +32,13 @@ local pageSetup={
   },
   {
     text="Which one is your preferred sequence? On the next screen, select it using the left and right pads and play it once.",
-    onKeyPress=function() 
+    onKeyPress=function()
       local options={leftTune=composer.getVariable("firstpractice"),rightTune=composer.getVariable("secondpractice")}
       composer.gotoScene("scenes.tuneselection",{params={logChoicesFilename="select_preferred",logInputFilename="select_preferred_inputs",leftTune=options.leftTune,rightTune=options.rightTune,onTuneComplete=function(matched,notMatched,side)
         tunemanager.setPreferred(matched.tune)
         tunemanager.setDiscarded(notMatched.tune)
         composer.gotoScene("scenes.practiceintro",{params={page=5}})
-      end}}) 
+      end}})
     end
   },
   {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nYou may be rewarded more often for some sequences. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
@@ -90,7 +89,7 @@ local pageSetup={
   end},
   {
     text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go.\n\nSelect the sequences using the left and right pads.",
-    onKeyPress=function() 
+    onKeyPress=function()
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[1].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
@@ -98,33 +97,31 @@ local pageSetup={
   },
   {
     text="Now, lets do the same again but with different sequences to choose from.",
-    onKeyPress=function() 
+    onKeyPress=function()
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard3"}
       local switch=composer.getVariable("preferencetest")[2].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
       composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=11}}) end
-  }, 
+  },
   {
     text="Now, your performance will be rewarded and you will receive your winnings by the end of the study.",
-    onKeyPress=function() 
+    onKeyPress=function()
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[4].switch
       local rewards={left=0.05,right=0.05}
-      if switch then 
+      if switch then
         options.leftTune,options.rightTune=options.rightTune,options.leftTune
         rewards.left,rewards.right=rewards.right,rewards.left
       end
-      local total
-      local tally={left=0,right=0}
       composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-3",logInputFilename="preferencetest-inputs-3",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="preferred",page=12}}) end
   },
   {
     text="Same thing again but the options have changed.",
-    onKeyPress=function() 
+    onKeyPress=function()
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[5].switch
       local rewards={left=0.05,right=0.05}
-      if switch then 
+      if switch then
         options.leftTune,options.rightTune=options.rightTune,options.leftTune
         rewards.left,rewards.right=rewards.right,rewards.left
       end
@@ -158,7 +155,7 @@ local pageSetup={
           stage:insert(notMatched)
           stage:insert(matched.door)
           local payout=vischedule.reward(side)
-        
+
           composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
@@ -194,16 +191,16 @@ local pageSetup={
           stage:insert(matched)
           stage:insert(notMatched)
           stage:insert(matched.door)
-          
+
           local vr=vrscheduleMap[matched.tune]
           local payout=vrschedule.reward(vr)
-        
+
           composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
       run()
-    end}     
+    end}
 }
 
 local nextScene

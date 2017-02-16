@@ -6,8 +6,6 @@ local keylayout=require "keylayout"
 local serpent=require "serpent"
 local _=require "util.moses"
 local print=print
-local table=table
-local assert=assert
 local math=math
 local pairs=pairs
 
@@ -24,7 +22,7 @@ do
     keylayout.reset()
     for k=1, #instructions do
       keys[k]=keylayout.layout(instructions[k])
-    end 
+    end
     tuneKeys[i]=keys
   end
 end
@@ -34,17 +32,17 @@ local function pressedWrongKey(keysPressed,keysRequired)
     if pressed and not keysRequired[index] then
       return true
     end
-  end 
+  end
 end
 
 local function missingCorrectKey(keysPressed,keysRequired)
-  for index,required in pairs(keysRequired) do
+  for index,_ in pairs(keysRequired) do
     if index~="invert" then
       if not keysPressed[index] then
         return true
       end
     end
-  end 
+  end
 end
 
 local function matchesTuneStart(keysDown)
@@ -68,7 +66,7 @@ local function matchesTuneAtStep(tune,index,keysDown)
   if missingCorrectKey(keysDown,keys) then
     return "partial"
   end
-  
+
   return keys.invert and "none" or "complete"
 end
 
@@ -130,7 +128,7 @@ function matchAgainstTunes(keysDown,released)
         candidates[k]={type=v, step=0}
         addMatch(k,candidates[k])
       end
-    end   
+    end
     for k,v in pairs(candidates) do
       local type=matchesTuneAtStep(k,v.step+1,keysDown)
       if type=="none" then
@@ -144,7 +142,7 @@ function matchAgainstTunes(keysDown,released)
   if not matches then
     candidates=nil
   end
- 
+
   return nil,matches
 end
 
