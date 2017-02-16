@@ -44,23 +44,21 @@ local pageSetup={
   {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nYou may be rewarded more often for some sequences. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
       doorschedule.start()
-      vrschedule.setup(1,3,1,1000) 
-      vrschedule.setup(2,12,2,1000)
-      vrschedule.start()
 
-      local vrscheduleMap={
-        [tunemanager.getID("discarded")]=1,
-        [tunemanager.getID("preferred")]=2,
+      local createReward={
+        [tunemanager.getID("discarded")]=function() return 8+math.random(7) end,
+        [tunemanager.getID("preferred")]=function() return math.random(7) end,
       }
+      winnings.startTracking()
+      local round=0
       function run()
         local opts=doorschedule.nextRound()
         if not opts then
-          local result=composer.getScene("scenes.doorresult").total
-          winnings.add(result)
-          composer.gotoScene("scenes.doorstotal",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=6}}})
+          composer.gotoScene("scenes.gemconversion",{params={nextScene="scenes.practiceintro",nextParams={page=6}}})
           return
         end
-
+        round=round+1
+        opts.round=round
         opts.logChoicesFilename="doors-choices-1"
         opts.logInputFilename="doors-inputs-1"
         opts.doors=true
@@ -69,10 +67,11 @@ local pageSetup={
           stage:insert(matched)
           stage:insert(notMatched)
           stage:insert(matched.door)
-          local vr=vrscheduleMap[matched.tune]
-          local payout=vrschedule.reward(vr)
-        
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run}})
+          matched.reward=createReward[matched.tune]()
+          notMatched.reward=createReward[notMatched.tune]()
+          local payout=true
+
+          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run,gems=true}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
@@ -137,11 +136,11 @@ local pageSetup={
       vischedule.setup(1,30000,1000)
       vischedule.setup(2,30000,1000)
       vischedule.start()
+      winnings.startTracking()
       function run()
         local opts=doorschedule.nextRound()
         if not opts then
-          local result=composer.getScene("scenes.doorresult").total
-          winnings.add(result)
+          local result=winnings.getSinceLastTrack("money")
           composer.gotoScene("scenes.doorstotal",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=15}}})
           return
         end
@@ -169,6 +168,7 @@ local pageSetup={
       vrschedule.setup(2,12,2,1000)
       vrschedule.setup(3,3,1,1000)
       vrschedule.start()
+      winnings.startTracking()
       function run()
         local opts=doorschedule.nextRound()
         if not opts then

@@ -382,7 +382,7 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
     if side==1 then
       won=won+leftReward
       cash.text=rewardtext.create(won)
-      winnings.add(leftReward)
+      winnings.add("money",leftReward)
       if tunemanager.getID(titrateTune)==left.tune then
         count=count+1
         if count==2 then
@@ -397,7 +397,7 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
     else
       won=won+rightReward
       cash.text=rewardtext.create(won)
-      winnings.add(rightReward)
+      winnings.add("money",rightReward)
       if tunemanager.getID(titrateTune)==right.tune then
         count=count+1
         if count==2 then

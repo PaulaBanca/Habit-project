@@ -1,12 +1,12 @@
 local composer=require "composer"
 local scene=composer.newScene()
 
-local winnings=require "winnings"
-local rewardtext=require "util.rewardtext"
 local display=display
 local native=native
 local Runtime=Runtime
-local os=os
+local math=math
+local winnings=require "winnings"
+local rewardtext=require "util.rewardtext"
 
 setfenv(1,scene)
 
@@ -14,8 +14,14 @@ function scene:show(event)
   if event.phase=="did" then
     return
   end
+  local gems=winnings.get("gems")
+  local conversionRate=240
+  local money=math.floor(gems/conversionRate)
+  local reward=rewardtext.create(money)
+  winnings.add("money",money)
+  local str=("You won %d gems!\n\nThat has earned you\n\n%s"):format(gems,reward)
   local text=display.newText({
-    text="Well done and thank you for your time.\n\nYour total winnings are:\n\n" .. rewardtext.create(winnings.get("money")),
+    text=str,
     fontSize=60,
     width=display.actualContentWidth/2,
     font=native.systemFont,
@@ -28,7 +34,7 @@ function scene:show(event)
 
   local any=display.newText({
     parent=self.view,
-    text="Press any key to close",
+    text="Press any key",
     x=display.contentCenterX,
     y=display.contentHeight-20,
     align="center",
@@ -37,9 +43,11 @@ function scene:show(event)
   any:setFillColor(0)
 
   local nextScene
+  local next,nextParams=event.params.nextScene,event.params.nextParams
   nextScene=function(event)
     if event.phase=="up" then
-      os.exit()
+      Runtime:removeEventListener("key", nextScene)
+      composer.gotoScene(next,{params=nextParams})
     end
   end
   Runtime:addEventListener("key", nextScene)
