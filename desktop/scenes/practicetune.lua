@@ -15,6 +15,7 @@ local timer=timer
 local tonumber=tonumber
 local native=native
 local os=os
+local Runtime=Runtime
 local system=system
 local math=math
 local NUM_KEYS=NUM_KEYS
@@ -36,6 +37,7 @@ function scene:show(event)
     return
   end
   local tunePracticing=event.params.tune
+  local forceSelection=event.params.forceSelection
   if tunePracticing then
     local img=tunemanager.getImg(tunePracticing)
     scene.view:insert(img)
@@ -47,6 +49,21 @@ function scene:show(event)
     self.view:insert(self.meter)
     self.meter.x=display.contentCenterX
     self.meter.y=img.y-img.contentHeight-60
+
+    if forceSelection then
+      local maxWidth=math.max(img.width,self.meter.width)
+      local yMin=self.meter.contentBounds.yMin
+      local yMax=img.contentBounds.yMax
+
+      local padding=30
+      local selection=display.newRect(self.view,display.contentCenterX,(yMax-yMin)/2+yMin,maxWidth+padding,yMax-yMin+padding)
+      selection:setFillColor(0,0,1, 0.4)
+      selection:setStrokeColor(0,0,1)
+      selection.strokeWidth=16
+      selection.isVisible=false
+      selection:toBack()
+      self.selection=selection
+    end
   end
 
   local start=display.newText({
@@ -185,7 +202,12 @@ function scene:show(event)
       local reset
       local inMistakeStreak
       local time=system.getTimer()
-      local function madeMistake(notunes)
+      local prettyReasons={
+          ["not selected"]="Press left or right first",
+          ["mistake"]="Mistake, start again!",
+          ["no tunes"]="No trained sequences!",
+        }
+      local function madeMistake(reason)
         steps=0
         self.meter:reset()
         reset()
@@ -198,7 +220,7 @@ function scene:show(event)
         end
 
         local t=display.newText({
-          text=notunes and "No trained sequences!" or "Mistake, start again!",
+          text=prettyReasons[reason or "mistake"],
           fontSize=120,
           parent=self.view,
           x=display.contentCenterX,
@@ -217,8 +239,13 @@ function scene:show(event)
       local MAX_ITER=event.params.iterations
       local PAGE_N=event.params.page
       local clearMeterTimer
+      local isSelected=not forceSelection
       local function markCompleted()
         reset()
+        isSelected=not forceSelection
+        if self.selection then
+          self.selection.isVisible=false
+        end
         sound.playSound("correct")
         clearMeterTimer=timer.performWithDelay(250, function()
           clearMeterTimer=nil
@@ -242,7 +269,9 @@ function scene:show(event)
       end
       local onPlay,onRelease,_r=keyeventslisteners.create(event.params.logName,function(tune)
         if tune~=tunePracticing then
-          madeMistake(MAX_ITER~=nil)
+          madeMistake(MAX_ITER and "no tunes" or "mistake")
+        elseif not isSelected then
+          madeMistake("not selected")
         else
           inMistakeStreak=false
           self.meter:mark(6,true)
@@ -254,6 +283,10 @@ function scene:show(event)
         end
       end,madeMistake,function(event)
        if not event.phase=="released" or not event.allReleased then
+          return
+        end
+        if not isSelected then
+          madeMistake("not selected")
           return
         end
         if clearMeterTimer then
@@ -288,6 +321,34 @@ function scene:show(event)
       events.addEventListener("key released",onRelease)
       self.onRelease=onRelease
       self.onPlay=onPlay
+
+      if forceSelection then
+        local translate={
+          space="right",
+          tap="left"
+        }
+        local validKeys={
+          left=true,
+          right=true
+        }
+        self.keyListener=function(event)
+          local kn=translate[event.keyName or "tap"]
+          if not kn then
+            return
+          end
+          if isSelected then
+            return
+          end
+          if (event.phase=="down" or not event.phase) and validKeys[kn] then
+            isSelected=true
+            self.selection.isVisible=true
+            self.selection.alpha=0
+            transition.to(self.selection,{alpha=1})
+          end
+        end
+        Runtime:addEventListener("key",self.keyListener)
+        Runtime:addEventListener("tap",self.keyListener)
+      end
     end
   end)
 end

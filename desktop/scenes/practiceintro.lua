@@ -84,7 +84,7 @@ local pageSetup={
    {text="Next you will need to play one of the sequences as fast as you can AND, at the same time, count the number of stars that appear!\n\nYou need to be very good at both tasks to proceed to the next stage. Good luck!",onKeyPress=function()
       composer.gotoScene("scenes.practicetune",{params={logName="countshapes_tune_"..tunemanager.getID("preferred"),tune=tunemanager.getID("preferred"),page=8,countShapes=true}})
       end},
-  {text="Now you can play any sequence of your choice made up of 6 different steps, apart from the 2 sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press one or more keys at once if you want.\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=9,iterations=20}})
+  {text="Now you can play any sequence of your choice made up of 6 different moves, apart from the 2 sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press one or more keys at once if you want.\n\nUse the left or right buttons a sequence\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=9,iterations=20,forceSelection=true}})
   end},
   {
     text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go.\n\nSelect the sequences using the left and right pads.",
