@@ -124,10 +124,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
   local mistakes=0
   local reset
   local inMistakeStreak
-  local function madeMistake(force)
-    if not force and getTuneSelected() and getTuneSelected()<0 then
-      return
-    end
+  local function madeMistake()
     sound.playSound("wrong")
     reset(true)
     if not inMistakeStreak then
@@ -221,7 +218,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
   local onPlay,onRelease
   onPlay,onRelease,reset=keyeventslisteners.create(logInputFilename,function(tune)
     if tune~=getTuneSelected() then
-      madeMistake(getTuneSelected()<0 and tune<=3)
+      madeMistake()
       return
     end
     steps=0
@@ -296,7 +293,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
       if good then
         tuneCompleted(left.tune<right.tune and left.tune or right.tune)
       elseif getTuneSelected()<0 then
-        madeMistake(true)
+        madeMistake()
         wildMeter:reset()
       end
     end

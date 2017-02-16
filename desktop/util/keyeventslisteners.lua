@@ -90,10 +90,11 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     local complete=tune or wildcardSteps==getWildCardLength()
     if complete and getSelectedTune then
       local wildcardCompleted=-wildcardSteps==getSelectedTune()
-      if wildcardCompleted then
+      if wildcardCompleted and matchingTunes then
         for _,v in pairs(matchingTunes) do
           if v.type=="complete" and v.step==wildcardSteps then
             wildcardCompleted=false
+            mistake=allReleased
           end
         end
       end
