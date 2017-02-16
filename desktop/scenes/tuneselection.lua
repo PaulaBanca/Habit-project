@@ -117,7 +117,7 @@ function scene:flashMessage(message,y)
   transition.to(t, {tag="mistake",alpha=0,onComplete=display.remove,onCancel=display.remove})
 end
 
-function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getWinnings)
+function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getWinnings,round)
   local logField=logger.create(logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice","winnings"})
 
   local steps=0
@@ -629,7 +629,8 @@ function scene:show(event)
       end,
       event.params.onTuneComplete,
       function() return tuneSelected end,
-      function() return currentWinnings end)
+      function() return currentWinnings end,
+      event.params.round)
   end)
 end
 

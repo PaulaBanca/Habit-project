@@ -137,6 +137,7 @@ local pageSetup={
       vischedule.setup(2,30000,1000)
       vischedule.start()
       winnings.startTracking()
+      local round=0
       function run()
         local opts=doorschedule.nextRound()
         if not opts then
@@ -144,7 +145,8 @@ local pageSetup={
           composer.gotoScene("scenes.doorstotal",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=15}}})
           return
         end
-
+        round=round+1
+        opts.round=round
         opts.logChoicesFilename="doors-choices-1"
         opts.logInputFilename="doors-inputs-1"
         opts.doors=true
@@ -169,13 +171,15 @@ local pageSetup={
       vrschedule.setup(3,3,1,1000)
       vrschedule.start()
       winnings.startTracking()
+      local round=0
       function run()
         local opts=doorschedule.nextRound()
         if not opts then
           composer.gotoScene("scenes.thankyou")
           return
         end
-
+        round=round+1
+        opts.round=round
         opts.logChoicesFilename="doors-choices-2"
         opts.logInputFilename="doors-inputs-2"
         opts.doors=true
