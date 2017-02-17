@@ -112,7 +112,7 @@ function getRows(tableName,getFunc)
 end
 
 local stop
-function stopCatchup()
+function stopCatchUp()
   stop=true
 end
 
