@@ -43,7 +43,7 @@ function scene:show(event)
     img.y=display.contentCenterY
     img:scale(0.5,0.5)
     local practice=practicelogger.getPractices(track)
-    img.tap=function() 
+    img.tap=function()
       img:removeEventListener("tap")
       logger.setPractices(practice)
       practicelogger.logAttempt(track)
@@ -52,7 +52,7 @@ function scene:show(event)
       composer.gotoScene("scenes.play",{params={
         track=track,
         difficulty=math.ceil(practice/3),
-        rewardType=noReward and "none" or 
+        rewardType=noReward and "none" or
             ((track+self.modeSelect)%2+1==1 and "timed" or "random"),
         isScheduledPractice=true,
         practice=practice,

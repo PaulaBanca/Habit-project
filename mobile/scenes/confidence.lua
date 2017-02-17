@@ -12,7 +12,7 @@ local user=require "user"
 
 local display=display
 local os=os
-local math=math    
+local math=math
 local print=print
 
 setfenv(1, scene)
@@ -147,14 +147,13 @@ function scene:show(event)
       }
     }
     incompletetasks.push(scene,params)
-    
+
     local d=daycounter.getPracticeDay()
     local practiced=daycounter.getPracticed(d)
     local quizzed=user.get("quizzed") or {}
     local qd=quizzed[d] or {}
-    local candiate
     local switchTest=true
-    for i=1,2 do 
+    for i=1,2 do
       if not qd[i] or practiced[i]<2 then
         switchTest=false
         break
@@ -175,7 +174,7 @@ function scene:show(event)
       }
       incompletetasks.push(scene,params)
     end
-    
+
     incompletetasks.getNext()
     logger.startCatchUp()
   end)
