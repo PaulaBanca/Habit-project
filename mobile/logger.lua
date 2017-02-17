@@ -61,50 +61,46 @@ function log(type,t)
   return unsent.log(type,t)
 end
 
-function send(tableName,getFunc,clearFunc,doneFunc)
-  local b
-  local lastID
+
+function sendRows(rows,doneFunc)
+  local quitOut
+  local function doneWrapper(serverHappy)
+    assert(not quitOut,"Done Wrapper called twice!")
+    quitOut=true
+    doneFunc(serverHappy)
+  end
+  local listener=function(event)
+    if event.isError then
+        print("Network error: ", event.response, " Status " , event.status)
+        doneWrapper(false)
+        return
+    else
+      if event.phase=="progress" then
+        print ((event.bytesTransferred*100/event.bytesEstimated).."%")
+      elseif event.phase=="ended" then
+        local isSuccess=false
+        if event.status>=200 and event.status<=201 then
+          isSuccess=event.response=="OK"
+        else
+          print("Network error: ", event.response, " Status " , event.status)
+        end
+        doneWrapper(isSuccess)
+      end
+    end
+  end
+
+  local params={}
+  params.progress="upload"
+  params.body=json.encode(rows)
+  network.request("http://multipad-server.herokuapp.com/submit", "POST", listener, params)
+  -- network.request("http://localhost:8080/submit", "POST", listener, params)
+end
+
+function getRows(tableName,getFunc)
   local rows={}
   getFunc(tableName,function(row,done)
     if done then
-      if #rows==0 then
-        return doneFunc(true)
-      end
-
-      local quitOut
-      local function doneWrapper()
-        assert(not quitOut,"Done Wrapper called twice!")
-        quitOut=true
-        doneFunc(false)
-      end
-      local listener=function(event)
-        if event.isError then
-            print("Network error: ", event.response, " Status " , event.status)
-            doneWrapper()
-            return
-        else 
-          if event.phase=="progress" then
-            print ((event.bytesTransferred*100/event.bytesEstimated).."%")
-          elseif event.phase=="ended" then
-            if event.status>=200 and event.status<=201 then
-              if event.response=="OK" then
-                clearFunc(tableName,lastID)
-              end
-            else
-              print("Network error: ", event.response, " Status " , event.status)
-            end
-            doneWrapper()
-          end
-        end
-      end
-
-      local params={}
-      params.progress="upload"
-      params.body=json.encode(rows)
-      network.request("http://multipad-server.herokuapp.com/submit", "POST", listener, params)
-      -- network.request("http://localhost:8080/submit", "POST", listener, params)
-      
-      return
+      return rows
     end
     for k,v in pairs(row) do
       if v=="NULL" then
@@ -112,8 +108,12 @@ function send(tableName,getFunc,clearFunc,doneFunc)
       end
     end
     rows[#rows+1]=row
-    lastID=row.ID
   end)
+end
+
+local stop
+function stopCatchup()
+  stop=true
 end
 
 local syncMessage
@@ -133,6 +133,7 @@ function startCatchUp()
     syncMessage:setTextColor(1, 0, 0)
   end
 
+  stop=false
   unsent.flushQueuedCommands(function()
     syncMessage.text="Background Syncing..."
     syncMessage:setTextColor(1)
@@ -140,6 +141,9 @@ function startCatchUp()
     local cur=1
     local process
     process=function(complete)
+      if stop then
+        return
+      end
       if complete then
         cur=cur+1
         if cur>#tables then
@@ -149,7 +153,17 @@ function startCatchUp()
         end
       end
       local table=tables[cur]
-      send(table,unsent.getData,unsent.clearDataUpTo,process)
+      local rows=getRows(table,unsent.getData)
+      if #rows==0 then
+        return process(true)
+      end
+
+      sendRows(rows,function(sendSuccesful)
+        if sendSuccesful then
+          unsent.clearDataUpTo(table,rows[#rows].ID)
+        end
+        process(false)
+      end)
     end
     process()
   end)
