@@ -3,7 +3,6 @@ local scene=composer.newScene()
 
 local sound=require "sound"
 local particles=require "particles"
-local clientloop=require "clientloop"
 local tunes=require "tunes"
 local stimuli=require "stimuli"
 local keys=require "keys"
@@ -11,7 +10,6 @@ local playlayout=require "playlayout"
 local practicelogger=require "practicelogger"
 local chordbar=require "ui.chordbar"
 local countdownpoints=require "ui.countdownpoints"
-local randompoints=require "ui.randompoints"
 local background=require "ui.background"
 local playstate=require "playstate"
 local daycounter=require "daycounter"
@@ -28,7 +26,6 @@ local system=system
 local timer=timer
 local tostring=tostring
 local table=table
-local easing=easing
 local tonumber=tonumber
 local Runtime=Runtime
 local os=os
@@ -50,9 +47,6 @@ local rewardType="none"
 local mistakesPerMode=_.rep(0,#modes)
 local modesDropped=0
 local state
-local intervalTime=5000
-local intervalSpread=3000
-local nextRewardTime
 local nextScene
 
 local startInstructions={
@@ -140,7 +134,7 @@ end
 local function dropModeDown()
   state.clear("mistakes")
   logger.setLives(3-state.get("mistakes"))
-    
+
   lastMistakeTime=system.getTimer()
   state:pushState()
   modeIndex=modeIndex-1
@@ -169,7 +163,7 @@ local countMistakes
 local lastMistakeTime=system.getTimer()
 local function madeMistake()
   local time=system.getTimer()
-  if time-lastMistakeTime>500 then 
+  if time-lastMistakeTime>500 then
     state.increment("mistakes")
     logger.setLives(3-state.get("mistakes"))
     lastMistakeTime=time
@@ -202,7 +196,7 @@ local function processBank()
   t:setFillColor(0.478,0.918,0)
   t.x=scene.img.x
   t.y=display.contentHeight
-  
+
   scene.bank:setScore(0)
   scene.bank.isVisible=false
 
@@ -216,7 +210,7 @@ end
 
 local function shouldChangeModeUp()
   return state.get("iterations")>=learningLength
-end  
+end
 
 local function changeModeUp()
   state.pullState()
@@ -242,7 +236,7 @@ local function changeModeUp()
       scene.points.isVisible=scene.progress.isVisible
     end
     modesDropped=0
-  end 
+  end
   learningLength=modesDropped==0 and maxLearningLength or 3
   logger.setModesDropped(modesDropped)
   logger.setModeIndex(modeIndex)
@@ -286,7 +280,7 @@ function completeRound()
   state.increment("iterations")
   state.clear("mistakes")
   logger.setLives(3-state.get("mistakes"))
-    
+
   scene.keys:clear()
 
   if shouldChangeModeUp() then
@@ -299,7 +293,7 @@ end
 function proceedToNextStep()
   scene.keys:clear(true)
   state.increment()
-end  
+end
 
 function hasCompletedTask()
   return modesDropped==0 and state.get("rounds")==maxLearningLength*rounds
@@ -307,11 +301,11 @@ end
 
 function completeTask()
   if not hasCompletedTask() then
-    return 
+    return
   end
   if state.get("rounds")==maxLearningLength*rounds then
     scene.keys:removeSelf()
-    if isScheduledPractice then 
+    if isScheduledPractice then
       practicelogger.logPractice(track)
       practicelogger.resetAttempts(track)
 
@@ -356,20 +350,20 @@ end
 
 function setUpReward()
   if rewardType=="none" then
-    return 
+    return
   end
   scene.rewardPoints=rewardType=="timed" and countdownpoints.create(100,1000) or countdownpoints.create(200,1000)
   scene.rewardPoints.isVisible=false
   scene.rewardPoints:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2+35)
   scene.view:insert(scene.rewardPoints)
   scene.redBackground:toFront()
-  if modesDropped>0 then 
+  if modesDropped>0 then
     scene.rewardPoints.isVisible=false
   end
 end
 
 function bankPoints()
-  if headless or isStart or not scene.rewardPoints 
+  if headless or isStart or not scene.rewardPoints
     or not scene.bank or modesDropped>0 then
     return
   end
@@ -402,7 +396,7 @@ function scene:create(event)
   cross.y=20
   cross:scale(0.5,0.5)
 
-  cross:addEventListener("tap",function() 
+  cross:addEventListener("tap",function()
     if self.onClose then
       self.onClose()
       self.onClose=nil
@@ -438,7 +432,7 @@ function scene:createKeys()
     end
     if not mistakeInLastTouches then
       if getIndex()==1 then
-        countMistakes=true 
+        countMistakes=true
       end
       bankPoints()
       if hasCompletedRound() then
@@ -448,7 +442,7 @@ function scene:createKeys()
         end
         if trackList then
           switchSong(table.remove(trackList))
-          if #trackList==0 then 
+          if #trackList==0 then
             trackList=nil
           end
         end
@@ -479,8 +473,8 @@ function scene:createKeys()
       if rewardType~="none" then
         data.bank=tonumber(scene.bank:getScore())
       end
-    end  
- 
+    end
+
     local modesDropped=shouldDropModeDown()
     restart()
     if modesDropped then
@@ -490,18 +484,15 @@ function scene:createKeys()
     else
       mistakeInLastTouches=true
     end
-   end,function (data) 
-    if not data then
-    end
-
+   end,function (data)
     data.mistakes=mistakesPerMode[modeIndex]
     data.lives=3-state.get("mistakes")
-      
+
     if rewardType~="none" then
       data.bank=tonumber(scene.bank:getScore())
     end
    end,headless,isStart)
-  
+
   group:insert(ks)
 
   function group:getKeys()
@@ -526,7 +517,7 @@ function scene:setUpKeyLayers()
     local bg=display.newRect(group,0,0,display.actualContentWidth-strokeWidth,display.actualContentHeight-strokeWidth)
     local colour={0.5,0.5,0.5}
     if i>#colour then
-      colour={0,0,0.5} 
+      colour={0,0,0.5}
     else
       colour[i]=0
     end
@@ -564,7 +555,7 @@ function scene:setUpKeyLayers()
     text:setFillColor(0.4)
     text.anchorX=1
     text.blendMode="add"
-    
+
     local ks=scene:createKeys()
     function group:getKeys()
       return ks:getKeys()
@@ -608,7 +599,7 @@ function scene:setUpKeyLayers()
         opts.onComplete=function()
           transition.to(l,{rotation=90,delay=delay,alpha=0})
         end
-    
+
         transition.to(l,opts)
       end
       count=count+1
@@ -625,7 +616,7 @@ function scene:setUpKeyLayers()
         anchorX=1,
         anchorY=1,
         x=display.actualContentWidth+offset*-10,
-        y=display.actualContentHeight+offset*-10,       
+        y=display.actualContentHeight+offset*-10,
       }
       if noAnim then
         opts.time=nil
@@ -652,9 +643,8 @@ end
 function scene:show(event)
   rounds=event.params.rounds or 2
   maxLearningLength=event.params.iterations or 10
-    
+
   if event.phase=="did" then
-   
     -- composer.showOverlay("scenes.dataviewer")
     mistakesPerMode=_.rep(0,#modes)
     countMistakes=true
@@ -686,7 +676,7 @@ function scene:show(event)
     self.cross:toFront()
     self.cross.isVisible=not isStart
     scene.keyLayers:switchTo(modeIndex,true)
-   
+
     local setTrack=event.params and event.params.track
     if setTrack=="random" then
       trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
@@ -701,7 +691,7 @@ function scene:show(event)
     logger.setIterations(state.get("iterations"))
     logger.setTotalMistakes(mistakesPerMode[modeIndex])
     logger.setLives(3-state.get("mistakes"))
-    
+
     logger.setBank(0)
     logger.setModesDropped(modesDropped)
     logger.setProgress("start")
@@ -713,7 +703,7 @@ function scene:show(event)
         sequence=startInstructions
       end
     end
-  
+
     logger.setIntro(isStart or false)
 
     restart()
@@ -795,7 +785,7 @@ function scene:show(event)
         end
       end
     end
-  
+
     if self.progress then
       self.progress:removeSelf()
     end
@@ -804,10 +794,10 @@ function scene:show(event)
     self.progress.isVisible=not isStart
 
     local totalRounds=maxLearningLength*rounds
-    local imgW,imgH=scene.img.contentWidth*2,scene.img.contentHeight
+    local imgW=scene.img.contentWidth*2
     local strokeWidth=2
     local x,y=self.img.x,13
-    
+
     local height=40
     self.img:translate(0, height-strokeWidth)
     local bg=display.newRect(self.progress,x,y,imgW-strokeWidth,height-strokeWidth)
@@ -862,7 +852,7 @@ function scene:show(event)
     group:toFront()
     if event.params.noSwitch then
       group:removeSelf()
-      self.keys:enable()  
+      self.keys:enable()
     end
   end
 end

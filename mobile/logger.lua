@@ -1,23 +1,16 @@
 local M={}
 logger=M
 
-local jsonreader=require "jsonreader"
 local user=require "user"
 local json=require "json"
 local serpent=require "serpent"
 local unsent=require "database.unsent"
 local _=require "util.moses"
-local system=system
 local print=print
 local assert=assert
-local timer=timer
-local table=table
 local tostring=tostring
-local error=error
 local pairs=pairs
-local ipairs=ipairs
 local display=display
-local type=type
 local network=network
 
 setfenv(1,M)
@@ -58,7 +51,7 @@ end
 function createLoggingTable()
   local t={}
   for k, v in pairs(additionalData) do
-    t[k]=v    
+    t[k]=v
   end
   return t
 end
