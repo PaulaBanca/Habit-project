@@ -142,6 +142,8 @@ function startCatchUp()
     local process
     process=function(complete)
       if stop then
+        syncMessage:removeSelf()
+        syncMessage=nil
         return
       end
       if complete then
