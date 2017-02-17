@@ -48,6 +48,7 @@ function scene:show(event)
       logger.setPractices(practice)
       practicelogger.logAttempt(track)
       logger.setAttempts(practicelogger.getAttempts(track))
+      logger.stopCatchUp()
       sessionlogger.logPracticeStarted()
       composer.gotoScene("scenes.play",{params={
         track=track,

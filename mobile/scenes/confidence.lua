@@ -134,6 +134,7 @@ function scene:show(event)
       incompletetasks.removeLast("scenes.pleasure")
     end
     local difficulty=math.ceil(practicelogger.getPractices(event.params.melody)/3)
+    logger.stopCatchUp()
     local scene,params="scenes.message",{
       text="Play the following sequence five times as quickly as possible.",
       nextScene="scenes.play",
@@ -176,7 +177,6 @@ function scene:show(event)
     end
 
     incompletetasks.getNext()
-    logger.startCatchUp()
   end)
   done.isVisible=false
   done.anchorChildren=true
