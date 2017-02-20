@@ -108,7 +108,7 @@ function scene:show(event)
         if i<today then
          c:setFillColor(250/255, 41/255, 41/255)
        end
-   
+
       else
         c:setFillColor(0.6, 0.2)
         c:setStrokeColor(1)
@@ -143,10 +143,10 @@ function scene:show(event)
         t.strokeWidth=3
       else
         t:setFillColor(250/255, 41/255, 41/255)
-      end 
+      end
       if not practiceDate then
         practiceDate=i
-      end 
+      end
       t:toBack()
     end
   end
@@ -164,26 +164,6 @@ function scene:show(event)
     t:toFront()
     bg:setFillColor(0,0.5,0.2, 0.8)
   end
-  local connect=display.newImage(scene.view,"img/connect.png")
-  connect.anchorX=1
-  connect.anchorY=0
-  connect:translate(display.contentWidth-5,5)
-  connect:addEventListener("tap", function() 
-    -- Handler that gets notified when the alert closes
-    local function onComplete(event)
-     if event.action == "clicked" then
-        local i = event.index
-        if i == 1 then      
-        elseif i == 2 then
-          composer.gotoScene("scenes.connect")
-        end
-      end
-    end
-
-    native.showAlert("For Lab Only", "Connect to desktop app? This function is for the final stage of the study. Without the app is will not do anything",{"No","Yes"},onComplete)
-
-  end)
-
 end
 
 scene:addEventListener("show")
