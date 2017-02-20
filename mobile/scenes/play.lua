@@ -48,6 +48,9 @@ local mistakesPerMode=_.rep(0,#modes)
 local modesDropped=0
 local state
 local nextScene
+local isScheduledPractice
+local trackList
+local stimulusScale=0.35
 
 local startInstructions={
   {chord={"c4","none","none","none"},forceLayout=true},
@@ -67,6 +70,7 @@ local modeProgressionSequence={
 }
 
 local function switchSong(newTrack)
+  local x,y=display.contentCenterX, scene.progress.iconY
   if scene.img then
     scene.img:removeSelf()
   end
@@ -77,8 +81,8 @@ local function switchSong(newTrack)
   local img=stimuli.getStimulus(index)
   scene.view:insert(img)
   img.anchorY=0
-  img:translate(display.contentCenterX, 12)
-  img:scale(0.35,0.35)
+  img:translate(x,y)
+  img:scale(stimulusScale,stimulusScale)
   scene.img=img
   logger.setTrack(track)
 end
@@ -388,13 +392,15 @@ function scene:create(event)
     end})
   end)
 
-  switchSong(1)
+  local temp=stimuli.getStimulus(1)
+  temp:scale(stimulusScale,stimulusScale)
   local cross=display.newImage(self.view,"img/cross.png")
   cross.anchorX=0
   cross.anchorY=0
-  cross.x=self.img.x+self.img.contentWidth+20
+  cross.x=display.contentCenterX+temp.contentWidth+20
   cross.y=20
   cross:scale(0.5,0.5)
+  temp:removeSelf()
 
   cross:addEventListener("tap",function()
     if self.onClose then
@@ -640,6 +646,99 @@ function scene:setUpKeyLayers()
   end
 end
 
+function scene:createProgressBar(totalRounds,barWidth,barHeight,strokeWidth)
+  if self.progress then
+    self.progress:removeSelf()
+  end
+  self.progress=display.newGroup()
+  self.view:insert(self.progress)
+
+  local x,y=display.contentCenterX,13
+  self.progress.iconY=y+barHeight-strokeWidth
+
+  local bg=display.newRect(self.progress,x,y,barWidth-strokeWidth,barHeight-strokeWidth)
+  bg:setFillColor(0)
+  bg:setStrokeColor(1)
+  bg.strokeWidth=strokeWidth
+  bg.anchorY=0
+  local bg=display.newRect(self.progress,x,y+strokeWidth,barWidth-strokeWidth*2-2,barHeight-strokeWidth*4)
+  bg:setFillColor(0)
+  bg.strokeWidth=strokeWidth
+  bg.anchorY=0
+
+  local innerX=x-barWidth/2+bg.strokeWidth
+  local innerY=bg.strokeWidth/2+y
+  local innerWidth=barWidth-bg.strokeWidth*2
+  for i=0,rounds-1 do
+    local bar=display.newRect(self.progress,innerX+i*innerWidth/rounds,innerY,innerWidth/rounds,barHeight-bg.strokeWidth*2)
+    bar:setFillColor(0.2*i)
+    bar.anchorX=0
+    bar.anchorY=0
+  end
+
+  local bar=display.newRect(self.progress,innerX,innerY,innerWidth,barHeight-bg.strokeWidth*2)
+  bar:setFillColor(0,1,0)
+  bar.anchorX=0
+  bar.anchorY=0
+  bar.isVisible=false
+
+  self.progress.pointsY=bar.y+bar.height/2+4
+  function self.progress:mark(i)
+    bar.isVisible=true
+    bar.xScale=i/totalRounds
+  end
+
+  for i=1, totalRounds do
+    local line=display.newLine(self.progress, innerX+i*innerWidth/totalRounds, bar.y, innerX+i*innerWidth/totalRounds, bar.y+bar.height-bar.strokeWidth*3)
+    line.strokeWidth=1
+    line:setStrokeColor(0)
+    line.alpha=0.4
+  end
+
+  for i=1,rounds-1 do
+    local line=display.newLine(self.progress, innerX+i*innerWidth/rounds, bar.y, innerX+i*innerWidth/rounds, bar.y+bar.height-bar.strokeWidth*3)
+    line.strokeWidth=3
+    line:setStrokeColor(0.4)
+  end
+end
+
+function scene:setUpPoints()
+  scene.points=display.newText({
+    parent=scene.view,
+    text=0,
+    fontSize=30,
+    font="Chunkfive.otf",
+  })
+  scene.points.anchorY=0.5
+  scene.points.x=scene.img.x
+  scene.points.y=self.progress.pointsY
+  scene.points:toFront()
+
+  if rewardType~="none" then
+    scene.bank=display.newGroup()
+    scene.view:insert(scene.bank)
+    scene.bank:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2)
+    scene.bank.isVisible=false
+    local text=display.newText({
+      parent=scene.bank,
+      text=0,
+      fontSize=30,
+      font="Chunkfive.otf",
+    })
+    text:setFillColor(0.478,0.918,0)
+    local bg=display.newImage(scene.bank,"img/blurbox.png")
+    bg:scale(1.4,1.4)
+    text:toFront()
+
+    function scene.bank:setScore(v)
+      logger.setBank(v)
+      text.text=v
+    end
+    function scene.bank:getScore()
+      return text.text
+    end
+  end
+end
 
 function scene:show(event)
   if event.phase~="did" then
@@ -684,7 +783,6 @@ function scene:show(event)
     trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
     setTrack=table.remove(trackList, 1)
   end
-  switchSong(setTrack)
 
   state=playstate.create()
   state.startTimer()
@@ -708,10 +806,6 @@ function scene:show(event)
 
   logger.setIntro(isStart or false)
 
-  restart()
-  setupNextKeys()
-  setUpReward()
-
   if system.getInfo("environment")~="simulator" then
     self.keys:disable()
   end
@@ -719,7 +813,7 @@ function scene:show(event)
   local practice=event.params and event.params.practice
   logger.setDeadmansSwitchID(nil)
   local releaseTimeMillis,releaseTime
-  local group=deadmansswitch.start(self.view,function()
+  local deadMansSwitchGroup=deadmansswitch.start(self.view,function()
     self.keys:enable()
     scene.keys:setLogData(not isStart)
     if not releaseTime or isStart then
@@ -750,110 +844,30 @@ function scene:show(event)
     setupNextKeys()
     self.keys:disable()
   end)
-  self.view:insert(group)
-  group:toFront()
+  self.view:insert(deadMansSwitchGroup)
+  do
+    local totalRounds=maxLearningLength*rounds
+    local temp=stimuli.getStimulus(1)
+    temp:scale(stimulusScale,stimulusScale)
+    local barWidth=temp.contentWidth*2
+    temp:removeSelf()
+    local barHeight=40
+    scene:createProgressBar(totalRounds,barWidth,barHeight,2)
+    self.progress.isVisible=not isStart
+  end
+
+  switchSong(setTrack)
   if not isStart and rewardType~="none" then
-    scene.points=display.newText({
-      parent=scene.view,
-      text=0,
-      fontSize=30,
-      font="Chunkfive.otf",
-    })
-    scene.points.anchorY=1
-    scene.points:translate(scene.img.x, scene.img.y+scene.img.contentHeight)
-
-    if rewardType~="none" then
-      scene.bank=display.newGroup()
-      scene.view:insert(scene.bank)
-      scene.bank:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2)
-      scene.bank.isVisible=false
-      local text=display.newText({
-        parent=scene.bank,
-        text=0,
-        fontSize=30,
-        font="Chunkfive.otf",
-      })
-      text:setFillColor(0.478,0.918,0)
-      local bg=display.newImage(scene.bank,"img/blurbox.png")
-      bg:scale(1.4,1.4)
-      text:toFront()
-
-      function scene.bank:setScore(v)
-        logger.setBank(v)
-        text.text=v
-      end
-      function scene.bank:getScore()
-        return text.text
-      end
-    end
+    scene:setUpPoints()
   end
 
-  if self.progress then
-    self.progress:removeSelf()
-  end
-  self.progress=display.newGroup()
-  self.view:insert(self.progress)
-  self.progress.isVisible=not isStart
+  restart()
+  setupNextKeys()
+  setUpReward()
 
-  local totalRounds=maxLearningLength*rounds
-  local imgW=scene.img.contentWidth*2
-  local strokeWidth=2
-  local x,y=self.img.x,13
-
-  local height=40
-  self.img:translate(0, height-strokeWidth)
-  local bg=display.newRect(self.progress,x,y,imgW-strokeWidth,height-strokeWidth)
-  bg:setFillColor(0)
-  bg:setStrokeColor(1)
-  bg.strokeWidth=strokeWidth
-  bg.anchorY=0
-  local bg=display.newRect(self.progress,x,y+strokeWidth,imgW-strokeWidth*2-2,height-strokeWidth*4)
-  bg:setFillColor(0)
-  bg.strokeWidth=strokeWidth
-  bg.anchorY=0
-
-  local innerX=x-imgW/2+bg.strokeWidth
-  local innerY=bg.strokeWidth/2+y
-  local innerWidth=imgW-bg.strokeWidth*2
-  for i=0,rounds-1 do
-    local bar=display.newRect(self.progress,innerX+i*innerWidth/rounds,innerY,innerWidth/rounds,height-bg.strokeWidth*2)
-    bar:setFillColor(0.2*i)
-    bar.anchorX=0
-    bar.anchorY=0
-  end
-
-  local bar=display.newRect(self.progress,innerX,innerY,innerWidth,height-bg.strokeWidth*2)
-  bar:setFillColor(0,1,0)
-  bar.anchorX=0
-  bar.anchorY=0
-  bar.isVisible=false
-  function self.progress:mark(i)
-    bar.isVisible=true
-    bar.xScale=i/totalRounds
-  end
-
-  for i=1, totalRounds do
-    local line=display.newLine(self.progress, innerX+i*innerWidth/totalRounds, bar.y, innerX+i*innerWidth/totalRounds, bar.y+bar.height-bar.strokeWidth*3)
-    line.strokeWidth=1
-    line:setStrokeColor(0)
-    line.alpha=0.4
-  end
-
-  for i=1,rounds-1 do
-    local line=display.newLine(self.progress, innerX+i*innerWidth/rounds, bar.y, innerX+i*innerWidth/rounds, bar.y+bar.height-bar.strokeWidth*3)
-    line.strokeWidth=3
-    line:setStrokeColor(0.4)
-  end
-
-  if scene.points then
-    scene.points.anchorY=0.5
-    scene.points.x=scene.img.x
-    scene.points.y=bar.y+bar.height/2+4
-    scene.points:toFront()
-  end
-  group:toFront()
+  deadMansSwitchGroup:toFront()
   if event.params.noSwitch then
-    group:removeSelf()
+    deadMansSwitchGroup:removeSelf()
     self.keys:enable()
   end
 end
