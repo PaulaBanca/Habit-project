@@ -7,9 +7,6 @@ local serpent=require "serpent"
 local tostring=tostring
 local print=print
 local pairs=pairs
-local tonumber=tonumber
-local math=math
-local table=table
 local timer=timer
 local native=native
 
@@ -186,12 +183,14 @@ end
 local hasDataCmd={}
 local getDataCmd={}
 local deleteDataCmd={}
+local countDataCmd={}
 
 for i=1, #tableNames do
   local table=tableNames[i]
   hasDataCmd[table]=("select exists (select 1 from %s); "):format(table)
   getDataCmd[table]=database.prepare(([[SELECT * FROM %s ORDER BY ID ASC limit 50;]]):format(table))
   deleteDataCmd[table]=([[DELETE FROM %s WHERE ID <= %s;]]):format(table,"%s")
+  countDataCmd[table]=([[SELECT COUNT(*) FROM %s;]]):format(table)
 end
 
 function fetch50(preparedStmt,callback)
@@ -259,6 +258,15 @@ end
 
 function getUnsent()
   return queuedCommands
+end
+
+function count(tablename)
+  local num
+  database.runSQLQuery(countDataCmd[tablename],function(udata,cols,values,names)
+    num=values[1]
+    return 0
+  end)
+  return num
 end
 
 return M
