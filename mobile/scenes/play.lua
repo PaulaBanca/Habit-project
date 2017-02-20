@@ -640,220 +640,221 @@ function scene:setUpKeyLayers()
   end
 end
 
+
 function scene:show(event)
+  if event.phase~="did" then
+    return
+  end
   rounds=event.params.rounds or 2
   maxLearningLength=event.params.iterations or 10
+  -- composer.showOverlay("scenes.dataviewer")
+  mistakesPerMode=_.rep(0,#modes)
+  countMistakes=true
 
-  if event.phase=="did" then
-    -- composer.showOverlay("scenes.dataviewer")
-    mistakesPerMode=_.rep(0,#modes)
-    countMistakes=true
+  isStart=event.params and event.params.intro
+  startModeProgression=event.params and event.params.modeProgression
+  headless=event.params and event.params.headless
+  self.onClose=event.params and event.params.onClose
+  rewardType=event.params and event.params.rewardType or "none"
+  nextScene=event.params and event.params.nextScene or "scenes.score"
+  isScheduledPractice=event.params and event.params.isScheduledPractice
+  logger.setIsScheduled(isScheduledPractice or false)
+  logger.setMode(event.params and event.params.mode)
+  if not isScheduledPractice then
+    logger.setPractices(-1)
+    logger.setAttempts(-1)
+  end
+  if headless then
+    rewardType="none"
+  end
+  modeIndex=math.max(1,math.min(#modes,event.params and event.params.difficulty or 1))
+  if headless then
+    modeIndex=3
+  else
+    logger.setModeIndex(modeIndex)
+  end
 
-    isStart=event.params and event.params.intro
-    startModeProgression=event.params and event.params.modeProgression
-    headless=event.params and event.params.headless
-    self.onClose=event.params and event.params.onClose
-    rewardType=event.params and event.params.rewardType or "none"
-    nextScene=event.params and event.params.nextScene or "scenes.score"
-    isScheduledPractice=event.params and event.params.isScheduledPractice
-    logger.setIsScheduled(isScheduledPractice or false)
-    logger.setMode(event.params and event.params.mode)
-    if not isScheduledPractice then
-      logger.setPractices(-1)
-      logger.setAttempts(-1)
-    end
-    if headless then
-      rewardType="none"
-    end
-    modeIndex=math.max(1,math.min(#modes,event.params and event.params.difficulty or 1))
-    if headless then
-      modeIndex=3
+  scene:setUpKeyLayers()
+  self.cross:toFront()
+  self.cross.isVisible=not isStart
+  scene.keyLayers:switchTo(modeIndex,true)
+
+  local setTrack=event.params and event.params.track
+  if setTrack=="random" then
+    trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
+    setTrack=table.remove(trackList, 1)
+  end
+  switchSong(setTrack)
+
+  state=playstate.create()
+  state.startTimer()
+  modesDropped=0
+  logger.setScore(0)
+  logger.setIterations(state.get("iterations"))
+  logger.setTotalMistakes(mistakesPerMode[modeIndex])
+  logger.setLives(3-state.get("mistakes"))
+
+  logger.setBank(0)
+  logger.setModesDropped(modesDropped)
+  logger.setProgress("start")
+
+  if isStart then
+    if startModeProgression then
+      sequence=modeProgressionSequence
     else
-      logger.setModeIndex(modeIndex)
+      sequence=startInstructions
+    end
+  end
+
+  logger.setIntro(isStart or false)
+
+  restart()
+  setupNextKeys()
+  setUpReward()
+
+  if system.getInfo("environment")~="simulator" then
+    self.keys:disable()
+  end
+
+  local practice=event.params and event.params.practice
+  logger.setDeadmansSwitchID(nil)
+  local releaseTimeMillis,releaseTime
+  local group=deadmansswitch.start(self.view,function()
+    self.keys:enable()
+    scene.keys:setLogData(not isStart)
+    if not releaseTime or isStart then
+      return
     end
 
-    scene:setUpKeyLayers()
-    self.cross:toFront()
-    self.cross.isVisible=not isStart
-    scene.keyLayers:switchTo(modeIndex,true)
-
-    local setTrack=event.params and event.params.track
-    if setTrack=="random" then
-      trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
-      setTrack=table.remove(trackList, 1)
+    local rowid=logger.log("switchRelease",{
+      releaseDuration=system.getTimer()-releaseTimeMillis,
+      releaseTime=releaseTime,
+      pressedTime=os.date("%T"),
+      date=os.date("%F"),
+      appMillis=system.getTimer(),
+      practice=practice,
+      track=track,
+    })
+    logger.setDeadmansSwitchID(rowid)
+    releaseTime=nil
+  end,function()
+    scene.keys:setLogData(false)
+    if hasCompletedTask() then
+      self.keys:disable()
+      return
     end
-    switchSong(setTrack)
-
-    state=playstate.create()
-    state.startTimer()
-    modesDropped=0
-    logger.setScore(0)
-    logger.setIterations(state.get("iterations"))
-    logger.setTotalMistakes(mistakesPerMode[modeIndex])
-    logger.setLives(3-state.get("mistakes"))
-
-    logger.setBank(0)
-    logger.setModesDropped(modesDropped)
-    logger.setProgress("start")
-
-    if isStart then
-      if startModeProgression then
-        sequence=modeProgressionSequence
-      else
-        sequence=startInstructions
-      end
-    end
-
-    logger.setIntro(isStart or false)
-
+    releaseTimeMillis=system.getTimer()
+    releaseTime=os.date("%T")
+    mistakeAnimation(self.redBackground)
     restart()
     setupNextKeys()
-    setUpReward()
+    self.keys:disable()
+  end)
+  self.view:insert(group)
+  group:toFront()
+  if not isStart and rewardType~="none" then
+    scene.points=display.newText({
+      parent=scene.view,
+      text=0,
+      fontSize=30,
+      font="Chunkfive.otf",
+    })
+    scene.points.anchorY=1
+    scene.points:translate(scene.img.x, scene.img.y+scene.img.contentHeight)
 
-    if system.getInfo("environment")~="simulator" then
-      self.keys:disable()
-    end
-
-    local practice=event.params and event.params.practice
-    logger.setDeadmansSwitchID(nil)
-    local releaseTimeMillis,releaseTime
-    local group=deadmansswitch.start(self.view,function()
-      self.keys:enable()
-      scene.keys:setLogData(not isStart)
-      if not releaseTime or isStart then
-        return
-      end
-
-      local rowid=logger.log("switchRelease",{
-        releaseDuration=system.getTimer()-releaseTimeMillis,
-        releaseTime=releaseTime,
-        pressedTime=os.date("%T"),
-        date=os.date("%F"),
-        appMillis=system.getTimer(),
-        practice=practice,
-        track=track,
-      })
-      logger.setDeadmansSwitchID(rowid)
-      releaseTime=nil
-    end,function()
-      scene.keys:setLogData(false)
-      if hasCompletedTask() then
-        self.keys:disable()
-        return
-      end
-      releaseTimeMillis=system.getTimer()
-      releaseTime=os.date("%T")
-      mistakeAnimation(self.redBackground)
-      restart()
-      setupNextKeys()
-      self.keys:disable()
-    end)
-    self.view:insert(group)
-    group:toFront()
-    if not isStart and rewardType~="none" then
-      scene.points=display.newText({
-        parent=scene.view,
+    if rewardType~="none" then
+      scene.bank=display.newGroup()
+      scene.view:insert(scene.bank)
+      scene.bank:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2)
+      scene.bank.isVisible=false
+      local text=display.newText({
+        parent=scene.bank,
         text=0,
         fontSize=30,
         font="Chunkfive.otf",
       })
-      scene.points.anchorY=1
-      scene.points:translate(scene.img.x, scene.img.y+scene.img.contentHeight)
+      text:setFillColor(0.478,0.918,0)
+      local bg=display.newImage(scene.bank,"img/blurbox.png")
+      bg:scale(1.4,1.4)
+      text:toFront()
 
-      if rewardType~="none" then
-        scene.bank=display.newGroup()
-        scene.view:insert(scene.bank)
-        scene.bank:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2)
-        scene.bank.isVisible=false
-        local text=display.newText({
-          parent=scene.bank,
-          text=0,
-          fontSize=30,
-          font="Chunkfive.otf",
-        })
-        text:setFillColor(0.478,0.918,0)
-        local bg=display.newImage(scene.bank,"img/blurbox.png")
-        bg:scale(1.4,1.4)
-        text:toFront()
-
-        function scene.bank:setScore(v)
-          logger.setBank(v)
-          text.text=v
-        end
-        function scene.bank:getScore()
-          return text.text
-        end
+      function scene.bank:setScore(v)
+        logger.setBank(v)
+        text.text=v
+      end
+      function scene.bank:getScore()
+        return text.text
       end
     end
+  end
 
-    if self.progress then
-      self.progress:removeSelf()
-    end
-    self.progress=display.newGroup()
-    self.view:insert(self.progress)
-    self.progress.isVisible=not isStart
+  if self.progress then
+    self.progress:removeSelf()
+  end
+  self.progress=display.newGroup()
+  self.view:insert(self.progress)
+  self.progress.isVisible=not isStart
 
-    local totalRounds=maxLearningLength*rounds
-    local imgW=scene.img.contentWidth*2
-    local strokeWidth=2
-    local x,y=self.img.x,13
+  local totalRounds=maxLearningLength*rounds
+  local imgW=scene.img.contentWidth*2
+  local strokeWidth=2
+  local x,y=self.img.x,13
 
-    local height=40
-    self.img:translate(0, height-strokeWidth)
-    local bg=display.newRect(self.progress,x,y,imgW-strokeWidth,height-strokeWidth)
-    bg:setFillColor(0)
-    bg:setStrokeColor(1)
-    bg.strokeWidth=strokeWidth
-    bg.anchorY=0
-    local bg=display.newRect(self.progress,x,y+strokeWidth,imgW-strokeWidth*2-2,height-strokeWidth*4)
-    bg:setFillColor(0)
-    bg.strokeWidth=strokeWidth
-    bg.anchorY=0
+  local height=40
+  self.img:translate(0, height-strokeWidth)
+  local bg=display.newRect(self.progress,x,y,imgW-strokeWidth,height-strokeWidth)
+  bg:setFillColor(0)
+  bg:setStrokeColor(1)
+  bg.strokeWidth=strokeWidth
+  bg.anchorY=0
+  local bg=display.newRect(self.progress,x,y+strokeWidth,imgW-strokeWidth*2-2,height-strokeWidth*4)
+  bg:setFillColor(0)
+  bg.strokeWidth=strokeWidth
+  bg.anchorY=0
 
-    local innerX=x-imgW/2+bg.strokeWidth
-    local innerY=bg.strokeWidth/2+y
-    local innerWidth=imgW-bg.strokeWidth*2
-    for i=0,rounds-1 do
-      local bar=display.newRect(self.progress,innerX+i*innerWidth/rounds,innerY,innerWidth/rounds,height-bg.strokeWidth*2)
-      bar:setFillColor(0.2*i)
-      bar.anchorX=0
-      bar.anchorY=0
-    end
-
-    local bar=display.newRect(self.progress,innerX,innerY,innerWidth,height-bg.strokeWidth*2)
-    bar:setFillColor(0,1,0)
+  local innerX=x-imgW/2+bg.strokeWidth
+  local innerY=bg.strokeWidth/2+y
+  local innerWidth=imgW-bg.strokeWidth*2
+  for i=0,rounds-1 do
+    local bar=display.newRect(self.progress,innerX+i*innerWidth/rounds,innerY,innerWidth/rounds,height-bg.strokeWidth*2)
+    bar:setFillColor(0.2*i)
     bar.anchorX=0
     bar.anchorY=0
-    bar.isVisible=false
-    function self.progress:mark(i)
-      bar.isVisible=true
-      bar.xScale=i/totalRounds
-    end
+  end
 
-    for i=1, totalRounds do
-      local line=display.newLine(self.progress, innerX+i*innerWidth/totalRounds, bar.y, innerX+i*innerWidth/totalRounds, bar.y+bar.height-bar.strokeWidth*3)
-      line.strokeWidth=1
-      line:setStrokeColor(0)
-      line.alpha=0.4
-    end
+  local bar=display.newRect(self.progress,innerX,innerY,innerWidth,height-bg.strokeWidth*2)
+  bar:setFillColor(0,1,0)
+  bar.anchorX=0
+  bar.anchorY=0
+  bar.isVisible=false
+  function self.progress:mark(i)
+    bar.isVisible=true
+    bar.xScale=i/totalRounds
+  end
 
-    for i=1,rounds-1 do
-      local line=display.newLine(self.progress, innerX+i*innerWidth/rounds, bar.y, innerX+i*innerWidth/rounds, bar.y+bar.height-bar.strokeWidth*3)
-      line.strokeWidth=3
-      line:setStrokeColor(0.4)
-    end
+  for i=1, totalRounds do
+    local line=display.newLine(self.progress, innerX+i*innerWidth/totalRounds, bar.y, innerX+i*innerWidth/totalRounds, bar.y+bar.height-bar.strokeWidth*3)
+    line.strokeWidth=1
+    line:setStrokeColor(0)
+    line.alpha=0.4
+  end
 
-    if scene.points then
-      scene.points.anchorY=0.5
-      scene.points.x=scene.img.x
-      scene.points.y=bar.y+bar.height/2+4
-      scene.points:toFront()
-    end
-    group:toFront()
-    if event.params.noSwitch then
-      group:removeSelf()
-      self.keys:enable()
-    end
+  for i=1,rounds-1 do
+    local line=display.newLine(self.progress, innerX+i*innerWidth/rounds, bar.y, innerX+i*innerWidth/rounds, bar.y+bar.height-bar.strokeWidth*3)
+    line.strokeWidth=3
+    line:setStrokeColor(0.4)
+  end
+
+  if scene.points then
+    scene.points.anchorY=0.5
+    scene.points.x=scene.img.x
+    scene.points.y=bar.y+bar.height/2+4
+    scene.points:toFront()
+  end
+  group:toFront()
+  if event.params.noSwitch then
+    group:removeSelf()
+    self.keys:enable()
   end
 end
 
@@ -863,7 +864,7 @@ function scene:hide(event)
   end
   if event.phase=="did" then
     logger.startCatchUp()
-    
+
     self.progress:removeSelf()
     self.progress=nil
     self.keyLayers:removeSelf()
