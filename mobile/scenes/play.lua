@@ -90,7 +90,7 @@ local function roundCompleteAnimation()
   p:translate(display.contentCenterX, display.contentCenterY)
   sound.playSound("correct")
 
-  local t=transition.to(p, {time=2000,alpha=0,onComplete=function() 
+  local t=transition.to(p, {time=2000,alpha=0,onComplete=function()
     p:removeSelf()
   end})
   function p:finalize()
@@ -115,7 +115,7 @@ local function getIndex()
   return state.get("count")%#sequence+1
 end
 
-local function resetBank()  
+local function resetBank()
   if not scene.bank then
     return
   end
