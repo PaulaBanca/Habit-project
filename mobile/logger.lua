@@ -100,7 +100,7 @@ function getRows(tableName,getFunc)
   local rows={}
   getFunc(tableName,function(row,done)
     if done then
-      return rows
+      return
     end
     for k,v in pairs(row) do
       if v=="NULL" then
@@ -109,6 +109,7 @@ function getRows(tableName,getFunc)
     end
     rows[#rows+1]=row
   end)
+  return rows
 end
 
 local stop
