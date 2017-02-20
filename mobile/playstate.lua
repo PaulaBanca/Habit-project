@@ -35,7 +35,7 @@ function create()
     local temp=state
     state=blankState()
     state.prevState=temp
-  end 
+  end
 
   function t.pullState()
     state=state.prevState or state
@@ -48,7 +48,7 @@ function create()
   function t.getTime()
     return system.getTimer()-state.startTimer
   end
-  
+
   function t.restart()
     state.count=0
     t.startTimer()
@@ -59,7 +59,7 @@ function create()
   end
 
   function t.clear(key)
-    state[key]=blankState()[key] 
+    state[key]=blankState()[key]
   end
 
   function t.print()
