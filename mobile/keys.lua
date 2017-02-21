@@ -49,7 +49,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
   local targetKeys={}
   local noFeedback=networked
   local logData=not noLogging
- 
+
   for i=1,NUM_KEYS do
     local keyInstance=key.create()
     keys[i]=keyInstance
@@ -83,7 +83,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
 
     function keyInstance:stopSparks()
       if not self.sparks then
-        return 
+        return
       end
       self.sparks:stop()
       self.sparks=nil
@@ -128,16 +128,16 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
         if keyInstance.onPress then
           keyInstance.onPress(wasCorrect)
         end
-        
+
         if networked then
           clientloop.sendEvent({type="key played",note=keyInstance.index})
         end
-  
+
         if wasCorrect then
           if not noFeedback then
             keyInstance:startSparks()
           end
-          
+
           complete=_.isEqual(targetKeys,currentlyPressedKeys)
         else
           mistakeFunc(false,stepID,data)
@@ -149,7 +149,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
           end
           keyInstance.setPressed(true)
         end
-        
+
         if data then
           logger.log("touch",data)
           endedLoggingTable=_.clone(data,true)
@@ -163,12 +163,12 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
         display.getCurrentStage():setFocus(event.target,nil)
         currentlyPressedKeys[i]=nil
         self.touchID=nil
-        
+
         if networked then
-          clientloop.sendEvent({type="key released",note=keyInstance. 
+          clientloop.sendEvent({type="key released",note=keyInstance.
             index})
         end
-      
+
         local data
         if logData then
           data=endedLoggingTable
@@ -195,12 +195,12 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
           allReleasedFunc(stepID,data)
           complete=false
         end
-       
+
         if data then
           logger.log("touch",data)
         end
-        
-        timer.performWithDelay(100, function()          
+
+        timer.performWithDelay(100, function()
           keyInstance:stopSparks()
           keyInstance.setPressed(false)
         end)
@@ -226,9 +226,9 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     targetKeys={}
     local function setNote(key,scientificNote)
       targetKeys[key.index]=true
-      local note,octave=notes.toNotePitch(scientificNote)  
-      key:setNote(note,noAid) 
-      key:setOctave(octave) 
+      local note,octave=notes.toNotePitch(scientificNote)
+      key:setNote(note,noAid)
+      key:setOctave(octave)
       key:highlight(not noHighlight)
       key.time=system.getTimer()
       key.instructionIndex=index
@@ -249,12 +249,12 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     for k,v in pairs(notes) do
       setNote(keys[k],v)
     end
-  
+
     return targetKeys
   end
 
   function group:hasPendingInstruction()
-    for i=1, #keys do 
+    for i=1, #keys do
       if keys[i].highlighted then
         return
       end
@@ -273,7 +273,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
       k.instructionIndex=nil
       k.time=nil
       k.stepID=nil
-     
+
       k:highlight(false)
       k.scientificNote=nil
       if k.sparks then
@@ -294,7 +294,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     end
     currentlyPressedKeys={}
     enabled=false
-    for i=1, #keys do 
+    for i=1, #keys do
       local img=keys[i].getTouchImg()
       img:removeEventListener("touch")
       img:removeEventListener("tap")
@@ -307,7 +307,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     end
     enabled=true
     currentlyPressedKeys={}
-    for i=1, #keys do 
+    for i=1, #keys do
       local img=keys[i].getTouchImg()
       img:addEventListener("tap")
       img:addEventListener("touch")
