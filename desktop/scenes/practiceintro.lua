@@ -92,7 +92,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[1].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
+      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
   },
   {
     text="Now, lets do the same again but with different sequences to choose from.",
@@ -100,7 +100,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard3"}
       local switch=composer.getVariable("preferencetest")[2].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=11}}) end
+      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=30,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=11}}) end
   },
   {
     text="Now, your performance will be rewarded and you will receive your winnings by the end of the study.",
@@ -112,7 +112,7 @@ local pageSetup={
         options.leftTune,options.rightTune=options.rightTune,options.leftTune
         rewards.left,rewards.right=rewards.right,rewards.left
       end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-3",logInputFilename="preferencetest-inputs-3",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="preferred",page=12}}) end
+      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=20,logChoicesFilename="preferencetest-choices-3",logInputFilename="preferencetest-inputs-3",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="preferred",page=12}}) end
   },
   {
     text="Same thing again but the options have changed.",
@@ -124,7 +124,7 @@ local pageSetup={
         options.leftTune,options.rightTune=options.rightTune,options.leftTune
         rewards.left,rewards.right=rewards.right,rewards.left
       end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=20,logChoicesFilename="preferencetest-choices-4",logInputFilename="preferencetest-inputs-4",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="wildcard6",page=13}}) end
+      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=20,logChoicesFilename="preferencetest-choices-4",logInputFilename="preferencetest-inputs-4",leftTune=options.leftTune,rightTune=options.rightTune,leftReward=rewards.left,rightReward=rewards.right,titrate="wildcard6",page=13}}) end
   },
   {text="Now you will learn a new sequence.\n\nFollow the lights, memorize it, and play yourself!",img=function()
     return stimuli.getStimulus(3)

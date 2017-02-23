@@ -601,6 +601,9 @@ function scene:show(event)
       local timerGroup
       timerGroup,incrementCount=self:startCounting(event.params.iterations,event.params.page)
       timerGroup.y=start and start.y-90 or self.leftMeter.y-self.leftMeter.height-120
+      if event.params.hideCounter then
+        timerGroup.isVisible=false
+      end
     end
 
     local tuneSelected
