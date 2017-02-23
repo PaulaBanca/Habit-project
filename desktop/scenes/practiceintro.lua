@@ -166,16 +166,22 @@ local pageSetup={
     {text="This is the last part of the experiment! This time the choices come in blocks, so it may be easier to find the more rewarding sequences.",
     onKeyPress=function()
       doorschedule.start()
-      vrschedule.setup(1,12,2,1000)
-      vrschedule.setup(2,12,2,1000)
-      vrschedule.setup(3,3,1,1000)
-      vrschedule.start()
+
+      local highReward=function() return 8+math.random(7) end
+      local lowReward=function() return math.random(7) end
+      local createReward={
+        [tunemanager.getID("discarded")]=highReward,
+        [tunemanager.getID("preferred")]=lowReward,
+        [tunemanager.getID("wildcard6")]=highReward,
+        [tunemanager.getID("wildcard3")]=lowReward,
+        [tunemanager.getID("3")]=highReward
+      }
       winnings.startTracking()
       local round=0
       function run()
         local opts=doorschedule.nextRound()
         if not opts then
-          composer.gotoScene("scenes.thankyou")
+          composer.gotoScene("scenes.gemconversion",{params={nextScene="scenes.thankyou"}})
           return
         end
         round=round+1
@@ -183,23 +189,17 @@ local pageSetup={
         opts.logChoicesFilename="doors-choices-2"
         opts.logInputFilename="doors-inputs-2"
         opts.doors=true
-        local vrscheduleMap={
-          [tunemanager.getID("preferred")]=1,
-          [tunemanager.getID("wildcard3")]=2,
-          [tunemanager.getID("wildcard6")]=3,
-          [tunemanager.getID("discarded")]=3,
-          [tunemanager.getID(3)]=3
-        }
         opts.onTuneComplete=function(matched,notMatched,side)
           local stage=display.getCurrentStage()
           stage:insert(matched)
           stage:insert(notMatched)
           stage:insert(matched.door)
 
-          local vr=vrscheduleMap[matched.tune]
-          local payout=vrschedule.reward(vr)
+          matched.reward=createReward[matched.tune]()
+          notMatched.reward=createReward[notMatched.tune]()
+          local payout=true
 
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run}})
+          composer.gotoScene("scenes.doorresult",{params={gems=true,matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
