@@ -37,7 +37,7 @@ local function configureSparks(colour)
   json.startColorGreen=colour[2]
   json.finishColorBlue=colour[3]
   json.startColorBlue=colour[3]
-  return json  
+  return json 
 end
 
 function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
@@ -101,11 +101,11 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     end
     local endedLoggingTable
     local stepID
-    img.touch=function(self,event) 
+    img.touch=function(self,event)
       if event.phase=="began" then
         display.getCurrentStage():setFocus(event.target,event.id)
         wasCorrect=targetKeys[i] and not currentlyPressedKeys[i] or networked
-        currentlyPressedKeys[i]=true    
+        currentlyPressedKeys[i]=true
         stepID=keyInstance.stepID
         self.touchID=event.id
         local data
