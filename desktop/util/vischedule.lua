@@ -12,7 +12,7 @@ setfenv(1,M)
 local schedules
 
 local function generateVI(intervalMillis,steps)
-  local rd={} 
+  local rd={}
   for m=1,steps do
     local interval
     if m==steps then
@@ -20,7 +20,7 @@ local function generateVI(intervalMillis,steps)
     else
       interval=intervalMillis*(1+math.log(steps)+(steps-m)*math.log(steps-m)-(steps-m+1)*math.log(steps-m+1))
     end
-    
+
     local order
     repeat
       order=math.random(steps)
@@ -38,7 +38,7 @@ end
 
 local lastTime={}
 function start()
-  for i=1,#schedules do 
+  for i=1,#schedules do
     lastTime[i]=system.getTimer()
   end
 end
