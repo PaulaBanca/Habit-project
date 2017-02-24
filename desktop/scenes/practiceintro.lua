@@ -79,7 +79,7 @@ local pageSetup={
     end},
 
   {text="In the following task, you will see several shapes appearing and disappearing on the screen.\n\nYou just need to count how many stars appear.\n\nThey come and go quickly so pay attention to avoid missing them!",onKeyPress=function()
-      composer.gotoScene("scenes.practicetune",{params={tune=nil,page=7,countShapes=true}})
+      composer.gotoScene("scenes.practicetune",{params={moreStars=true,tune=nil,page=7,countShapes=true}})
     end},
    {text="Next you will need to play one of the sequences as fast as you can AND, at the same time, count the number of stars that appear!\n\nYou need to be very good at both tasks to proceed to the next stage. Good luck!",onKeyPress=function()
       composer.gotoScene("scenes.practicetune",{params={logName="countshapes_tune_"..tunemanager.getID("preferred"),tune=tunemanager.getID("preferred"),page=8,countShapes=true}})

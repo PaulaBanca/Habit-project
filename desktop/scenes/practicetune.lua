@@ -112,7 +112,7 @@ function scene:show(event)
     start.text="Go!"
     transition.to(start,{alpha=0,xScale=5,yScale=5,time=200,onComplete=delete})
     if event.params.countShapes then
-      composer.showOverlay("scenes.shapecounter")
+      composer.showOverlay("scenes.shapecounter",{params={moreStars=event.params.moreStars}})
     end
     local tuneCount
     local mistakes=0

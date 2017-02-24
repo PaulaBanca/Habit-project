@@ -8,6 +8,7 @@ local Runtime=Runtime
 local physics=require "physics"
 local system=system
 local print=print
+local _=require "util.moses"
 
 setfenv(1,scene)
 
@@ -23,6 +24,15 @@ local files={
 }
 
 local fileToCount=files[7]
+local biasFileList=_(files):clone():append(_.rep(fileToCount,2)):value()
+
+local function randomFile()
+  return files[math.random(#files)]
+end
+
+local function biasRandomFile()
+  return biasFileList[math.random(#biasFileList)]
+end
 
 local function colVal()
   return (math.random(3)-1)*0.5
@@ -44,7 +54,7 @@ function scene:getCountShape()
   t=timer.performWithDelay(500, function ()
     if not img.setFillColor then
       timer.cancel(t)
-      return 
+      return
     end
     img:setFillColor(getRGB())
   end ,-1)
@@ -52,10 +62,10 @@ function scene:getCountShape()
   return img
 end
 
-function scene:addObject(noCounted)
+function scene:addObject(noCounted,biased)
   local f
-  repeat 
-    f=files[math.random(#files)]
+  repeat
+    f=(biased and biasRandomFile or randomFile)()
   until not noCounted or f~=fileToCount
   local img=display.newImage(self.view,f)
   local t=math.pi*2*math.random()
@@ -64,11 +74,11 @@ function scene:addObject(noCounted)
   physics.addBody(img, "dynamic")
 
   if f==fileToCount then
-    timer.performWithDelay(2000,function() 
-      img.alpha=0  
+    timer.performWithDelay(2000,function()
+      img.alpha=0
     end)
   end
- 
+
   img:setFillColor(getRGB())
   return f==fileToCount
 end
@@ -89,7 +99,7 @@ function scene:update(event)
   end
   if not obj then
     repeat
-      if count==0 then 
+      if count==0 then
         return false
       end
       count=count-1
@@ -97,7 +107,7 @@ function scene:update(event)
     until not obj.text and obj.protectedTime<event.time
   end
   obj:removeSelf()
-  self.shapeCount=self.shapeCount+(self:addObject() and 1 or 0)
+  self.shapeCount=self.shapeCount+(self:addObject(false,scene.biased) and 1 or 0)
   composer.setVariable("shapes", self.shapeCount)
 end
 
@@ -106,6 +116,7 @@ function scene:show(event)
     return
   end
 
+  self.biased=event.params.moreStars
   physics.start()
   physics.setGravity(0, 0)
 
@@ -126,8 +137,8 @@ function scene:show(event)
   self.shapeCount=0
   composer.setVariable("shapes", self.shapeCount)
 
-  for i=1, 20 do 
-    self.shapeCount=self.shapeCount+(self:addObject(true) and 1 or 0)
+  for i=1, 20 do
+    self.shapeCount=self.shapeCount+(self:addObject(true,scene.biased) and 1 or 0)
   end
   self.wrapUpdate=function(event) self:update(event) end
   Runtime:addEventListener("enterFrame", self.wrapUpdate)
