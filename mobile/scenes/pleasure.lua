@@ -144,4 +144,14 @@ end
 
 scene:addEventListener("show")
 
+function scene:hide(event)
+  if event.phase=="will" then
+    return
+  end
+  for i=scene.view.numChildren, 1, -1 do
+    scene.view[i]:removeSelf()
+  end
+end
+scene:addEventListener("hide")
+
 return scene
