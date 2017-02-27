@@ -813,7 +813,7 @@ function scene:show(event)
   local practice=event.params and event.params.practice
   logger.setDeadmansSwitchID(nil)
   local releaseTimeMillis,releaseTime
-  local deadMansSwitchGroup=deadmansswitch.start(self.view,function()
+  local deadSensor,deadMansSwitchGroup=deadmansswitch.start(function()
     self.keys:enable()
     scene.keys:setLogData(not isStart)
     if not releaseTime or isStart then
@@ -844,7 +844,11 @@ function scene:show(event)
     setupNextKeys()
     self.keys:disable()
   end)
+  self.view:insert(deadSensor)
+  deadSensor:toBack()
+  self.deadSensor=deadSensor
   self.view:insert(deadMansSwitchGroup)
+  self.deadMansSwitchGroup=deadMansSwitchGroup
   do
     local totalRounds=maxLearningLength*rounds
     local temp=stimuli.getStimulus(1)
@@ -868,7 +872,10 @@ function scene:show(event)
   deadMansSwitchGroup:toFront()
   if event.params.noSwitch then
     deadMansSwitchGroup:removeSelf()
+    self.deadMansSwitchGroup=nil
     self.keys:enable()
+    self.deadSensor:removeSelf()
+    self.deadSensor=nil
   end
 end
 
@@ -887,6 +894,14 @@ function scene:hide(event)
     if self.points then
       self.points:removeSelf()
       self.points=nil
+    end
+    if self.deadMansSwitchGroup then
+      self.deadMansSwitchGroup:removeSelf()
+      self.deadMansSwitchGroup=nil
+    end
+    if self.deadSensor then
+      self.deadSensor:removeSelf()
+      self.deadSensor=nil
     end
     if self.rewardPoints then
       self.rewardPoints:removeSelf()

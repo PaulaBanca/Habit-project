@@ -10,7 +10,7 @@ local system=system
 setfenv(1,M)
 
 local instructionGroup
-function start(group,startFunc,noTouchesFunc)
+function start(startFunc,noTouchesFunc)
   assert(not instructionGroup,"deadmansswitch: group not null")
 
   instructionGroup=display.newGroup()
@@ -19,8 +19,8 @@ function start(group,startFunc,noTouchesFunc)
       instructionGroup=nil
     end
     instructionGroup:addEventListener("finalize")
-   
-    return instructionGroup
+
+    return display.newGroup(),instructionGroup
   end
   instructionGroup.isHitTestable=true
   local instruction=display.newText({
@@ -35,19 +35,18 @@ function start(group,startFunc,noTouchesFunc)
   bg:toBack()
   bg:setFillColor(0, 0.6)
 
-  local hitSensor=display.newRect(group,display.contentCenterX, display.contentCenterY,display.actualContentWidth,display.actualContentHeight)
+  local hitSensor=display.newRect(display.contentCenterX, display.contentCenterY,display.actualContentWidth,display.actualContentHeight)
   hitSensor.isHitTestable=true
   hitSensor.isVisible=false
-  hitSensor:toBack()
 
   instructionGroup:translate(display.contentCenterX, display.contentCenterY)
   local restingTouches={}
-  
+
   local listener=function(event)
     if event.phase=="began" then
       restingTouches[event.id]=true
       local first=instructionGroup.isVisible
-      if first then 
+      if first then
         startFunc()
         display.getCurrentStage():setFocus(hitSensor,event.id)
       end
@@ -68,7 +67,7 @@ function start(group,startFunc,noTouchesFunc)
     instructionGroup=nil
   end
   instructionGroup:addEventListener("finalize")
-  return instructionGroup
+  return hitSensor,instructionGroup
 end
 
 function stop()
