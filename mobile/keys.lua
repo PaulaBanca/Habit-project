@@ -2,7 +2,6 @@ local M={}
 keys=M
 
 local key=require "key"
-local json=require "json"
 local particles=require "particles"
 local sound=require "sound"
 local notes=require "notes"
@@ -37,7 +36,7 @@ local function configureSparks(colour)
   json.startColorGreen=colour[2]
   json.finishColorBlue=colour[3]
   json.startColorBlue=colour[3]
-  return json 
+  return json
 end
 
 function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
@@ -77,6 +76,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
       end
 
       local e=display.newEmitter(configureSparks(self.colour))
+      group:insert(e)
       e:translate(self.x,self.y)
       self.sparks=e
     end
@@ -86,6 +86,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
         return
       end
       self.sparks:stop()
+      transition.to(self.sparks,{alpha=0,onComplete=function() self.sparks:removeSelf() end})
       self.sparks=nil
     end
 
