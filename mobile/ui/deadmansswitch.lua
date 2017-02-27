@@ -3,7 +3,6 @@ deadmansswitch=M
 
 local display=display
 local next=next
-local Runtime=Runtime
 local assert=assert
 local system=system
 
@@ -63,7 +62,7 @@ function start(startFunc,noTouchesFunc)
   end
   hitSensor:addEventListener("touch", listener)
   function instructionGroup:finalize(event)
-    hitSensor:removeSelf()
+    display.remove(hitSensor)
     instructionGroup=nil
   end
   instructionGroup:addEventListener("finalize")
