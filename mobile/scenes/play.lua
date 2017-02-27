@@ -528,7 +528,6 @@ function scene:setUpKeyLayers()
       colour[i]=0
     end
     bg:setFillColor(unpack(colour))
-    -- bg.blendMode="multiply"
     bg.strokeWidth=8
     bg:setStrokeColor(1)
 
@@ -703,38 +702,38 @@ function scene:createProgressBar(totalRounds,barWidth,barHeight,strokeWidth)
 end
 
 function scene:setUpPoints()
-  scene.points=display.newText({
-    parent=scene.view,
+  self.points=display.newText({
+    parent=self.view,
     text=0,
     fontSize=30,
     font="Chunkfive.otf",
   })
-  scene.points.anchorY=0.5
-  scene.points.x=scene.img.x
-  scene.points.y=self.progress.pointsY
-  scene.points:toFront()
+  self.points.anchorY=0.5
+  self.points.x=self.img.x
+  self.points.y=self.progress.pointsY
+  self.points:toFront()
 
   if rewardType~="none" then
-    scene.bank=display.newGroup()
-    scene.view:insert(scene.bank)
-    scene.bank:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2)
-    scene.bank.isVisible=false
+    self.bank=display.newGroup()
+    self.view:insert(self.bank)
+    self.bank:translate(self.img.x,self.img.y+self.img.contentHeight/2)
+    self.bank.isVisible=false
     local text=display.newText({
-      parent=scene.bank,
+      parent=self.bank,
       text=0,
       fontSize=30,
       font="Chunkfive.otf",
     })
     text:setFillColor(0.478,0.918,0)
-    local bg=display.newImage(scene.bank,"img/blurbox.png")
+    local bg=display.newImage(self.bank,"img/blurbox.png")
     bg:scale(1.4,1.4)
     text:toFront()
 
-    function scene.bank:setScore(v)
+    function self.bank:setScore(v)
       logger.setBank(v)
       text.text=v
     end
-    function scene.bank:getScore()
+    function self.bank:getScore()
       return text.text
     end
   end
@@ -773,10 +772,10 @@ function scene:show(event)
     logger.setModeIndex(modeIndex)
   end
 
-  scene:setUpKeyLayers()
+  self:setUpKeyLayers()
   self.cross:toFront()
   self.cross.isVisible=not isStart
-  scene.keyLayers:switchTo(modeIndex,true)
+  self.keyLayers:switchTo(modeIndex,true)
 
   local setTrack=event.params and event.params.track
   if setTrack=="random" then
@@ -815,7 +814,7 @@ function scene:show(event)
   local releaseTimeMillis,releaseTime
   local deadSensor,deadMansSwitchGroup=deadmansswitch.start(function()
     self.keys:enable()
-    scene.keys:setLogData(not isStart)
+    self.keys:setLogData(not isStart)
     if not releaseTime or isStart then
       return
     end
@@ -832,7 +831,7 @@ function scene:show(event)
     logger.setDeadmansSwitchID(rowid)
     releaseTime=nil
   end,function()
-    scene.keys:setLogData(false)
+    self.keys:setLogData(false)
     if hasCompletedTask() then
       self.keys:disable()
       return
@@ -856,13 +855,13 @@ function scene:show(event)
     local barWidth=temp.contentWidth*2
     temp:removeSelf()
     local barHeight=40
-    scene:createProgressBar(totalRounds,barWidth,barHeight,2)
+    self:createProgressBar(totalRounds,barWidth,barHeight,2)
     self.progress.isVisible=not isStart
   end
 
   switchSong(setTrack)
   if not isStart and rewardType~="none" then
-    scene:setUpPoints()
+    self:setUpPoints()
   end
 
   restart()
