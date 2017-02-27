@@ -4,9 +4,7 @@ key=M
 local display=display
 local system=system
 local unpack=unpack
-local json=require "json"
 local notes=require "notes"
-local particles=require "particles"
 local math=math
 local timer=timer
 local print=print
@@ -134,7 +132,7 @@ function create()
     self.note=nil
     self.colour=nil
     self:clearCoin()
-    highlighted=false
+    self.highlighted=false
     highlight.isVisible=false
   end
   group.clear=clear
