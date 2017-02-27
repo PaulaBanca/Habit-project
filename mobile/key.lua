@@ -35,14 +35,14 @@ function createImages(whenDone)
 
   c=display.newImage("key_pressed.png" ,system.DocumentsDirectory)
   c:scale(keyWidth/c.width,keyHeight/c.height)
-  s=display.newSnapshot(c.contentWidth, c.contentHeight)
+  local s=display.newSnapshot(c.contentWidth, c.contentHeight)
   s.fill.effect = "filter.emboss"
-  s.fill.effect.intensity = 0.2  
+  s.fill.effect.intensity = 0.2
 
   s.canvas:insert(c)
   s:invalidate("canvas")
   s.yScale=-1
-  display.save(s, {filename="key_pressed.png",isFullResolution=true})  
+  display.save(s, {filename="key_pressed.png",isFullResolution=true})
   s:removeSelf()
 
   c=display.newImage("key_pressed.png" ,system.DocumentsDirectory)
@@ -57,20 +57,20 @@ function createImages(whenDone)
   s.fill.effect.vertical.sigma = 10
 
   s.canvas:insert(c)
-  
+
   s:invalidate("canvas")
 
-  display.save(s, {filename="key_highlight2.png",isFullResolution=true})  
+  display.save(s, {filename="key_highlight2.png",isFullResolution=true})
   s:removeSelf()
 
   timer.performWithDelay(10 ,function()
     local g=display.newGroup()
-    for i=1, 4 do 
+    for i=1, 4 do
       local img=display.newImage(g,"key_highlight2.png",system.DocumentsDirectory)
       img.blendMode="add"
     end
     g:scale(keyWidth/g.width,keyHeight/g.height)
-    display.save(g, {filename="key_highlight.png",isFullResolution=true})  
+    display.save(g, {filename="key_highlight.png",isFullResolution=true})
     g:removeSelf()
     whenDone()
   end)
