@@ -11,6 +11,10 @@ local path=system.pathForFile("session.json",system.DocumentsDirectory)
 
 local practicesStarted=0
 local practicesCompleted=0
+function reset()
+  practicesStarted=0
+  practicesCompleted=0
+end
 
 function logPracticeStarted()
   practicesStarted=practicesStarted+1

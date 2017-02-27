@@ -71,6 +71,7 @@ Runtime:addEventListener("system", function(event)
       logger.log("session",prev)
       sessionlogger.clearHistory()
     end
+    sessionlogger.reset()
     logSessionStart(event.type)
   end
   if event.type=="applicationSuspend" or event.type=="applicationExit" then
