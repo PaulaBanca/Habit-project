@@ -21,6 +21,7 @@ local pairs=pairs
 local print=print
 local tostring=tostring
 local next=next
+local transition=transition
 local assert=assert
 local NUM_KEYS=NUM_KEYS
 
@@ -82,18 +83,13 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     end
 
     function keyInstance:stopSparks()
-      if not self.sparks then
+      if not self.sparks or not self.sparks.stop then
         return
       end
       self.sparks:stop()
-      transition.to(self.sparks,{alpha=0,onComplete=function() self.sparks:removeSelf() end})
+      transition.to(self.sparks,{alpha=0,onComplete=function(obj) display.remove(obj) end})
       self.sparks=nil
     end
-
-    function keyInstance:finalize()
-      self:stopSparks()
-    end
-    keyInstance:addEventListener("finalize")
 
     local wasCorrect=false
     local img=keyInstance.getTouchImg()
