@@ -899,7 +899,7 @@ scene:addEventListener("show")
 scene:addEventListener("hide")
 
 Runtime:addEventListener("system", function (event)
-  if event.type=="applicationResume" then
+  if event.type=="applicationResume" and not isStart then
     composer.gotoScene("scenes.schedule")
     logger.startCatchUp()
   end
