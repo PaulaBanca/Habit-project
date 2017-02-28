@@ -132,6 +132,7 @@ local function shouldDropModeDown()
   return state.get("mistakes")>3 and modeIndex>1 and not headless and not isStart
 end
 
+local lastMistakeTime=system.getTimer()
 local function dropModeDown()
   state.clear("mistakes")
   logger.setLives(3-state.get("mistakes"))
@@ -161,7 +162,6 @@ local function restart()
 end
 
 local countMistakes
-local lastMistakeTime=system.getTimer()
 local function madeMistake()
   local time=system.getTimer()
   if time-lastMistakeTime>500 then
