@@ -12,33 +12,6 @@ local print=print
 
 setfenv(1,M)
 
-local short1={
-   "a4",
-  {chord={"e4","a3"}},
-  "g4",
-  "c3",
-  {chord={"none","none","e4","c3"},forceLayout=true},
-  {chord={"c4","a4","f4","none"},forceLayout=true},
-}
-
-local short2={
-  {chord={"c4","g4"}},
-  "f4",
-  {chord={"none","a4","f4","c3"},forceLayout=true},
-  "a4",
-  {chord={"d4","none","none","g4"},forceLayout=true},
-  "c4"
-}
-
-local short3={
-  "f4",
-  {chord={"none","f4","a4","c3"},forceLayout=true},
-  {chord={"d4","none","b4","none"},forceLayout=true},
-  "a4",
-  "g4",
-  {chord={"c4","g4"}},
-}
-
 local config
 function generateTunes()
   local function findLongestOverlap(a,b)
@@ -97,16 +70,8 @@ function generateTunes()
     end
   end
 
-  config[4]={tune=_.clone(config[1].tune,false),stimulus=1}
-  config[5]={tune=_.clone(config[2].tune,false),stimulus=2}
-  for tune=4,5 do
-    local t=config[tune].tune
-    for i=4,6 do
-      t[i].chord.invert=true
-    end
-  end
-  config[6]={tune=_.first(config[1].tune,5),stimulus=1}
-  config[7]={tune=_.first(config[2].tune,5),stimulus=2}
+  config[4]={tune=_.first(config[1].tune,5),stimulus=1}
+  config[5]={tune=_.first(config[2].tune,5),stimulus=2}
 end
 
 local maxLength=6
