@@ -6,6 +6,7 @@ local palstyleshapes=require "palstyleshapes.palstyleshapes"
 local math=math
 local os=os
 local assert=assert
+local _=require "util.moses"
 
 setfenv(1,M)
 
@@ -22,6 +23,9 @@ function generateSeeds()
     math.random(0xFFFFFFF),
     math.random(0xFFFFFFF),
   }
+  if #_.unique(seeds)~=#seeds then
+    generateSeeds()
+  end
 end
 
 function getStimulus(n)
