@@ -787,16 +787,6 @@ function scene:show(event)
   logger.setModesDropped(modesDropped)
   logger.setProgress("start")
 
-  if isStart then
-    if startModeProgression then
-      sequence=modeProgressionSequence
-    else
-      sequence=startInstructions
-    end
-  end
-
-  logger.setIntro(isStart or false)
-
   if system.getInfo("environment")~="simulator" then
     self.keys:disable()
   end
@@ -851,14 +841,25 @@ function scene:show(event)
     self.progress.isVisible=not isStart
   end
 
-  switchSong(setTrack)
-  if not isStart and rewardType~="none" then
-    self:setUpPoints()
+  if isStart then
+    if startModeProgression then
+      sequence=modeProgressionSequence
+    else
+      sequence=startInstructions
+    end
+    logger.setTrack(-1)
+  else
+    switchSong(setTrack)
+    if rewardType~="none" then
+      self:setUpPoints()
+    end
   end
 
   restart()
   setupNextKeys()
   setUpReward()
+
+  logger.setIntro(isStart or false)
 
   deadMansSwitchGroup:toFront()
   if event.params.noSwitch then
