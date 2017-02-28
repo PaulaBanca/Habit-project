@@ -16,6 +16,7 @@ local daycounter=require "daycounter"
 local logger=require "logger"
 local sessionlogger=require "sessionlogger"
 local deadmansswitch=require "ui.deadmansswitch"
+local keysparks=require "ui.keysparks"
 local _=require "util.moses"
 local unpack=unpack
 local display=display
@@ -877,6 +878,7 @@ function scene:hide(event)
   end
   if event.phase=="did" then
     logger.startCatchUp()
+    keysparks.clear()
     for i=self.view.numChildren,1,-1 do
       if not self.view[i].doNotRemoveOnHide then
         self.view[i]:removeSelf()

@@ -2,7 +2,6 @@ local M={}
 keys=M
 
 local key=require "key"
-local particles=require "particles"
 local sound=require "sound"
 local notes=require "notes"
 local playlayout=require "playlayout"
@@ -11,34 +10,22 @@ local logger=require "logger"
 local keylayout=require "keylayout"
 local serpent=require "serpent"
 local _=require "util.moses"
+local keysparks=require "ui.keysparks"
 local os=os
 local display=display
 local system=system
 local type=type
-local math=math
 local timer=timer
 local pairs=pairs
 local print=print
 local tostring=tostring
 local next=next
-local transition=transition
 local assert=assert
 local NUM_KEYS=NUM_KEYS
 
 setfenv(1,M)
 
 local noChords=system.getInfo("environment")=="simulator"
-
-local function configureSparks(colour)
-  local json=particles.load("CorrectNote")
-  json.finishColorRed=colour[1]
-  json.startColorRed=colour[1]
-  json.finishColorGreen=colour[2]
-  json.startColorGreen=colour[2]
-  json.finishColorBlue=colour[3]
-  json.startColorBlue=colour[3]
-  return json
-end
 
 function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
   local group=display.newGroup()
@@ -49,6 +36,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
   local targetKeys={}
   local noFeedback=networked
   local logData=not noLogging
+  keysparks.clear()
 
   for i=1,NUM_KEYS do
     local keyInstance=key.create()
@@ -66,34 +54,14 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     touchLine.strokeWidth=20
 
     local oldHighlight=keyInstance.highlight
-    keyInstance.highlight=function(keyInstance,on)
-      oldHighlight(keyInstance,on)
+    keyInstance.highlight=function(self,on)
+      oldHighlight(self,on)
       touchLine.isVisible=on
-    end
-
-    function keyInstance:startSparks()
-      if self.sparks or not self.colour then
-        return
-      end
-
-      local e=display.newEmitter(configureSparks(self.colour))
-      group:insert(e)
-      e:translate(self.x,self.y)
-      self.sparks=e
-    end
-
-    function keyInstance:stopSparks()
-      if not self.sparks or not self.sparks.stop then
-        return
-      end
-      self.sparks:stop()
-      transition.to(self.sparks,{alpha=0,onComplete=function(obj) display.remove(obj) end})
-      self.sparks=nil
     end
 
     local wasCorrect=false
     local img=keyInstance.getTouchImg()
-    img.tap=function(self,event)
+    img.tap=function()
       return wasCorrect
     end
     local endedLoggingTable
@@ -132,7 +100,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
 
         if wasCorrect then
           if not noFeedback then
-            keyInstance:startSparks()
+            keysparks.startSparks(i,keyInstance.colour,keyInstance.x,keyInstance.y)
           end
 
           complete=_.isEqual(targetKeys,currentlyPressedKeys)
@@ -198,7 +166,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
         end
 
         timer.performWithDelay(100, function()
-          keyInstance:stopSparks()
+          keysparks.stopSparks(i)
           keyInstance.setPressed(false)
         end)
         return true
@@ -273,10 +241,6 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
 
       k:highlight(false)
       k.scientificNote=nil
-      if k.sparks then
-        display.remove(k.sparks)
-        k.sparks=nil
-      end
     end
   end
 
