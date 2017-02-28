@@ -14,8 +14,6 @@ local print=print
 
 setfenv(1,scene)
 
-local MAX_DAYS=31
-
 function scene:show(event)
   if event.phase=="did" then
     return
