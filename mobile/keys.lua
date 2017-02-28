@@ -278,7 +278,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
       k:highlight(false)
       k.scientificNote=nil
       if k.sparks then
-        k.sparks:stop()
+        display.remove(k.sparks)
         k.sparks=nil
       end
     end
