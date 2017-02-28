@@ -9,7 +9,7 @@ local keys=require "keys"
 local playlayout=require "playlayout"
 local practicelogger=require "practicelogger"
 local chordbar=require "ui.chordbar"
-local countdownpoints=require "ui.countdownpoints"
+local countdownpoints=require "util.countdownpoints"
 local background=require "ui.background"
 local playstate=require "playstate"
 local daycounter=require "daycounter"
@@ -125,10 +125,7 @@ local function resetBank()
   end
   scene.bank.isVisible=false
   scene.bank:setScore(0)
-  if scene.rewardPoints then
-    scene.rewardPoints:removeSelf()
-    scene.rewardPoints=nil
-  end
+  scene.calcReward=nil
 end
 
 local function shouldDropModeDown()
@@ -356,26 +353,18 @@ function setUpReward()
   if rewardType=="none" then
     return
   end
-  scene.rewardPoints=rewardType=="timed" and countdownpoints.create(100,1000) or countdownpoints.create(200,1000)
-  scene.rewardPoints.isVisible=false
-  scene.rewardPoints:translate(scene.img.x,scene.img.y+scene.img.contentHeight/2+35)
-  scene.view:insert(scene.rewardPoints)
-  scene.redBackground:toFront()
-  if modesDropped>0 then
-    scene.rewardPoints.isVisible=false
-  end
+  scene.calcReward=rewardType=="timed" and countdownpoints.create(100,1000) or countdownpoints.create(200,1000)
 end
 
 function bankPoints()
-  if headless or isStart or not scene.rewardPoints
+  if headless or isStart or not scene.calcReward
     or not scene.bank or modesDropped>0 then
     return
   end
-  local amount=tonumber(scene.rewardPoints:getPoints())
+  local amount=scene.calcReward()
+  scene.calcReward=nil
   if amount>0 then
     scene.bank:setScore(tonumber(scene.bank:getScore())+amount)
-    scene.rewardPoints:removeSelf()
-    scene.rewardPoints=nil
   end
 end
 
