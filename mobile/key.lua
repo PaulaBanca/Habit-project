@@ -131,7 +131,6 @@ function create()
     pressed.isVisible=false
     self.note=nil
     self.colour=nil
-    self:clearCoin()
     self.highlighted=false
     highlight.isVisible=false
   end
@@ -156,23 +155,6 @@ function create()
     return highlight
   end
   group.getHighlight=getHighlight
-
-  function group:addCoin()
-    local c=display.newCircle(group,0,0,key.contentWidth/4)
-    c:setFillColor(218/255, 193/255, 93/255)
-    self.coin=c
-  end
-
-  function group:hasCoin()
-    return self.coin~=nil
-  end
-
-  function group:clearCoin()
-    if self.coin then
-      self.coin:removeSelf()
-      self.coin=nil
-    end
-  end
 
   return group
 end

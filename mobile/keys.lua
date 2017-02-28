@@ -319,21 +319,6 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     logData=on
   end
 
-  function group:addCoin(callback)
-    local i=math.random(NUM_KEYS)
-    local k=keys[i]
-    k:addCoin()
-    k.onPress=function(correct)
-      if k:hasCoin() then
-        k:clearCoin()
-        if correct then
-          callback(k:localToContent(0,0))
-        end
-      end
-      k.onPress=nil
-    end
-  end
-
   return group
 end
 
