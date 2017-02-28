@@ -377,7 +377,7 @@ function scene:create(event)
     local wrong=display.newCircle(scene.view,event.x,event.y,10)
     wrong:setFillColor(1,0,0)
     transition.to(wrong,{alpha=0,delay=500,onComplete=function(obj)
-      obj:removeSelf()
+      display.remove(obj)
     end})
   end)
 
@@ -409,6 +409,9 @@ function scene:create(event)
   redBackground:setFillColor(1,0,0)
   redBackground.alpha=0
   self.redBackground=redBackground
+  for i=1, self.view.numChildren do
+    self.view[i].doNotRemoveOnHide=true
+  end
 end
 
 function scene:createKeys()
@@ -873,37 +876,21 @@ function scene:hide(event)
   end
   if event.phase=="did" then
     logger.startCatchUp()
-
-    self.progress:removeSelf()
-    self.progress=nil
-    self.keyLayers:removeSelf()
+    for i=self.view.numChildren,1,-1 do
+      if not self.view[i].doNotRemoveOnHide then
+        self.view[i]:removeSelf()
+      end
+    end
     self.keyLayers=nil
-    display.remove(self.keys)
     self.keys=nil
-    if self.img then
-      self.img:removeSelf()
-      self.img=nil
-    end
-    if self.points then
-      self.points:removeSelf()
-      self.points=nil
-    end
-    if self.deadMansSwitchGroup then
-      self.deadMansSwitchGroup:removeSelf()
-      self.deadMansSwitchGroup=nil
-    end
-    if self.deadSensor then
-      self.deadSensor:removeSelf()
-      self.deadSensor=nil
-    end
-    if self.rewardPoints then
-      self.rewardPoints:removeSelf()
-      self.rewardPoints=nil
-    end
-    if self.bank then
-      self.bank:removeSelf()
-      self.bank=nil
-    end
+    self.img=nil
+    self.points=nil
+    self.deadMansSwitchGroup=nil
+    self.deadSensor=nil
+    self.calcReward=nil
+    self.bank=nil
+    self.progress=nil
+    self.hint=nil
   end
 end
 
