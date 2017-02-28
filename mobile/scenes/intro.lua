@@ -12,8 +12,8 @@ setfenv(1,scene)
 
 local instructions={
   {text="Welcome!\n\nThis App will help you to learn 2 sequences of finger presses",y=display.contentCenterY-40},
-  {text="You will tap out the sequences on circles like the ones below.\n\nGive it a go! Tap the three coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function() 
-    local k=keys.create(function() end,function() end,function() end,false,true) 
+  {text="You will tap out the sequences on circles like the ones below.\n\nGive it a go! Tap the three coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function()
+    local k=keys.create(function() end,function() end,function() end,false,true)
     scene.view:insert(k)
     k:toBack()
     k:enable()
@@ -88,9 +88,9 @@ function scene:show(event)
     y=bg.y,
     text="Next",
     align="center"
-  }) 
+  })
 
-  bg:addEventListener("tap", function (event)
+  bg:addEventListener("tap", function ()
     for i=scene.view.numChildren,1,-1 do
       scene.view[i]:removeSelf()
     end
@@ -99,5 +99,15 @@ function scene:show(event)
 
 end
 scene:addEventListener("show")
+
+function scene:hide(event)
+  if event.phase=="will" then
+    return
+  end
+  for i=scene.view.numChildren, 1, -1 do
+    scene.view[i]:removeSelf()
+  end
+end
+scene:addEventListener("hide")
 
 return scene
