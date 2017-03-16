@@ -22,6 +22,7 @@ function generateSeeds()
     math.random(0xFFFFFFF),
     math.random(0xFFFFFFF),
     math.random(0xFFFFFFF),
+    math.random(0xFFFFFFF),
   }
   if #_.unique(seeds)~=#seeds then
     generateSeeds()
@@ -32,7 +33,7 @@ function getStimulus(n)
   if n<0 then
     return getWildcardSimuli(-n)
   end
-  local truncated=n-3
+  local truncated=n-4
   if truncated>0 then
     n=n%2+1
     truncated=truncated>2 and 5 or 3
