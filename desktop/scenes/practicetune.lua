@@ -238,6 +238,7 @@ function scene:show(event)
 
       local MAX_ITER=event.params.iterations
       local PAGE_N=event.params.page
+      local NEXT_SCENE=event.params.nextScene
       local clearMeterTimer
       local isSelected=not forceSelection
       local function markCompleted()
@@ -267,7 +268,7 @@ function scene:show(event)
           bestPractices[tunePracticing]=n
         end
       end
-      local onPlay,onRelease,_r=keyeventslisteners.create(event.params.logName,function(tune)
+      local onPlay,onRelease,_r=keyeventslisteners.create(event.params.logInputFilename,function(tune)
         if tune~=tunePracticing then
           madeMistake(MAX_ITER and "no tunes" or "mistake")
         elseif not isSelected then
@@ -277,7 +278,7 @@ function scene:show(event)
           self.meter:mark(6,true)
           markCompleted()
           if MAX_ITER==tonumber(count.text) then
-            composer.gotoScene("scenes.practiceintro",{params={page=PAGE_N}})
+            composer.gotoScene(NEXT_SCENE,{params={page=PAGE_N}})
           end
           steps=0
         end

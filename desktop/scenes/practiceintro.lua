@@ -18,9 +18,9 @@ local print=print
 setfenv(1,scene)
 
 local pageSetup={
-  {text="Welcome back!\n\nLets see how good you are at performing the sequences you have been practicing.\n\nPlay each one as fast as you can for 1 minute.\n\nLets start with the first sequence.",onKeyPress=function() composer.gotoScene("scenes.practicetune",{params={logName="practice_tune_"..composer.getVariable("firstpractice"),tune=composer.getVariable("firstpractice"),page=2}})
+  {text="Welcome back!\n\nLets see how good you are at performing the sequences you have been practicing.\n\nPlay each one as fast as you can for 1 minute.\n\nLets start with the first sequence.",onKeyPress=function() composer.gotoScene("scenes.practicetune",{params={logInputFilename="practice_tune_"..composer.getVariable("firstpractice"),tune=composer.getVariable("firstpractice"),page=2,nextScene="scenes.practiceintro"}})
     end},
-  {text="Well done!\n\nNow lets play the other sequence.",onKeyPress=function() composer.gotoScene("scenes.practicetune",{params={logName="practice_tune_"..composer.getVariable("secondpractice"),tune=composer.getVariable("secondpractice"),page=3}})
+  {text="Well done!\n\nNow lets play the other sequence.",onKeyPress=function() composer.gotoScene("scenes.practicetune",{params={logInputFilename="practice_tune_"..composer.getVariable("secondpractice"),tune=composer.getVariable("secondpractice"),page=3,nextScene="scenes.practiceintro"}})
     end},
   {
     text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go.\n\nSelect the sequences using the left and right pads.",
@@ -79,12 +79,12 @@ local pageSetup={
     end},
 
   {text="In the following task, you will see several shapes appearing and disappearing on the screen.\n\nYou just need to count how many stars appear.\n\nThey come and go quickly so pay attention to avoid missing them!",onKeyPress=function()
-      composer.gotoScene("scenes.practicetune",{params={moreStars=true,tune=nil,page=7,countShapes=true}})
+      composer.gotoScene("scenes.practicetune",{params={moreStars=true,tune=nil,page=7,countShapes=true,nextScene="scenes.practiceintro"}})
     end},
    {text="Next you will need to play one of the sequences as fast as you can AND, at the same time, count the number of stars that appear!\n\nYou need to be very good at both tasks to proceed to the next stage. Good luck!",onKeyPress=function()
-      composer.gotoScene("scenes.practicetune",{params={logName="countshapes_tune_"..tunemanager.getID("preferred"),tune=tunemanager.getID("preferred"),page=8,countShapes=true}})
+      composer.gotoScene("scenes.practicetune",{params={logInputFilename="countshapes_tune_"..tunemanager.getID("preferred"),tune=tunemanager.getID("preferred"),page=8,countShapes=true,nextScene="scenes.practiceintro"}})
       end},
-  {text="Now you can play any sequence of your choice made up of 6 different moves, apart from the 2 sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press one or more keys at once if you want.\n\nUse the left or right buttons a sequence\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logName="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=9,iterations=20,forceSelection=true}})
+  {text="Now you can play any sequence of your choice made up of 6 different moves, apart from the 2 sequences which you practiced at home.\n\nYou can repeat the sequence or play different ones as you like. You may press one or more keys at once if you want.\n\nUse the left or right buttons a sequence\n\nDon’t think too much! GO FAST!",img="img/stimuli/wildcard6.png",onKeyPress=function() composer.gotoScene("scenes.practicetune", {params={logInputFilename="practice_tune_any6",tune=tunemanager.getID("wildcard6"),page=9,iterations=20,forceSelection=true,nextScene="scenes.practiceintro"}})
   end},
   {
     text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go.\n\nSelect the sequences using the left and right pads.",
