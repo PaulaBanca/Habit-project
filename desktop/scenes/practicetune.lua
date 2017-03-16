@@ -6,6 +6,7 @@ local serpent=require "serpent"
 local countdown=require "ui.countdown"
 local tunemanager=require "tunemanager"
 local sound=require "sound"
+local usertimes=require "util.usertimes"
 local keyeventslisteners=require "util.keyeventslisteners"
 local logger=require "util.logger"
 local progress=require "ui.progress"
@@ -261,7 +262,9 @@ function scene:show(event)
 
         timeField("sequence",tunePracticing)
         timeField("date",os.date())
-        timeField("time to complete",system.getTimer()-time)
+        local tuneCompleteTime=system.getTimer()-time
+        usertimes.addTime(tunePracticing,tuneCompleteTime)
+        timeField("time to complete",tuneCompleteTime)
         time=system.getTimer()
 
         if not bestPractices[tunePracticing] or n>bestPractices[tunePracticing] then
