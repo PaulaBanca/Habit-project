@@ -36,7 +36,7 @@ function getStimulus(n)
   local truncated=n-4
   if truncated>0 then
     n=n%2+1
-    truncated=truncated>2 and 5 or 3
+    truncated=truncated>1 and 5 or 3
   else
     truncated=nil
   end
