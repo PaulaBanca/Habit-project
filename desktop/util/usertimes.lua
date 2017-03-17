@@ -36,7 +36,7 @@ function getStandardDeviation(tune)
     total=total+off*off
   end
 
-  return total/#list
+  return (total/#list)^0.5
 end
 
 return M
