@@ -17,7 +17,7 @@ local function setSwitch(index,v)
   composer.setVariable("preferencetest",opts)
 end
 local options={
-  {label="Practice Order",options={"A","B"},selectFunc=function(v) 
+  {label="Practice Order",options={"A","B"},selectFunc=function(v)
     composer.setVariable("firstpractice", v=="A" and 1 or 2)
     composer.setVariable("secondpractice", v=="A" and 2 or 1)
   end},
@@ -26,6 +26,7 @@ local options={
   {label="Switch sides - Preference 3",options={"No","Yes"},selectFunc=function(v) setSwitch(3,v) end},
   {label="Switch sides - Preference 4",options={"No","Yes"},selectFunc=function(v) setSwitch(4,v) end},
   {label="Switch sides - Preference 5",options={"No","Yes"},selectFunc=function(v) setSwitch(5,v) end},
+  {label="Preferred Shocks",options={"Left","Right"},selectFunc=function(v) composer.setVariable("shockerpreferred",v) end},
 }
 
 function scene:create()
