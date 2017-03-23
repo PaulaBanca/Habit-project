@@ -19,7 +19,7 @@ function scene:create()
   vline.strokeWidth=10
 
   local text=display.newText({
-    parent=self.view, 
+    parent=self.view,
     text="Wait for next symbol!",
     x=cx,
     y=cy-hh-20,
@@ -45,7 +45,7 @@ function scene:show(event)
       transition.cancel(fade)
     end
     self.warning.alpha=1
-    transition.to(self.warning,{alpha=0})
+    fade=transition.to(self.warning,{alpha=0})
   end
   events.addEventListener("key played",self.onPlay)
 end
