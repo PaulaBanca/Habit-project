@@ -17,9 +17,13 @@ local type=type
 local table=table
 local os=os
 local math=math
+local print=print
 local serpent=require "serpent"
 
 setfenv(1,scene)
+
+local noShocker=true
+composer.setVariable("shockerpreferred","Left")
 
 local debugShocker=function(side)
   local c
@@ -34,17 +38,6 @@ local debugShocker=function(side)
 end
 
 local shockerCalls={}
-shockerCalls[tunemanager.getID("preferred")]=function() debugShocker("left") end
-shockerCalls[tunemanager.getID("discarded")]=function() debugShocker("right") end
-shockerCalls[tunemanager.getID("preferred",5)]=function() debugShocker("left") end
-shockerCalls[tunemanager.getID("discarded",5)]=function() debugShocker("right") end
-shockerCalls[4]=function() end
-
-for i=1, 200 do
-  usertimes.addTime(tunemanager.getID("preferred"),math.random(2000)+1000)
-  usertimes.addTime(tunemanager.getID("discarded"),math.random(2000)+1000)
-end
-
 local trials={}
 function start(config)
   local count=0
@@ -62,6 +55,9 @@ function start(config)
     opts.logInputFilename=config.inputLogFile
     opts.onComplete=function(shock,sequencesCompleted,mistakes)
       if shock and config.enableShocks or config.forceShock then
+        if not shockerCalls[tunemanager.getID(tune)] then
+          print (tune,tunemanager.getID(tune),serpent.block(shockerCalls,{comment=false}))
+        end
         shockerCalls[tunemanager.getID(tune)]()
       end
       logField("sequence",tune)
@@ -90,8 +86,58 @@ function start(config)
 end
 
 local pageSetup={
-  {text="In the next task, your goal is to avoid getting shocks on your wrists\n\nThe symbol will tell you which sequence to play.\n\nTo avoid being shocked, you have to play the sequence once, without making mistakes and before the time runs out",
+  {text="In the next task, your goal is to avoid getting shocks on your wrists.\n\nThe symbol will tell you which sequence to play.\n\nTo avoid being shocked, you have to play the sequence once, without making mistakes and before the time runs out.",
   },
+  {
+    text="When you see the fixation cross, do not play anything.\n\nJust wait until the next symbol comes up.",
+    img=function()
+      local group=display.newGroup()
+      local cx,cy=0,0
+      local w,h=200,200
+      local hw,hh=w/2,h/2
+      local hline=display.newLine(group, cx-hw, cy, cx+hw,cy)
+      local vline=display.newLine(group, cx, cy-hh, cx,cy+hh)
+      hline:setStrokeColor(0)
+      vline:setStrokeColor(0)
+      hline.strokeWidth=10
+      vline.strokeWidth=10
+      return group
+    end
+  },
+  {
+    text="Please wait... initialising equipment",
+    noKeys=true,
+    onShow=function()
+      local path=findfile.find("arduino-serial-server")
+      assert(path,"arduino-serial-server not found. Please make sure it is in your Home directory.")
+      local function mapShockerFuctions(activateLeftShocker,activateRightShocker)
+        local sides={left=activateLeftShocker,right=activateRightShocker}
+        print (serpent.block(sides,{nocode=true,comment=false}))
+        local setup={}
+        local opposite={left="right",right="left"}
+        setup.preferred=composer.getVariable("shockerpreferred"):lower()
+        setup.discarded=assert(opposite[setup.preferred])
+        print (serpent.block(setup,{nocode=true,comment=false}))
+        setup=_.map(setup,function(_,v)
+          return assert(sides[v])
+        end)
+        print (serpent.block(setup,{nocode=true,comment=false}))
+        shockerCalls[tunemanager.getID("preferred")]=setup.preferred
+        shockerCalls[tunemanager.getID("discarded")]=setup.discarded
+        shockerCalls[tunemanager.getID("preferred",5)]=setup.preferred
+        shockerCalls[tunemanager.getID("discarded",5)]=setup.discarded
+        shockerCalls[4]=function() end
+      end
+      if noShocker then
+        mapShockerFuctions(function() debugShocker("left") end,function() debugShocker("right") end)
+        composer.gotoScene("scenes.shockertask",{params={page=4}})
+        return
+      end
+      shocker.startServer(path,function(activateLeftShocker,activateRightShocker)
+        mapShockerFuctions(activateLeftShocker,activateRightShocker)
+        composer.gotoScene("scenes.shockertask",{params={page=4}})
+      end)
+  end},
   {text="These are the symbols you will see",img=function()
     local group=display.newGroup()
     local images={tunemanager.getID("preferred"),tunemanager.getID("discarded"),4}
@@ -106,58 +152,37 @@ local pageSetup={
     group[3].x=width/2
     return group
   end},
-  {text="For these symbol you will get a shock on your LEFT wrist if you make mistakes or if you are not fast enough.",img=function()
-    return stimuli.getStimulus(tunemanager.getID("preferred"))
-  end},
-  {text="For this symbol you will get a shock on your RIGHT wrist if you make mistakes or if you are not fast enough.",img=function()
-    return stimuli.getStimulus(tunemanager.getID("discarded"))
-  end},
-  {text="You will never be shocked when you see this symbol. You do not need play anything",img=function()
+  {
+    symbol="preferred",
+    text="Play the sequence once each time you see this symbol.\n\nFor this symbol, you will get a shock on your %s wrist if you make mistakes or if you are not fast enough.\n\nLet’s practice!",img=function()
+    return stimuli.getStimulus(tunemanager.getID("preferred")) end,
+    onKeyPress=function()
+      local tune=tunemanager.getID("preferred")
+      local average=usertimes.getAverage(tune)
+      local sd=usertimes.getStandardDeviation(tune)
+      trials={tune,tune,tune}
+      start({itTime=function() return 2000 end,getTaskTime=function()
+        return average+math.random(sd*2)
+      end,nextScene="scenes.shockertask",nextParams={page=6},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred",taskLogFile="shocker-summary-practice-preferred"})
+    end
+  },
+  {
+    symbol="discarded",
+    text="Play the sequence once each time you see this symbol.\n\nFor this symbol, you will get a shock on your %s wrist if you make mistakes or if you are not fast enough.\n\nLet’s practice!",img=function()
+    return stimuli.getStimulus(tunemanager.getID("discarded")) end,
+    onKeyPress=function()
+      local tune=tunemanager.getID("discarded")
+      local average=usertimes.getAverage(tune)
+      local sd=usertimes.getStandardDeviation(tune)
+      trials={tune,tune,tune}
+      start({itTime=function() return 2000 end,getTaskTime=function()
+        return average+math.random(sd*2)
+      end,nextScene="scenes.shockertask",nextParams={page=7},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded",taskLogFile="shocker-summary-practice-discarded"})
+    end
+  },
+  {text="This is a SAFE symbol. You will NEVER be shocked when you seen this symbol.\n\nYou do NOT need to play anything.",img=function()
     return stimuli.getStimulus(4)
   end},
-  {
-    text="Please wait... initialising equipment",
-    noKeys=true,
-    onShow=function()
-      local path=findfile.find("arduino-serial-server")
-      assert(path,"arduino-serial-server not found. Please make sure it is in your Home directory.")
-      -- shocker.startServer(path,function(left,right)
-      --   shockerCalls[tunemanager.getID("preferred")]=left
-      --   shockerCalls[tunemanager.getID("discarded")]=right
-      --   shockerCalls[tunemanager.getID("preferred",5)]=left
-      --   shockerCalls[tunemanager.getID("discarded",5)]=right
-      --   shockerCalls[4]=function() end
-      timer.performWithDelay(500,function()
-        composer.gotoScene("scenes.shockertask",{params={page=7}})
-         end)
-      -- end)
-    end},
-  {text="Practice the corresponding sequence a few times.\n\nPlay the sequence once each time you see it.",img=function()
-    return stimuli.getStimulus(tunemanager.getID("preferred"))
-  end,
-  onKeyPress=function()
-    local tune=tunemanager.getID("preferred")
-    local average=usertimes.getAverage(tune)
-    local sd=usertimes.getStandardDeviation(tune)
-    trials={tune,tune,tune}
-    start({itTime=function() return 2000 end,getTaskTime=function()
-      return average+math.random(sd*2)
-    end,nextScene="scenes.shockertask",nextParams={page=8},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred",taskLogFile="shocker-summary-practice-preferred"})
-  end
-  },
-  {text="Practice the corresponding sequence a few times",img=function()
-    return stimuli.getStimulus(tunemanager.getID("discarded"))
-  end,
-  onKeyPress=function()
-    local tune=tunemanager.getID("discarded")
-    local average=usertimes.getAverage(tune)
-    local sd=usertimes.getStandardDeviation(tune)
-    trials={tune,tune,tune}
-    start({itTime=function() return 2000 end,getTaskTime=function()
-      return average+math.random(sd*2)
-    end,nextScene="scenes.shockertask",nextParams={page=9},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded",taskLogFile="shocker-summary-practice-discarded"})
-  end
-  },
   {text="Let’s do the task now!\n\nPress a button to continue.",
     onKeyPress=function()
       trials=trialorder.generate({
@@ -168,10 +193,12 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=10},enableShocks=true,inputLogFile="shocker-inputs-over-training-1",taskLogFile="shocker-summary-over-training-1"})
+      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=9},enableShocks=true,inputLogFile="shocker-inputs-over-training-1",taskLogFile="shocker-summary-over-training-1"})
     end
  },
- {text="When the symbol looks like this, you must only play the first 5 moves of the sequence. Do NOT press the last move!\n\nLet's practice it now",img=function()
+ {
+  symbol="preferred",
+  text="One of the sequences and its symbol is now changed.\n\nWhen the symbol looks like this, you must ONLY play the first 5 moves of the sequence. Do NOT press the last move!\n\nIf you do it wrong or too slow, you will be shocked in your %s wrist.\n\nLet’s practice it now.",img=function()
     return stimuli.getStimulus(tunemanager.getID("preferred",5))
     end,
     onKeyPress=function()
@@ -182,8 +209,17 @@ local pageSetup={
       trials={tune,tune,tune}
       start({getTaskTime=function()
         return average+math.random(sd)*2
-      end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=11},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred5",taskLogFile="shocker-summary-practice-preferred5"})
+      end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=10},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred5",taskLogFile="shocker-summary-practice-preferred5"})
     end
+  },
+  {
+    symbol="discarded",
+    text="The remaining 2 symbols are kept the same. Play exactly as you did before.\n\nFor the above symbol, you need to play the corresponding sequence to avoid a shock to your %s wrist.",
+    img=function() return stimuli.getStimulus(tunemanager.getID("discarded")) end
+  },
+  {
+    text="The SAFE symbol remains SAFE. You do NOT need to play anything.",
+    img=function() return stimuli.getStimulus(4) end
   },
   {text="Let’s do the task now!\n\nPress a button to continue.",
     onKeyPress=function()
@@ -192,9 +228,10 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=12},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-1",taskLogFile="shocker-summary-breaking-habit-1"})
+      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=13},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-1",taskLogFile="shocker-summary-breaking-habit-1"})
     end
   },
+  {text="Interval\n\nTake a break!\n\nPress a button to continue."},
   {text="Now, let’s start again with the old symbols. Your goal remains to avoid getting shocks on your wrists.\n\nThe symbol will tell you which sequence to play.\n\nTo avoid being shocked, you have to play the sequence once, without making mistakes and before the time runs out."},
   {text="These are the symbols you will see",img=function()
     local group=display.newGroup()
@@ -210,17 +247,19 @@ local pageSetup={
     group[3].x=width/2
     return group
   end},
-  {text="Let’s do the task now!\n\nPress a button to continue.",
+  {text="Let’s do the task again!\n\nPress a button to continue.",
     onKeyPress=function()
       trials=trialorder.generate({{value="discarded",n=30},{value="preferred",n=30},{value=4,n=30}},15)
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=15},enableShocks=true,inputLogFile="shocker-inputs-over-training-2",taskLogFile="shocker-summary-over-training-2"})
+      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=17},enableShocks=true,inputLogFile="shocker-inputs-over-training-2",taskLogFile="shocker-summary-over-training-2"})
     end
   },
-  {text="When the symbol looks like this, you must only play the first 5 moves of the sequence. Do NOT press the last move!\n\nLet's practice it now",img=function()
+  {
+    symbol="discarded",
+    text="Now the other sequence and its symbol has changed.\n\nWhen the symbol looks like this, you must ONLY play the first 5 moves of the sequence. Do NOT press the last move!\n\nIf you do it wrong or too slow, you will be shocked in your %s wrist.\n\nLet’s practice it now.",img=function()
     return stimuli.getStimulus(tunemanager.getID("discarded",5))
     end,
     onKeyPress=function()
@@ -231,8 +270,17 @@ local pageSetup={
       trials={tune,tune,tune}
       start({getTaskTime=function()
         return average+math.random(sd)
-      end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=16},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded5",taskLogFile="shocker-summary-practice-discarded5"})
+      end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=18},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded5",taskLogFile="shocker-summary-practice-discarded5"})
     end
+  },
+  {
+    symbol="preferred",
+    text="The remaining 2 symbols are kept the same. Play exactly as you did before.\n\nFor the above symbol, you need to play the corresponding sequence to avoid a shock to your %s wrist.",
+    img=function() return stimuli.getStimulus(tunemanager.getID("preferred")) end
+  },
+  {
+    text="The SAFE symbol remains SAFE. You do NOT need to play anything.",
+    img=function() return stimuli.getStimulus(4) end
   },
   {text="Let’s do the task now!\n\nPress a button to continue.",
     onKeyPress=function()
@@ -244,22 +292,32 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=17},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-2",taskLogFile="shocker-summary-breaking-habit-2"})
+      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=21},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-2",taskLogFile="shocker-summary-breaking-habit-2"})
     end
   },
-  {text="The experimenter will now disconnect your LEFT wrist from the shocker.\n\nYou can no longer be shocked to your LEFT wrist"},
-  {text="Previously, a slow or incorrect sequence for this symbol led to a shock in your LEFT wrist. Now, because the shocker is NOT connected anymore, you can no longer be shocked on your left wrist. Therefore, you no longer need to play the sequence for this symbol.",
+  {text="Interval\n\nTake a break!\n\nPress a button to continue."},
+  {
+    symbol="preferred",
+    text="The experimenter will now disconnect your %s wrist from the shocker.\n\nYou can no longer be shocked to your %s wrist"},
+  {
+    symbol="preferred",
+    text="Previously, a slow or incorrect sequence for this symbol led to a shock in your %s wrist. Now, because the shocker is NOT connected anymore, you can no longer be shocked on your %s wrist. Therefore, you no longer need to play the sequence for this symbol.",
     img=function()
       return stimuli.getStimulus(tunemanager.getID("preferred"))
     end
   },
-  {text="You will never be shocked when you see this symbol. You do not need play anything",img=function()
-    return stimuli.getStimulus(4)
-  end},
-  {text="Don’t forget you still need to avoid being shocked to your RIGHT wrist. You still need to play the other sequence, according the new rule, very fast and without mistakes!\n\nGood luck!",
+  {
+    symbol="discarded",
+    text="Don’t forget you still need to avoid being shocked to your %s wrist. You still need to play the other sequence very fast and without mistakes!\n\nGood luck!",
     img=function()
       return stimuli.getStimulus(tunemanager.getID("discarded"))
-    end,
+    end
+  },
+  {text="This symbol remains a SAFE. You will never be shocked when you see it. You do NOT need to play anything.",img=function()
+    return stimuli.getStimulus(4)
+  end},
+  {
+    text="Let’s do the task now!\n\nPress a button to continue.",
     onShow=function() trials=trialorder.generate({{value=tunemanager.getID("discarded"),n=5},{value=tunemanager.getID("preferred"),n=5},{value=4,n=5}},5) end,
     onKeyPress=function()
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
@@ -315,9 +373,19 @@ function scene:show(event)
     end
     img.x=display.contentCenterX
   end
+
+  local side
+  if setup.symbol then
+    side=composer.getVariable("shockerpreferred"):lower()
+    if setup.symbol=="discarded" then
+      local opposite={left="right",right="left"}
+      side=opposite[side]
+    end
+    side=side:upper()
+  end
   local text=display.newText({
     parent=self.view,
-    text=setup.text,
+    text=setup.text:format(side,side),
     x=display.contentCenterX,
     y=display.contentCenterY,
     width=display.actualContentWidth*3/4,

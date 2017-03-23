@@ -39,6 +39,7 @@ function scene:show(event)
   end
   local tunePracticing=event.params.tune
   local forceSelection=event.params.forceSelection
+  local onMistake=event.params.onMistake
   if tunePracticing then
     local img=tunemanager.getImg(tunePracticing)
     scene.view:insert(img)
@@ -216,6 +217,9 @@ function scene:show(event)
         time=system.getTimer()
 
         if not inMistakeStreak then
+          if onMistake then
+            onMistake()
+          end
           mistakes=mistakes+1
           inMistakeStreak=true
         end
