@@ -1,6 +1,8 @@
 local composer=require "composer"
 local scene=composer.newScene()
 
+local winnings=require "winnings"
+local rewardtext=require "util.rewardtext"
 local display=display
 local native=native
 local Runtime=Runtime
@@ -13,7 +15,7 @@ function scene:show(event)
     return
   end
   local text=display.newText({
-    text="Well done and thank you for your time.",
+    text="Your total winnings are:\n\n" .. rewardtext.create(winnings.get("money")).."\n\nTap to continue",
     fontSize=60,
     width=display.actualContentWidth/2,
     font=native.systemFont,
@@ -37,7 +39,8 @@ function scene:show(event)
   local nextScene
   nextScene=function(event)
     if event.phase=="up" then
-      os.exit()
+      Runtime:removeEventListener("key", nextScene)
+      composer.gotoScene("scenes.shockertask")
     end
   end
   Runtime:addEventListener("key", nextScene)

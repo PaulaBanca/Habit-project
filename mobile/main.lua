@@ -28,15 +28,18 @@ end
 
 function login(force)
   user.setup(function(newUser)
+    require "util.logginginfo"
+
     if newUser then
       logSessionStart("new user")
     end
     local seet=require "seed"
     seed.setup(function()
       local logger=require "logger"
-      local func=newUser and logger.create or logger.login
-      func(user.getID(),user.getPassword(),function (ok,err)
       logger.startCatchUp()
+      -- local func=newUser and logger.create or logger.login
+      -- func(user.getID(),user.getPassword(),function (ok,err)
+        ok=true
         if not ok then
           if type(err) == "table" then
             err=err.error
@@ -54,14 +57,13 @@ function login(force)
           start()
         end
       end)
-    end)
+    -- end)
   end,force)
 end
 login()
-
 local sessionlogger=require "sessionlogger"
 Runtime:addEventListener("system", function(event)
-  if not user.getID() then 
+  if not user.getID() then
     return
   end
 

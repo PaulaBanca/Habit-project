@@ -77,7 +77,6 @@ local pageSetup={
       end
       run()
     end},
-
   {text="In the following task, you will see several shapes appearing and disappearing on the screen.\n\nYou just need to count how many stars appear.\n\nThey come and go quickly so pay attention to avoid missing them!",onKeyPress=function()
       composer.gotoScene("scenes.practicetune",{params={moreStars=true,tune=nil,page=7,countShapes=true,nextScene="scenes.practiceintro"}})
     end},
@@ -163,7 +162,7 @@ local pageSetup={
       end
       run()
     end},
-    {text="This is the last part of the experiment! This time the choices come in blocks, so it may be easier to find the more rewarding sequences.",
+    {text="This time the choices come in blocks, so it may be easier to find the more rewarding sequences.",
     onKeyPress=function()
       doorschedule.start()
 
@@ -181,7 +180,7 @@ local pageSetup={
       function run()
         local opts=doorschedule.nextRound()
         if not opts then
-          composer.gotoScene("scenes.gemconversion",{params={nextScene="scenes.thankyou"}})
+          composer.gotoScene("scenes.gemconversion",{params={nextScene="scenes.winnings"}})
           return
         end
         round=round+1
