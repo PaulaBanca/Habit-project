@@ -5,7 +5,7 @@ local stimuli=require "stimuli"
 local button=require "ui.button"
 local logger=require "logger"
 local display=display
-local math=math    
+local math=math
 
 setfenv(1, scene)
 
