@@ -187,22 +187,29 @@ local function processBank()
   end
 
   logger.setScore(tonumber(scene.points.text)+earned)
+  local group=display.newGroup()
+  scene.view:insert(group)
+  group.x=scene.img.x
+  group.y=display.contentHeight
+  group:scale(4,4)
   local t=display.newText({
-    parent=scene.view,
+    parent=group,
     text=earned,
     fontSize=30,
     align="center",
     font="Chunkfive.otf",
   })
-  t:scale(4,4)
   t:setFillColor(0.478,0.918,0)
-  t.x=scene.img.x
-  t.y=display.contentHeight
+
+  local bg=display.newRect(group,0,0,t.width+20,t.height+20)
+  bg:toBack()
+  bg.strokeWidth=4
+  bg:setFillColor(0.4)
 
   scene.bank:setScore(0)
   scene.bank.isVisible=false
 
-  transition.to(t,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=scene.points.anchorX,anchorY=scene.points.anchorY,onComplete=function(obj)
+  transition.to(group,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=scene.points.anchorX,anchorY=scene.points.anchorY,onComplete=function(obj)
     obj:removeSelf()
     if scene.points then
       scene.points.text=tonumber(scene.points.text)+earned
