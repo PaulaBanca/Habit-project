@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 ]]
 database.runSQLQuery(createTableCmd)
 
-local insertQuestionnaireCmd=[[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,practice,track,date,time,userid) VALUES (%s,%s,%s,%s,%s,%s,"%s","%s","%s");]]
+local preparedQuestionnaire=database.prepare([[INSERT INTO questionnaires (confidence_melody_1,confidence_melody_2,pleasure_melody_1,pleasure_melody_2,practice,track,date,time,userid) VALUES (:confidence_melody_1,:confidence_melody_2,:pleasure_melody_1,:pleasure_melody_2,:practice,:track,:date,:time,:userid);]])
 
 local preparedSwitchRelease=database.prepare([[INSERT INTO switchreleases (releaseDuration,practice,track,date,pressedTime,releaseTime,appMillis,userid) VALUES (:releaseDuration,:practice,:track,:date,:pressedTime,:releaseTime,:appMillis,:userid);]])
 
@@ -121,7 +121,7 @@ end
 
 local nullValues={}
 local tableNames={}
-  
+
 local function readTableNamesFromDatabase()
   database.runSQLQuery([[SELECT name FROM sqlite_master WHERE type='table';]],function(udata,cols,values,names)
     if values[1]~="sqlite_sequence" then
@@ -171,7 +171,7 @@ local logHandler={
   end,
   questionnaire=function(t)
     fillInNulls("questionnaires", t)
-    database.runSQLQuery(insertQuestionnaireCmd:format(tostring(t.confidence_melody_1 or "NULL"),tostring(t.confidence_melody_2 or "NULL"),tostring(t.pleasure_melody_1 or "NULL"),tostring(t.pleasure_melody_2 or "NULL"),t.practice,t.track,t.date,t.time,t.userid))
+    preparedHandler(preparedQuestionnaire,t)
   end
 }
 
