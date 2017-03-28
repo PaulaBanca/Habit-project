@@ -28,7 +28,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
   local function keyPattern()
     local pattern={}
     for i=1, NUM_KEYS do
-      pattern[i]=keysDown[i] and "X" or "_"
+      pattern[i]=keysDown[i] and "1" or "0"
     end
     return table.concat(pattern, "")
   end
