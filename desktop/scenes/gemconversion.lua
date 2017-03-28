@@ -14,7 +14,7 @@ function scene:show(event)
   if event.phase=="did" then
     return
   end
-  local gems=winnings.get("gems")
+  local gems=winnings.getSinceLastTrack("gems")
   local conversionRate=240
   local money=math.floor(gems/conversionRate)
   local reward=rewardtext.create(money)
