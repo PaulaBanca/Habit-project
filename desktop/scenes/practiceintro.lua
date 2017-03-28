@@ -173,7 +173,7 @@ local pageSetup={
         [tunemanager.getID("preferred")]=lowReward,
         [tunemanager.getID("wildcard6")]=highReward,
         [tunemanager.getID("wildcard3")]=lowReward,
-        [tunemanager.getID("3")]=highReward
+        [tunemanager.getID(3)]=highReward
       }
       winnings.startTracking()
       local round=0
