@@ -1,6 +1,9 @@
 local M={}
 usertimes=M
 
+local display=display
+local Runtime=Runtime
+
 setfenv(1,M)
 
 local times={}
@@ -37,6 +40,41 @@ function getStandardDeviation(tune)
   end
 
   return (total/#list)^0.5
+end
+
+function startDebugDisplay()
+  local group=display.newGroup()
+  local meanStr="Means: %.1f\t%.1f"
+  local meanTimes=display.newText({
+    parent=group,
+    text=meanStr:format(0,0),
+    fontSize=30,
+    align="left",
+  })
+
+  local sdStr="S.D: %.1f\t%.1f"
+  local sd=display.newText({
+    parent=group,
+    text=sdStr:format(0,0),
+    fontSize=30,
+    align="left",
+  }) 
+  meanTimes.anchorX=0
+  meanTimes.anchorY=0
+  sd.anchorX=0
+  sd.anchorY=0
+  meanTimes:setFillColor(0)
+  sd:setFillColor(0)
+  meanTimes.x=20
+  meanTimes.y=20
+  sd.x=20
+  sd.y=20+meanTimes.height+20
+
+  Runtime:addEventListener("enterFrame",function(event)
+    group:toFront()
+    meanTimes.text=meanStr:format((getAverage(1) or 0)/1000,(getAverage(2) or 0)/1000)
+    sd.text=sdStr:format((getStandardDeviation(1) or 0)/1000,(getStandardDeviation(2) or 0)/1000)
+  end)
 end
 
 return M
