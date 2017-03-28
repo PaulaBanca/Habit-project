@@ -442,7 +442,9 @@ function scene:createKeys()
       end
       bankPoints()
       if hasCompletedRound() then
-        data["practiceProgress"]="sequence completed"
+        if data then
+          data["practiceProgress"]="sequence completed"
+        end
         completeRound()
         if completeTask() then
           return
