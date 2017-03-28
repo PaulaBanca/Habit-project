@@ -5,7 +5,6 @@ local csv=require "util.csv"
 local lfs=require "lfs"
 local _=require "util.moses"
 local serpent=require "serpent"
-local system=system
 local assert=assert
 local pairs=pairs
 local print=print
@@ -28,7 +27,7 @@ function create(filename,headers)
   if not lfs.chdir(folderPath) then
     assert(lfs.mkdir(folderPath))
   end
-  
+
   local path=folderPath.."/"..filename..".csv"
 
   assert(userid,"logger.lua: no userid set")

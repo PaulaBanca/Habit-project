@@ -23,7 +23,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
   onTuneComplete=_.wrap(onTuneComplete,wrapper)
   onMistake=_.wrap(onMistake,wrapper)
 
-  local keysDown={}
+  local keysDown=_.rep(false,NUM_KEYS)
   getWildCardLength=getWildCardLength or function() end
   local function keyPattern()
     local pattern={}
@@ -33,7 +33,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     return table.concat(pattern, "")
   end
 
-  local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake", "completed step", "phase","finished sequence","sequence millis"})
+  local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake", "completed step", "phase","finished sequence","sequence millis","chord millis"})
 
   local function matchesNoTune(matchingTunes)
     if allowWildCard then
@@ -47,12 +47,15 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
 
   local isComplete
   local wildcardSteps=0
+  local chordMillis
   local onPlay=function(event)
     local mistake=false
     if keysDown[event.note] then
       mistake=true
     end
     startTime=startTime or system.getTimer()
+    local allReleased=not _.contains(keysDown,true)
+    chordMillis=allReleased and system.getTimer() or chordMillis
     keysDown[event.note]=true
     logInput("date",os.date())
     logInput("system millis",system.getTimer())
@@ -61,7 +64,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     logInput("phase","pressed")
     logInput("finished sequence","n/a")
     logInput("sequence millis",system.getTimer()-startTime)
-
+    logInput("chord millis", system.getTimer()-chordMillis)
     isComplete=false
     local tune,matchingTunes=tunedetector.matchAgainstTunes(keysDown)
     mistake=mistake or matchesNoTune(matchingTunes)
@@ -118,10 +121,13 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     logInput("key",event.note)
     logInput("keys down",keyPattern())
     logInput("phase","released")
+    logInput("chord millis", chordMillis and (system.getTimer()-chordMillis) or "n/a")
   end
 
   function reset()
+    chordMillis=nil
     wildcardSteps=0
+    keysDown=_.rep(false,NUM_KEYS)
     tunedetector.reset()
   end
   return onPlay,onRelease,reset
