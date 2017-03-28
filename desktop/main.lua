@@ -35,14 +35,45 @@ local function start()
     tunemanager.setPreferred(1)
     tunemanager.setDiscarded(2)
   end)
-  local page=1
-  Runtime:addEventListener("key",function(event)
-    if event.phase=="up" and event.keyName=="=" then
-      page=page+1
-      composer.gotoScene("scenes.practiceintro",{params={page=page}})
+  local page=0
+  local skipTool={}
+  skipTool[1]=function()
+    page=page+1
+    if page==16 then
+      page=0
+      return true
     end
-   end)
+    composer.gotoScene("scenes.practiceintro",{params={page=page}})
+  end
+  skipTool[2]=function()
+    page=page+1
+
+    if page==3 then
+      page=0
+      return true
+    end
+    if page==2 then
+      return
+    end
+    composer.gotoScene("scenes.gemconversion",{params={nextScene="scenes.winnings"}})
+  end
+  skipTool[3]=function()
+    page=page+1
+    composer.gotoScene("scenes.shockertask",{params={page=page}})
+  end
+
+  Runtime:addEventListener("key",function(event)
+    if event.phase=="up" then
+      if event.keyName=="=" then
+        if skipTool[1]() then
+          table.remove(skipTool,1)
+          skipTool[1]()
+        end
+      end
+    end
+  end)
 end
+
 
 Runtime:addEventListener("resize", function (event)
   if not start then
