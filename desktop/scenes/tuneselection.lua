@@ -405,7 +405,9 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
           rightReward=math.max(0,rightReward-0.01)
           rr.text=rewardtext.create(rightReward)
           if #rightCoins>0 then
-            transition.to(table.remove(rightCoins),{x=display.actualContentWidth,onComplete=function(obj) obj:removeSelf() end})
+            transition.to(table.remove(rightCoins),{x=display.actualContentWidth,onComplete=function(obj)
+                display.remove(obj) 
+              end})
           end
         end
       end
