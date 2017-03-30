@@ -33,7 +33,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     return table.concat(pattern, "")
   end
 
-  local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake", "completed step", "phase","finished sequence","sequence millis","chord millis"})
+  local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake","mistake count", "completed step", "phase","finished sequence","sequence millis","chord millis"})
 
   local function matchesNoTune(matchingTunes)
     if allowWildCard then
@@ -48,6 +48,8 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
   local isComplete
   local wildcardSteps=0
   local chordMillis
+  local mistakeCount=0
+  local countMistakes=true
   local onPlay=function(event)
     local mistake=false
     if keysDown[event.note] then
@@ -69,6 +71,11 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     local tune,matchingTunes=tunedetector.matchAgainstTunes(keysDown)
     mistake=mistake or matchesNoTune(matchingTunes)
     logInput("mistake",mistake)
+    if countMistakes and mistake then
+      mistakeCount=mistakeCount+1
+      countMistakes=false
+    end
+    logInput("mistake count", mistakeCount)
 
     if mistake then
       onMistake()
@@ -86,6 +93,9 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     local mistake=matchesNoTune(matchingTunes)
     logInput("mistake",mistake)
     logInput("completed step",isComplete)
+    if not countMistakes then
+      countMistakes=not mistake and isComplete
+    end
     local allReleased=not _.contains(keysDown,true)
     if allowWildCard and allReleased then
       wildcardSteps=wildcardSteps+1
@@ -115,6 +125,11 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
       isComplete=isComplete and not allReleased
     end
     logInput("finished sequence",complete and (tune or -getWildCardLength()) or "no")
+    if countMistakes and mistake then
+      mistakeCount=mistakeCount+1
+      countMistakes=false
+    end
+    logInput("mistake count", mistakeCount)
 
     logInput("date",os.date())
     logInput("system millis",system.getTimer())
