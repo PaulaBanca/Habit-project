@@ -275,55 +275,66 @@ function scene:show(event)
           bestPractices[tunePracticing]=n
         end
       end
-      local onPlay,onRelease,_r=keyeventslisteners.create(event.params.logInputFilename,function(tune)
-        if tune~=tunePracticing then
-          madeMistake(MAX_ITER and "no tunes" or "mistake")
-        elseif not isSelected then
-          madeMistake("not selected")
-        else
-          inMistakeStreak=false
-          self.meter:mark(6,true)
-          markCompleted()
-          if MAX_ITER==tonumber(count.text) then
-            composer.gotoScene(NEXT_SCENE,{params={page=PAGE_N}})
-          end
-          steps=0
-        end
-      end,madeMistake,function(event)
-       if not event.phase=="released" or not event.allReleased then
-          return
-        end
-        if not isSelected then
-          madeMistake("not selected")
-          return
-        end
-        if clearMeterTimer then
-          timer.cancel(clearMeterTimer)
-          self.meter:reset()
-          clearMeterTimer=nil
-        end
-        if tunePracticing>0 then
-          if event.complete then
-            local completed=event.matchingTunes[tunePracticing].step
-            self.meter:mark(completed,true)
+      local onPlay,onRelease,_r=keyeventslisteners.create({
+        logName=event.params.logInputFilename,
+        onTuneComplete=function(tune)
+          if tune~=tunePracticing then
+            madeMistake(MAX_ITER and "no tunes" or "mistake")
+          elseif not isSelected then
+            madeMistake("not selected")
+          else
             inMistakeStreak=false
+            self.meter:mark(6,true)
+            markCompleted()
+            if MAX_ITER==tonumber(count.text) then
+              composer.gotoScene(NEXT_SCENE,{params={page=PAGE_N}})
+            end
+            steps=0
           end
-        elseif tunePracticing<1 then
-          steps=steps+1
-          local good=true
-          if event.matchingTunes then
-            for i=1, 3 do
-              if event.matchingTunes[i] and event.matchingTunes[i].step==steps then
-                good=false
+        end,
+        onMistake=madeMistake,
+        onGoodInput=function(event)
+          if not event.phase=="released" or not event.allReleased then
+            return
+          end
+          if not isSelected then
+            madeMistake("not selected")
+            return
+          end
+          if clearMeterTimer then
+            timer.cancel(clearMeterTimer)
+            self.meter:reset()
+            clearMeterTimer=nil
+          end
+          if tunePracticing>0 then
+            if event.complete then
+              local completed=event.matchingTunes[tunePracticing].step
+              self.meter:mark(completed,true)
+              inMistakeStreak=false
+            end
+          elseif tunePracticing<1 then
+            steps=steps+1
+            local good=true
+            if event.matchingTunes then
+              for i=1, 3 do
+                if event.matchingTunes[i] and event.matchingTunes[i].step==steps then
+                  good=false
+                end
               end
             end
+            inMistakeStreak=false
+            self.meter:mark(steps,good)
+          elseif event.allReleased and event.complete then
+            transition.cancel("mistake")
           end
-          inMistakeStreak=false
-          self.meter:mark(steps,good)
-        elseif event.allReleased and event.complete then
-          transition.cancel("mistake")
-        end
-      end,function() return tunePracticing end,tunePracticing<0,function() return math.abs(tunePracticing) end)
+        end,
+        getSelectedTune=function() return tunePracticing end,
+        allowWildCard=tunePracticing<0,
+        getWildCardLength=function() return math.abs(tunePracticing) end,
+        getRegisterInput=function()
+          return isSelected
+        end,
+        onIllegalInput=function() madeMistake("not selected") end})
       reset=_r
       events.addEventListener("key played",onPlay)
       events.addEventListener("key released",onRelease)

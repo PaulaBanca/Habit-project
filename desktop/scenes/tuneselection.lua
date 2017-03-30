@@ -216,88 +216,96 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
   end
 
   local onPlay,onRelease
-  onPlay,onRelease,reset=keyeventslisteners.create(logInputFilename,function(tune)
-    if tune~=getTuneSelected() then
-      madeMistake()
-      return
-    end
-    steps=0
-    if tune~=left.tune and tune~=right.tune then
-      resetMeters()
-      madeMistake()
-      return
-    end
-    local meter=left.tune==tune and self.leftMeter or self.rightMeter
-    meter:mark(tune<0 and -tune or 6,true)
-    tuneCompleted(tune)
-  end,madeMistake,function(event)
-    if not left or not getTuneSelected() then
-      if not getTuneSelected() then
+  onPlay,onRelease,reset=keyeventslisteners.create({
+    logName=logInputFilename,
+    onTuneComplete=function(tune)
+      if tune~=getTuneSelected() then
         madeMistake()
-      end
-      return
-    end
-    if meterResetTimer then
-      timer.cancel(meterResetTimer)
-      meterResetTimer=nil
-      resetMeters()
-    end
-    if event.phase~="released" or not event.allReleased then
-      return
-    end
-    local matchingTunes=event.matchingTunes
-    if matchingTunes and getTuneSelected()>0 then
-      if not matchingTunes[getTuneSelected()] then
-        return madeMistake()
-      end
-      if testMatch(matchingTunes, left.tune,self.leftMeter) or
-         testMatch(matchingTunes,right.tune,self.rightMeter) then
         return
       end
-    else
-      if getTuneSelected()>0 then
-        return madeMistake()
+      steps=0
+      if tune~=left.tune and tune~=right.tune then
+        resetMeters()
+        madeMistake()
+        return
       end
-      if left.tune>0 then
-        self.leftMeter:reset()
+      local meter=left.tune==tune and self.leftMeter or self.rightMeter
+      meter:mark(tune<0 and -tune or 6,true)
+      tuneCompleted(tune)
+    end,
+    onMistake=madeMistake,
+    onGoodInput=function(event)
+      if not left or not getTuneSelected() then
+        if not getTuneSelected() then
+          madeMistake()
+        end
+        return
       end
-      if right.tune>0 then
-        self.rightMeter:reset()
+      if meterResetTimer then
+        timer.cancel(meterResetTimer)
+        meterResetTimer=nil
+        resetMeters()
       end
-    end
-
-    steps=steps+1
-    if getTuneSelected()>0 then
-      return
-    end
-
-    local good=true
-    if matchingTunes then
-      for i=1, 3 do
-        if matchingTunes[i] and matchingTunes[i].step==steps then
-          good=false
+      if event.phase~="released" or not event.allReleased then
+        return
+      end
+      local matchingTunes=event.matchingTunes
+      if matchingTunes and getTuneSelected()>0 then
+        if not matchingTunes[getTuneSelected()] then
+          return madeMistake()
+        end
+        if testMatch(matchingTunes, left.tune,self.leftMeter) or
+           testMatch(matchingTunes,right.tune,self.rightMeter) then
+          return
+        end
+      else
+        if getTuneSelected()>0 then
+          return madeMistake()
+        end
+        if left.tune>0 then
+          self.leftMeter:reset()
+        end
+        if right.tune>0 then
+          self.rightMeter:reset()
         end
       end
-    end
 
-    local wildMeter=left.tune<0 and self.leftMeter or self.rightMeter
-    if steps>0 then
-      wildMeter:mark(steps,good)
-      inMistakeStreak=false
-    else
-      wildMeter:reset()
-    end
+      steps=steps+1
+      if getTuneSelected()>0 then
+        return
+      end
 
-    if steps==getWildCardLength() then
-      steps=0
-      if good then
-        tuneCompleted(left.tune<right.tune and left.tune or right.tune)
-      elseif getTuneSelected()<0 then
-        madeMistake()
+      local good=true
+      if matchingTunes then
+        for i=1, 3 do
+          if matchingTunes[i] and matchingTunes[i].step==steps then
+            good=false
+          end
+        end
+      end
+
+      local wildMeter=left.tune<0 and self.leftMeter or self.rightMeter
+      if steps>0 then
+        wildMeter:mark(steps,good)
+        inMistakeStreak=false
+      else
         wildMeter:reset()
       end
-    end
-  end,getTuneSelected,true,getWildCardLength)
+
+      if steps==getWildCardLength() then
+        steps=0
+        if good then
+          tuneCompleted(left.tune<right.tune and left.tune or right.tune)
+        elseif getTuneSelected()<0 then
+          madeMistake()
+          wildMeter:reset()
+        end
+      end
+    end,
+    getSelectedTune=getTuneSelected,
+    getWildCardLength=getWildCardLength,
+    getRegisterInput=function() return getTuneSelected()~=nil end,
+    onIllegalInput=function() madeMistake() end})
 
   reset=_.wrap(reset,function(f,clearMeters)
     if clearMeters then

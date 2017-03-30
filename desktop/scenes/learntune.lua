@@ -158,50 +158,56 @@ function scene:show(event)
       })
       t.anchorY=0
       t:setFillColor(1,0,0)
-      local delete=function(obj) 
+      local delete=function(obj)
         obj:removeSelf()
       end
       transition.to(t, {tag="mistake",alpha=0,onComplete=delete,onCancel=delete})
     end
     local resetMeterTimer
-    local onPlay,onRelease,_r=keyeventslisteners.create("learntune",function(tune)
-      if tune~=tuneLearning then
-        madeMistake()
-      else
-        sound.playSound("correct")
-        local n=tonumber(count.text)+1
-        count.text=n
-        steps=1
-
-        if n==40 then
-          composer.gotoScene("scenes.practiceintro",{params={page=event.params.page}})
-        elseif n>=20 then
-          advancedMode=true
-        end
-        meter:mark(6,true)
-        resetMeterTimer=timer.performWithDelay(250, function()
-          resetMeterTimer=nil
-          if meter.numChildren then
-            meter:reset()
-          end
-        end)
-        highlightKeys(steps,advancedMode,hints)
-      end
-    end,madeMistake,function(event)
-      if resetMeterTimer then
-        meter:reset()
-        timer.cancel(resetMeterTimer)
-        resetMeterTimer=nil
-      end
-      if event.complete and event.phase=="released" and event.allReleased then 
-        meter:mark(steps,true)
-        steps=steps+1
-        if steps>6 then
+    local onPlay,onRelease,_r=keyeventslisteners.create({
+      logName="learntune",
+      onTuneComplete=function(tune)
+        if tune~=tuneLearning then
+          madeMistake()
+        else
+          sound.playSound("correct")
+          local n=tonumber(count.text)+1
+          count.text=n
           steps=1
+
+          if n==40 then
+            composer.gotoScene("scenes.practiceintro",{params={page=event.params.page}})
+          elseif n>=20 then
+            advancedMode=true
+          end
+          meter:mark(6,true)
+          resetMeterTimer=timer.performWithDelay(250, function()
+            resetMeterTimer=nil
+            if meter.numChildren then
+              meter:reset()
+            end
+          end)
+          highlightKeys(steps,advancedMode,hints)
         end
-        highlightKeys(steps,advancedMode,hints)
-      end
-    end,function() return tuneLearning end)
+      end,
+      onMistake=madeMistake,
+      onGoodInput=function(event)
+        if resetMeterTimer then
+          meter:reset()
+          timer.cancel(resetMeterTimer)
+          resetMeterTimer=nil
+        end
+        if event.complete and event.phase=="released" and event.allReleased then
+          meter:mark(steps,true)
+          steps=steps+1
+          if steps>6 then
+            steps=1
+          end
+          highlightKeys(steps,advancedMode,hints)
+        end
+      end,
+      getSelectedTune=function() return tuneLearning end,
+    })
     reset=_r
 
     events.addEventListener("key played",onPlay)

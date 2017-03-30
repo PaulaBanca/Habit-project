@@ -11,10 +11,6 @@ local math=math
 
 setfenv(1,scene)
 
-function scene:create()
-end
-scene:addEventListener("create")
-
 function scene:show(event)
   if event.phase=="did" then
     return
@@ -38,19 +34,24 @@ function scene:show(event)
     mistakes=mistakes+1
     shock=true
     reset()
-    print ("mistake")
   end
 
-  local onPlay,onRelease,_r=keyeventslisteners.create(event.params.logInputFilename,function(tune)
-    if tune~=tunePlaying then
-      print ("completed wrong tune")
-      madeMistake()
-    else
-      print ("completed correct tune")
-      shock=mistakes>0
-      completed=completed+1
-    end
-  end,madeMistake,function() end,function() return tunePlaying end,tunePlaying<0,function() return math.abs(tunePlaying) end)
+  local onPlay,onRelease,_r=keyeventslisteners.create({
+    logName=event.params.logInputFilename,
+    onTuneComplete=function(tune)
+      if tune~=tunePlaying then
+        madeMistake()
+      else
+        shock=mistakes>0
+        completed=completed+1
+      end
+    end,
+    onMistake=madeMistake,
+    onGoodInput=function() end,
+    getSelectedTune=function() return tunePlaying end,
+    allowWildCard=tunePlaying<0,
+    getWildCardLenght=function() return math.abs(tunePlaying) end
+  })
   reset=_r
   events.addEventListener("key played",onPlay)
   events.addEventListener("key released",onRelease)

@@ -10,21 +10,27 @@ local pairs=pairs
 local system=system
 local os=os
 local table=table
+local assert=assert
 
 setfenv(1,M)
 
-function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWildCard,getWildCardLength)
-
+function create(opts)
   local startTime=nil
   local wrapper=function(f,arg)
     startTime=nil
     f(arg)
   end
-  onTuneComplete=_.wrap(onTuneComplete,wrapper)
-  onMistake=_.wrap(onMistake,wrapper)
-
+  local onTuneComplete=_.wrap(opts.onTuneComplete,wrapper)
+  local onMistake=_.wrap(opts.onMistake,wrapper)
+  local onGoodInput=assert(opts.onGoodInput,"missing onGoodInput listener")
+  local getSelectedTune=opts.getSelectedTune
+  local allowWildCard=opts.allowWildCard
+  local getWildCardLength=opts.getWildCardLength or function() end
+  local getRegisterInput=opts.getRegisterInput or function() return true end
+  local onIllegalInput=opts.onIllegalInput or function() return true end
+  assert(opts.logName,"missing logName value")
   local keysDown=_.rep(false,NUM_KEYS)
-  getWildCardLength=getWildCardLength or function() end
+
   local function keyPattern()
     local pattern={}
     for i=1, NUM_KEYS do
@@ -33,7 +39,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     return table.concat(pattern, "")
   end
 
-  local logInput=logger.create(logName,{"date","system millis","key","keys down", "mistake","mistake count", "completed step", "phase","finished sequence","sequence millis","chord millis"})
+  local logInput=logger.create(opts.logName,{"date","system millis","key","keys down", "mistake","mistake count", "completed step", "phase","finished sequence","sequence millis","chord millis"})
 
   local function matchesNoTune(matchingTunes)
     if allowWildCard then
@@ -51,6 +57,10 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
   local mistakeCount=0
   local countMistakes=true
   local onPlay=function(event)
+    if not getRegisterInput() then
+      onIllegalInput()
+      return
+    end
     local mistake=false
     if keysDown[event.note] then
       mistake=true
@@ -83,11 +93,14 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
       for k,v in pairs(matchingTunes or {}) do
         isComplete=isComplete or (v.type=="complete" and (k==getSelectedTune() or not getSelectedTune()))
       end
-      onFine({complete=isComplete,phase="pressed"})
+      onGoodInput({complete=isComplete,phase="pressed"})
     end
     logInput("completed step",isComplete)
   end
   local onRelease=function(event)
+    if not getRegisterInput() then
+      return
+    end
     keysDown[event.note]=false
     local tune,matchingTunes=tunedetector.matchAgainstTunes(keysDown,true)
     local mistake=matchesNoTune(matchingTunes)
@@ -121,7 +134,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
       wildcardSteps=0
       onTuneComplete(tune or -getWildCardLength())
     else
-      onFine({complete=isComplete,allReleased=allReleased,phase="released",matchingTunes=matchingTunes})
+      onGoodInput({complete=isComplete,allReleased=allReleased,phase="released",matchingTunes=matchingTunes})
       isComplete=isComplete and not allReleased
     end
     logInput("finished sequence",complete and (tune or -getWildCardLength()) or "no")
@@ -139,7 +152,7 @@ function create(logName,onTuneComplete,onMistake,onFine,getSelectedTune,allowWil
     logInput("chord millis", chordMillis and (system.getTimer()-chordMillis) or "n/a")
   end
 
-  function reset()
+  local reset=function()
     chordMillis=nil
     wildcardSteps=0
     keysDown=_.rep(false,NUM_KEYS)
