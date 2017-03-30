@@ -19,7 +19,7 @@ setfenv(1,scene)
 
 function scene:create()
   self.total=0
-  self.logger=logger.create("winnings",{"date","won","selected","not selected"})
+  self.logger=logger.create("winnings",{"date","won","payout type","selected","not selected","task"})
 end
 scene:addEventListener("create")
 
@@ -40,6 +40,8 @@ function scene:show(event)
   self.logger("won",amount)
   self.logger("selected",matched.tune)
   self.logger("not selected",notMatched.tune)
+  self.logger("task",event.params.loggerFieldTask)
+  self.logger("payout type",useGems and "gems" or "money")
   local function createPayoutText(icon,wasChosen)
     local msg=(wasChosen  and "You got: " or "Not Chosen: ")
     if useGems then

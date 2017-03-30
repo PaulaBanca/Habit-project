@@ -71,7 +71,7 @@ local pageSetup={
           notMatched.reward=createReward[notMatched.tune]()
           local payout=true
 
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run,gems=true}})
+          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run,gems=true,loggerFieldTask="door-1"}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
@@ -146,8 +146,8 @@ local pageSetup={
         end
         round=round+1
         opts.round=round
-        opts.logChoicesFilename="doors-choices-1"
-        opts.logInputFilename="doors-inputs-1"
+        opts.logChoicesFilename="doors-choices-2"
+        opts.logInputFilename="doors-inputs-2"
         opts.doors=true
         opts.onTuneComplete=function(matched,notMatched,side)
           local stage=display.getCurrentStage()
@@ -156,7 +156,7 @@ local pageSetup={
           stage:insert(matched.door)
           local payout=vischedule.reward(side)
 
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run}})
+          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run,loggerFieldTask="door-2"}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
@@ -185,8 +185,8 @@ local pageSetup={
         end
         round=round+1
         opts.round=round
-        opts.logChoicesFilename="doors-choices-2"
-        opts.logInputFilename="doors-inputs-2"
+        opts.logChoicesFilename="doors-choices-3"
+        opts.logInputFilename="doors-inputs-3"
         opts.doors=true
         opts.onTuneComplete=function(matched,notMatched,side)
           local stage=display.getCurrentStage()
@@ -198,7 +198,7 @@ local pageSetup={
           notMatched.reward=createReward[notMatched.tune]()
           local payout=true
 
-          composer.gotoScene("scenes.doorresult",{params={gems=true,matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run}})
+          composer.gotoScene("scenes.doorresult",{params={gems=true,matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run,loggerFieldTask="door-3"}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
