@@ -187,6 +187,7 @@ function scene:show(event)
         y=display.contentCenterY
       })
       t:setFillColor(0)
+      t.isVisible=not event.params.countShapes
 
       local count=display.newText({
         text=0,
@@ -197,6 +198,7 @@ function scene:show(event)
       })
       count.anchorY=0
       count:setFillColor(0)
+      count.isVisible=not event.params.countShapes
 
       local timeField=logger.create("practice_tune_times",{"sequence","date","time to complete"})
 
