@@ -117,7 +117,7 @@ function scene:flashMessage(message,y)
   transition.to(t, {tag="mistake",alpha=0,onComplete=display.remove,onCancel=display.remove})
 end
 
-function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getWinnings,round)
+function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getLastWinnings,round)
   local logField=logger.create(logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice","winnings"})
 
   local steps=0
@@ -205,7 +205,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
     logField("mistakes",mistakes)
     logField("left choice",left.tune)
     logField("right choice",right.tune)
-    logField("winnings",getWinnings())
+    logField("winnings",getLastWinnings())
     start=system.getTimer()
 
     matched:setSelected()
@@ -387,8 +387,10 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
     else
       rightTally=rightTally+1
     end
+    local reward=0
     if side==1 then
       won=won+leftReward
+      reward=leftReward
       cash.text=rewardtext.create(won)
       winnings.add("money",leftReward)
       if tunemanager.getID(titrateTune)==left.tune then
@@ -404,6 +406,7 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
       end
     else
       won=won+rightReward
+      reward=rightReward
       cash.text=rewardtext.create(won)
       winnings.add("money",rightReward)
       if tunemanager.getID(titrateTune)==right.tune then
@@ -414,13 +417,13 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
           rr.text=rewardtext.create(rightReward)
           if #rightCoins>0 then
             transition.to(table.remove(rightCoins),{x=display.actualContentWidth,onComplete=function(obj)
-                display.remove(obj) 
+                display.remove(obj)
               end})
           end
         end
       end
     end
-    return won
+    return reward
   end
 end
 
