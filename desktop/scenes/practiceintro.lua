@@ -28,7 +28,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("discarded"),rightTune="preferred"}
       local switch=composer.getVariable("preferencetest")[3].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=4}}) end
+      composer.gotoScene("scenes.tuneselection",{params={iterations=7,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=4}}) end
   },
   {
     text="Which one is your preferred sequence? On the next screen, select it using the left and right pads and play it once.",
@@ -91,7 +91,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard6"}
       local switch=composer.getVariable("preferencetest")[1].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=30,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
+      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=20,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=10}}) end
   },
   {
     text="Now, lets do the same again but with different sequences to choose from.",
@@ -99,7 +99,7 @@ local pageSetup={
       local options={leftTune=tunemanager.getID("preferred"),rightTune="wildcard3"}
       local switch=composer.getVariable("preferencetest")[2].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
-      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=30,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=11}}) end
+      composer.gotoScene("scenes.tuneselection",{params={hideCounter=true,iterations=20,logChoicesFilename="preferencetest-choices-2",logInputFilename="preferencetest-inputs-2",leftTune=options.leftTune,rightTune=options.rightTune,page=11}}) end
   },
   {
     text="Now, your performance will be rewarded and you will receive your winnings by the end of the study.",
