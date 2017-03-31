@@ -37,6 +37,8 @@ local debugShocker=function(side)
   transition.to(c, {alpha=0,onComplete=function(obj) obj:removeSelf() end})
 end
 
+local REACTION_TIME=0.25*1000
+
 local shockerCalls={}
 local trials={}
 function start(config)
@@ -79,7 +81,7 @@ function start(config)
       end
     end
     opts.tune=tunemanager.getID(tune)
-    opts.time=config.getTaskTime()
+    opts.time=config.getTaskTime()+REACTION_TIME
     composer.gotoScene("scenes.playtune",{params=opts})
   end
   run()
