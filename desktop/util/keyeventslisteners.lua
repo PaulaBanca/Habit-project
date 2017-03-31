@@ -20,8 +20,8 @@ function create(opts)
     startTime=nil
     f(arg)
   end
-  local onTuneComplete=_.wrap(opts.onTuneComplete,wrapper)
-  local onMistake=_.wrap(opts.onMistake,wrapper)
+  local onTuneComplete=_.wrap(assert(opts.onTuneComplete),wrapper)
+  local onMistake=_.wrap(assert(opts.onMistake),wrapper)
   local onGoodInput=assert(opts.onGoodInput,"missing onGoodInput listener")
   local getSelectedTune=opts.getSelectedTune
   local allowWildCard=opts.allowWildCard
