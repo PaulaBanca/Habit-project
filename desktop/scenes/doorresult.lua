@@ -137,7 +137,7 @@ function scene:show(event)
 
       if amount==0 then
         sound.playSound("failed")
-      elseif amount>=10 then
+      elseif useGems and amount>6 or amount>=10 then
         sound.playSound("win big")
       else
         sound.playSound("win small")
