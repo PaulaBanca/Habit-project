@@ -43,7 +43,26 @@ function start()
   end
 end
 
+local pauseTime
+function pause()
+  pauseTime=system.getTimer()
+end
+
+function resume()
+  if not pauseTime then
+    return
+  end
+  local interval=system.getTimer()-pauseTime
+  pauseTime=nil
+  for i=1,#schedules do
+    lastTime[i]=lastTime[i]+interval
+  end
+end
+
 function reward(i)
+  if pauseTime then
+    resume()
+  end
   local t=system.getTimer()-lastTime[i]
   local nextT=schedules[i][1]
   if t>=nextT then
