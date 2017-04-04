@@ -99,7 +99,7 @@ function scene:show(event)
           col=0
         end
       end
-      local text=display.newText({text=icon.reward,fontSize=160,parent=self.view})
+      local text=display.newText({text=""..reward,fontSize=160,parent=self.view})
       text:setFillColor(0)
       text.x,text.y=chest.x,chest.y+chest.height/4
       return
@@ -116,7 +116,7 @@ function scene:show(event)
     text.y=chest.y-chest.height-20
 
     local text=display.newText({
-      text=rewardtext.create(payout and icon.reward or 0),
+      text=rewardtext.create(payout and amount or 0),
       fontSize=120,
       font=native.systemFont,
       parent=scene.view
