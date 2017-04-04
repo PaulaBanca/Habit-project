@@ -21,6 +21,8 @@ local math=math
 local tonumber=tonumber
 local os=os
 local Runtime=Runtime
+local assert=assert
+local print=print
 
 setfenv(1,scene)
 
@@ -49,7 +51,12 @@ function setup(leftTune,rightTune,leftReward,rightReward,chests)
       group.anchorX=chest.anchorX
       group.anchorY=1
       group.anchorChildren=true
-      chest:removeSelf()
+      chest.isVisible=false
+      chest.openGraphic=group
+    end
+
+    local function close(chest)
+      chest.openGraphic:removeSelf( )
     end
 
     leftChest=display.newImage(scene.view,"img/chest_closed.png")
@@ -58,6 +65,7 @@ function setup(leftTune,rightTune,leftReward,rightReward,chests)
     leftChest.y=display.contentCenterY-40
     leftChest.anchorX=1
     leftChest.open=open
+    leftChest.close=close
     lx=leftChest.x-leftChest.contentWidth/2
     rightChest=display.newImage(scene.view,"img/chest_closed.png")
     rightChest:scale(2,2)
@@ -65,6 +73,7 @@ function setup(leftTune,rightTune,leftReward,rightReward,chests)
     rightChest.y=display.contentCenterY-40
     rightChest.anchorX=0
     rightChest.open=open
+    rightChest.close=close
     rx=rightChest.x+rightChest.contentWidth/2
   end
 
@@ -172,6 +181,8 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
     if onTuneCompleteEndFunc then
       events.removeEventListener("key played",self.onPlay)
       events.removeEventListener("key released",self.onRelease)
+      Runtime:removeEventListener("key",self.keyListener)
+      Runtime:removeEventListener("tap",self.keyListener)
     end
 
     local matched,notMatched
@@ -194,7 +205,14 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
       left:unselect()
       right:unselect()
       if onTuneCompleteEndFunc then
-        onTuneCompleteEndFunc(matched,notMatched,side)
+        onTuneCompleteEndFunc(matched,notMatched,side,function()
+          events.addEventListener("key played",self.onPlay)
+          events.addEventListener("key released",self.onRelease)
+          Runtime:addEventListener("key",self.keyListener)
+          Runtime:addEventListener("tap",self.keyListener)
+
+          notMatched.door.alpha=1
+        end)
       end
     end)
 
@@ -418,7 +436,7 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
           if #rightCoins>0 then
             transition.to(table.remove(rightCoins),{x=display.actualContentWidth,onComplete=function(obj)
                 display.remove(obj)
-              end})
+            end})
           end
         end
       end
@@ -427,14 +445,23 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
   end
 end
 
-function scene:startTimer(time,page)
+function scene:startTimer(time,listener)
   local counter=countdown.create(time,80)
   counter:translate(display.contentCenterX,display.contentHeight-counter.height)
   counter:start()
   self.view:insert(counter)
-  timer.performWithDelay(time, function()
-    composer.gotoScene("scenes.practiceintro",{params={page=page}})
-  end)
+  local t=timer.performWithDelay(time,listener)
+
+  function self:pauseTimer()
+    counter:pause()
+    timer.pause(t)
+  end
+
+  function self:resumeTimer()
+    print ("timer resumed")
+    counter:resume()
+    timer.resume(t)
+  end
 end
 
 function scene:startCounting(iterations,page)
@@ -608,7 +635,8 @@ function scene:show(event)
       transition.to(start,{alpha=0,xScale=5,yScale=5,time=200,onComplete=display.remove})
     end
     if event.params.timed then
-      self:startTimer(event.params.timed,event.params.page)
+      assert(event.params.onTimerComplete,"Time parameter requires onTimerComplete parameter")
+      self:startTimer(event.params.timed,event.params.onTimerComplete)
     end
     if event.params.iterations then
       local timerGroup
@@ -622,6 +650,14 @@ function scene:show(event)
     local tuneSelected
     local resetSelection=self:setupSideSelector(left,right,function(tune)
       tuneSelected=tune
+      if tune then
+        if self.pauseTimer then
+          self:pauseTimer()
+        end
+        if event.params.onTuneSelect then
+          event.params.onTuneSelect()
+        end
+      end
     end)
 
     if event.params.noPlay then
@@ -632,6 +668,9 @@ function scene:show(event)
       event.params.logChoicesFilename,
       event.params.logInputFilename,
       function(side)
+        if self.resumeTimer then
+          self:resumeTimer()
+        end
         resetSelection()
         if incrementCount then
           incrementCount()
@@ -651,6 +690,8 @@ scene:addEventListener("show")
 
 function scene:hide(event)
   if event.phase=="will" then
+    self.pauseTimer=nil
+    self.resumeTimer=nil
     if self.onPlay then
       events.removeEventListener("key played",self.onPlay)
       events.removeEventListener("key released",self.onRelease)

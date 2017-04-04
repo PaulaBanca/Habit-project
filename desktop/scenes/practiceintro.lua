@@ -12,6 +12,7 @@ local winnings=require "winnings"
 local _=require "util.moses"
 local math=math
 local timer=timer
+local pairs=pairs
 local type=type
 local print=print
 
@@ -132,16 +133,23 @@ local pageSetup={
   {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nYou may be rewarded more often for some sequences. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
       doorschedule.start()
-      vischedule.setup(1,30000,1000)
-      vischedule.setup(2,30000,1000)
-      vischedule.start()
       winnings.startTracking()
+      composer.gotoScene("scenes.practiceintro",{params={page=15}})
+    end},
+    {text="Get Ready!",
+      onKeyPress=function()
+        local viMapping={
+        [tunemanager.getID("preferred")]=1,
+        [tunemanager.getID("wildcard6")]=2,
+        [tunemanager.getID("wildcard3")]=2,
+      }
       local round=0
       function run()
         local opts=doorschedule.nextRound()
+
         if not opts then
-          local result=winnings.getSinceLastTrack("money")
-          composer.gotoScene("scenes.doorstotal",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=15}}})
+          local result=winnings.getSinceLastTrack("gems")
+          composer.gotoScene("scenes.gemconversion",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=16}}})
           return
         end
         round=round+1
@@ -149,19 +157,75 @@ local pageSetup={
         opts.logChoicesFilename="doors-choices-2"
         opts.logInputFilename="doors-inputs-2"
         opts.doors=true
-        opts.onTuneComplete=function(matched,notMatched,side)
-          local stage=display.getCurrentStage()
-          stage:insert(matched)
-          stage:insert(notMatched)
-          stage:insert(matched.door)
-          local payout=vischedule.reward(side)
+        opts.timed=30*1000
 
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run,loggerFieldTask="door-2"}})
+        local overLayIsOpen
+        opts.onTimerComplete=function()
+          timer.performWithDelay(100,function(event)
+            if overLayIsOpen then
+              return
+            end
+            timer.cancel(event.source)
+            composer.gotoScene("scenes.practiceintro",{params={page=15}})
+          end,-1)
+        end
+
+        vischedule.setup(1,2000,1000)
+        vischedule.setup(2,2000,1000)
+        vischedule.start()
+
+        opts.onTuneSelect=function()
+          vischedule.pause()
+        end
+
+        opts.onTuneComplete=function(matched,notMatched,side,resume)
+          local stage=display.getCurrentStage()
+          local params={"x","y","xScale","yScale","parent","isVisible","alpha","anchorX","anchorY"}
+          local images={matched.door,matched,notMatched}
+          local savedParams={}
+          for i=1,#images do
+            local img=images[i]
+            savedParams[i]={}
+            for p=1,#params do
+              local v=params[p]
+              savedParams[i][v]=img[v]
+            end
+            stage:insert(img)
+          end
+
+          local payout=vischedule.reward(viMapping[tunemanager.getID(matched.tune)])
+          overLayIsOpen=true
+          composer.showOverlay("scenes.doorresult",{params={time=1000,matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,loggerFieldTask="door-2",gems=true,onClose=function()
+            if images[1].removeSelf then
+              for i=1,#images do
+                local img=images[i]
+                local saved=savedParams[i]
+                for k,v in pairs(saved) do
+                  if k=="parent" then
+                    v:insert(img)
+                  else
+                    img[k]=v
+                  end
+                end
+                if img.close then
+                  img:close()
+                end
+              end
+              matched.door:toBack()
+            end
+            composer.hideOverlay()
+            overLayIsOpen=false
+
+            vischedule.resume()
+
+            resume()
+          end}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
       run()
-    end},
+      end
+    },
     {text="This time the choices come in blocks, so it may be easier to find the more rewarding sequences.",
     onKeyPress=function()
       doorschedule.start()
