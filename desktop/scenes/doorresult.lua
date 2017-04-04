@@ -34,6 +34,7 @@ function scene:show(event)
   self.view:insert(matched)
   self.view:insert(notMatched)
 
+  local limitAnimation=event.params.time
   local payout=event.params.payout
   local amount=payout and matched.reward or 0
   self.logger("date",os.date())
@@ -78,10 +79,10 @@ function scene:show(event)
         group.rotation=math.random(360)
         group.anchorChildren=true
         transition.to(group, {
-          delay=i*100,
+          delay=limitAnimation and 0 or i*100,
           xScale=0.4,
           yScale=0.4,
-          time=700,
+          time=limitAnimation and 1 or 700,
           rotation=0,
           anchorY=1,
           x=chest.x-baseWidth/2+col*iconWidth+iconWidth/2,
@@ -128,9 +129,9 @@ function scene:show(event)
     text.y=chest.y-chest.height-20
   end
 
-  local screenTime=1500
+  local screenTime=event.params.time or 1500
   if chest then
-    screenTime=amount*100+3000
+    screenTime=event.params.time or amount*100+3000
     self.view:insert(chest)
     matched:toFront()
     transition.to(matched, {time=250,anchorX=0.5,x=display.contentCenterX})
