@@ -44,15 +44,16 @@ function scene:show(event)
   self.logger("payout type",useGems and "gems" or "money")
   local function createPayoutText(icon,wasChosen)
     local msg=(wasChosen  and "You got: " or "Not Chosen: ")
+    local reward=payout and icon.reward or 0
     if useGems then
       local base,baseWidth,iconWidth,iconHeight
       do
-        local triangleNumbers=_(_.range(1,math.max(2,icon.reward))):mapReduce(function(state,value)
+        local triangleNumbers=_(_.range(1,math.max(2,reward))):mapReduce(function(state,value)
           return state+value
         end,0):value()
         for i=1,#triangleNumbers do
           base=i
-          if triangleNumbers[i]>=icon.reward then
+          if triangleNumbers[i]>=reward then
             break
           end
         end
@@ -65,7 +66,7 @@ function scene:show(event)
 
       local y=chest.contentBounds.yMax
       local col=0
-      for i=1, icon.reward do
+      for i=1, reward do
         local group=display.newGroup()
         self.view:insert(group)
         local img=display.newImage(group, "img/gem.png")
