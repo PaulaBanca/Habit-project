@@ -48,7 +48,7 @@ function create(time,fontSize)
     align="center"
   })
   period:setFillColor(0)
-  w=w+period.width  
+  w=w+period.width
 
   for i=1,2 do
     local dig=display.newText({
@@ -77,7 +77,8 @@ function create(time,fontSize)
 
   local start=system.getTimer()
   local period=time
-  local func=fixedTimeStep(function(time)
+
+  local update=function(time)
     if not numbers.numChildren then
       group:stop()
       return
@@ -95,7 +96,9 @@ function create(time,fontSize)
     if t==0 then
       group:stop()
     end
-  end,1000/30)
+  end
+
+  local func=fixedTimeStep(update,1000/30)
 
   function group:start()
     Runtime:addEventListener("enterFrame",func)
@@ -103,6 +106,18 @@ function create(time,fontSize)
 
   function group:stop()
     Runtime:removeEventListener("enterFrame",func)
+  end
+
+  local pauseStart
+  function group:pause()
+    self:stop()
+    pauseStart=system.getTimer()
+  end
+
+  function group:resume()
+    func=fixedTimeStep(update,1000/30)
+    self:start()
+    period=period+(system.getTimer()-pauseStart)
   end
 
   return group
