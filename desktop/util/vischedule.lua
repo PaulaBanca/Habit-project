@@ -64,10 +64,11 @@ function reward(i)
     resume()
   end
   local t=system.getTimer()-lastTime[i]
-  local nextT=schedules[i][1]
+  local schdl=schedules[i]
+  local nextT=schdl[1]
   if t>=nextT then
     lastTime[i]=system.getTimer()
-    table.remove(schedules[i], 1)
+    table.remove(schdl, 1)
     return true
   end
 end
