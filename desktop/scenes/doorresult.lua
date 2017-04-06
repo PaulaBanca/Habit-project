@@ -137,14 +137,6 @@ function scene:show(event)
     transition.to(matched, {time=250,anchorX=0.5,x=display.contentCenterX})
     transition.to(chest,{time=250,anchorX=0.5,x=display.contentCenterX,onComplete=function()
 
-      if amount==0 then
-        sound.playSound("failed")
-      elseif useGems and amount>6 or amount>=10 then
-        sound.playSound("win big")
-      else
-        sound.playSound("win small")
-      end
-
       chest:open(amount>0)
       createPayoutText(matched,true)
     end})
