@@ -280,7 +280,7 @@ function scene:show(event)
     end
     scene.keyTimer=timer.performWithDelay(500, function()
       nextScene=function(event)
-        if event.phase=="up" and event.keyName~="=" then
+        if event.phase=="up" and event.keyName=="enter" then
           if nextScene then
             Runtime:removeEventListener("key", nextScene)
             nextScene=nil
@@ -322,7 +322,7 @@ function scene:show(event)
 
   local any=display.newText({
     parent=self.view,
-    text="Press any key",
+    text="Press enter to continue",
     x=display.contentCenterX,
     y=display.actualContentHeight-20,
     align="center",
