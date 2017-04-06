@@ -216,8 +216,11 @@ local pageSetup={
     end
   },
   {
+    text="The remaining 2 symbols are kept the same. Play exactly as you did before."
+  },
+  {
     symbol="discarded",
-    text="The remaining 2 symbols are kept the same. Play exactly as you did before.\n\nFor the above symbol, you need to play the corresponding sequence to avoid a shock to your %s wrist.",
+    text="For the above symbol, you need to play the corresponding sequence to avoid a shock to your %s wrist.",
     img=function() return stimuli.getStimulus(tunemanager.getID("discarded")) end
   },
   {
@@ -231,7 +234,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=13},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-1",taskLogFile="shocker-summary-breaking-habit-1"})
+      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=14},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-1",taskLogFile="shocker-summary-breaking-habit-1"})
     end
   },
   {text="Interval\n\nTake a break!\n\nPress a button to continue."},
@@ -257,7 +260,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=17},enableShocks=true,inputLogFile="shocker-inputs-over-training-2",taskLogFile="shocker-summary-over-training-2"})
+      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=18},enableShocks=true,inputLogFile="shocker-inputs-over-training-2",taskLogFile="shocker-summary-over-training-2"})
     end
   },
   {
@@ -273,12 +276,15 @@ local pageSetup={
       trials={tune,tune,tune}
       start({getTaskTime=function()
         return average+math.random(sd)
-      end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=18},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded5",taskLogFile="shocker-summary-practice-discarded5"})
+      end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=19},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded5",taskLogFile="shocker-summary-practice-discarded5"})
     end
   },
   {
+    text="The remaining 2 symbols are kept the same. Play exactly as you did before."
+  },
+  {
     symbol="preferred",
-    text="The remaining 2 symbols are kept the same. Play exactly as you did before.\n\nFor the above symbol, you need to play the corresponding sequence to avoid a shock to your %s wrist.",
+    text="For the above symbol, you need to play the corresponding sequence to avoid a shock to your %s wrist.",
     img=function() return stimuli.getStimulus(tunemanager.getID("preferred")) end
   },
   {
@@ -295,7 +301,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=21},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-2",taskLogFile="shocker-summary-breaking-habit-2"})
+      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=23},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-2",taskLogFile="shocker-summary-breaking-habit-2"})
     end
   },
   {text="Interval\n\nTake a break!\n\nPress a button to continue."},
