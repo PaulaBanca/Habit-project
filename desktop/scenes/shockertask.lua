@@ -165,7 +165,7 @@ local pageSetup={
       local sd=usertimes.getStandardDeviation(tune)
       trials={tune,tune,tune}
       start({itTime=function() return 2000 end,getTaskTime=function()
-        return average+math.random(sd*2)
+        return average+sd*2
       end,nextScene="scenes.shockertask",nextParams={page=6},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred",taskLogFile="shocker-summary-practice-preferred"})
     end
   },
@@ -179,7 +179,7 @@ local pageSetup={
       local sd=usertimes.getStandardDeviation(tune)
       trials={tune,tune,tune}
       start({itTime=function() return 2000 end,getTaskTime=function()
-        return average+math.random(sd*2)
+        return average+sd*2
       end,nextScene="scenes.shockertask",nextParams={page=7},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded",taskLogFile="shocker-summary-practice-discarded"})
     end
   },
@@ -196,7 +196,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=9},enableShocks=true,inputLogFile="shocker-inputs-over-training-1",taskLogFile="shocker-summary-over-training-1"})
+      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=9},enableShocks=true,inputLogFile="shocker-inputs-over-training-1",taskLogFile="shocker-summary-over-training-1"})
     end
  },
  {
@@ -211,7 +211,7 @@ local pageSetup={
       tune=tunemanager.getID("preferred",5)
       trials={tune,tune,tune}
       start({getTaskTime=function()
-        return average+math.random(sd)*2
+        return average+sd*2
       end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=10},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred5",taskLogFile="shocker-summary-practice-preferred5"})
     end
   },
@@ -234,7 +234,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=14},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-1",taskLogFile="shocker-summary-breaking-habit-1"})
+      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=14},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-1",taskLogFile="shocker-summary-breaking-habit-1"})
     end
   },
   {text="Interval\n\nTake a break!\n\nPress a button to continue."},
@@ -260,7 +260,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=18},enableShocks=true,inputLogFile="shocker-inputs-over-training-2",taskLogFile="shocker-summary-over-training-2"})
+      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=18},enableShocks=true,inputLogFile="shocker-inputs-over-training-2",taskLogFile="shocker-summary-over-training-2"})
     end
   },
   {
@@ -275,7 +275,7 @@ local pageSetup={
       tune=tunemanager.getID("discarded",5)
       trials={tune,tune,tune}
       start({getTaskTime=function()
-        return average+math.random(sd)
+        return average+2*sd
       end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=19},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded5",taskLogFile="shocker-summary-practice-discarded5"})
     end
   },
@@ -301,7 +301,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=23},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-2",taskLogFile="shocker-summary-breaking-habit-2"})
+      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=23},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-2",taskLogFile="shocker-summary-breaking-habit-2"})
     end
   },
   {text="Interval\n\nTake a break!\n\nPress a button to continue."},
@@ -333,7 +333,7 @@ local pageSetup={
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
 
-      start({getTaskTime=function() return maxAverage+math.random(4*sd)-2*sd  end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.thankyou",nextParams=nil,trialLimit=nil,enableShocks=false,inputLogFile="shocker-inputs-disconnected",taskLogFile="shocker-summary-disconnected"}) end
+      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.thankyou",nextParams=nil,trialLimit=nil,enableShocks=false,inputLogFile="shocker-inputs-disconnected",taskLogFile="shocker-summary-disconnected"}) end
   }
 }
 
