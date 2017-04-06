@@ -86,7 +86,8 @@ function scene:show(event)
   end
   transition.to(counter,{alpha=0,delay=2500,time=500,onComplete=delete})
 
-  if event.params.countShapes then
+  local countShapes=event.params.countShapes
+  if countShapes then
     local shapeIntro=display.newGroup()
     self.view:insert(shapeIntro)
     composer.loadScene("scenes.shapecounter",true)
@@ -112,7 +113,7 @@ function scene:show(event)
     self.timer=nil
     start.text="Go!"
     transition.to(start,{alpha=0,xScale=5,yScale=5,time=200,onComplete=delete})
-    if event.params.countShapes then
+    if countShapes then
       composer.showOverlay("scenes.shapecounter",{params={moreStars=event.params.moreStars}})
     end
     local tuneCount
@@ -123,15 +124,16 @@ function scene:show(event)
       counter:translate(display.contentCenterX,display.contentHeight-counter.height)
       counter:start()
       self.view:insert(counter)
+      counter.isVisible=not countShapes
       self.timer=timer.performWithDelay(60*1000, function()
         self.timer=nil
-        local logField=logger.create(event.params.countShapes and "shapecounter" or "practice_tune_summary",{"shapes","user counted","date","sequence","sequences completed","mistakes"})
+        local logField=logger.create(countShapes and "shapecounter" or "practice_tune_summary",{"shapes","user counted","date","sequence","sequences completed","mistakes"})
         logField("sequence",tunePracticing or "n/a")
         logField("sequences completed",tunePracticing and completedSequences or "n/a")
         logField("mistakes",tunePracticing and mistakes or "n/a")
         logField("date",os.date())
 
-        if event.params.countShapes then
+        if countShapes then
           composer.hideOverlay("scenes.shapecounter")
           if tuneCount then
             transition.to(tuneCount, {alpha=0})
@@ -186,7 +188,7 @@ function scene:show(event)
         y=display.contentCenterY
       })
       t:setFillColor(0)
-      t.isVisible=not event.params.countShapes
+      t.isVisible=not countShapes
 
       local count=display.newText({
         text="0",
@@ -197,7 +199,7 @@ function scene:show(event)
       })
       count.anchorY=0
       count:setFillColor(0)
-      count.isVisible=not event.params.countShapes
+      count.isVisible=not countShapes
 
       local timeField=logger.create("practice_tune_times",{"sequence","date","time to complete"})
 
