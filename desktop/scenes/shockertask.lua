@@ -118,16 +118,13 @@ local pageSetup={
       assert(path,"arduino-serial-server not found. Please make sure it is in your Home directory.")
       local function mapShockerFuctions(activateLeftShocker,activateRightShocker)
         local sides={left=activateLeftShocker,right=activateRightShocker}
-        print (serpent.block(sides,{nocode=true,comment=false}))
         local setup={}
         local opposite={left="right",right="left"}
         setup.preferred=composer.getVariable("shockerpreferred"):lower()
         setup.discarded=assert(opposite[setup.preferred])
-        print (serpent.block(setup,{nocode=true,comment=false}))
         setup=_.map(setup,function(_,v)
           return assert(sides[v])
         end)
-        print (serpent.block(setup,{nocode=true,comment=false}))
         shockerCalls[tunemanager.getID("preferred")]=setup.preferred
         shockerCalls[tunemanager.getID("discarded")]=setup.discarded
         shockerCalls[tunemanager.getID("preferred",5)]=setup.preferred
