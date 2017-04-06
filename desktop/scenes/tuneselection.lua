@@ -477,7 +477,7 @@ function scene:startCounting(iterations,page)
   t:setFillColor(0)
 
   local count=display.newText({
-    text=0,
+    text="0",
     fontSize=100,
     parent=tuneCount,
     x=display.contentCenterX,
