@@ -47,8 +47,8 @@ local pageSetup={
       doorschedule.start()
 
       local createReward={
-        [tunemanager.getID("discarded")]=function() return 8+math.random(7) end,
-        [tunemanager.getID("preferred")]=function() return math.random(7) end,
+        [tunemanager.getID("discarded")]=function() return 8+math.random(4) end,
+        [tunemanager.getID("preferred")]=function() return 3+math.random(4) end,
       }
       winnings.startTracking()
       local round=0
