@@ -72,7 +72,7 @@ local pageSetup={
           notMatched.reward=createReward[notMatched.tune]()
           local payout=true
 
-          composer.gotoScene("scenes.doorresult",{params={matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run,gems=true,loggerFieldTask="door-1"}})
+          composer.gotoScene("scenes.doorresult",{params={time=1000,matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,onClose=run,gems=true,loggerFieldTask="door-1"}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
@@ -262,7 +262,7 @@ local pageSetup={
           notMatched.reward=createReward[notMatched.tune]()
           local payout=true
 
-          composer.gotoScene("scenes.doorresult",{params={gems=true,matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run,loggerFieldTask="door-3"}})
+          composer.gotoScene("scenes.doorresult",{params={time=1000,gems=true,matched=matched,notMatched=notMatched,chest=matched.door,payout=payout,onClose=run,loggerFieldTask="door-3"}})
         end
         composer.gotoScene("scenes.tuneselection",{params=opts})
       end
