@@ -25,7 +25,7 @@ function fixedTimeStep(func, timestep)
   end 
 end
 
-function create(time,fontSize)
+function create(time,fontSize,millis)
   local group=display.newGroup()
   local digits=math.max(2,math.floor(math.log10(time/1000)+1))
   local numbers=display.newGroup()
@@ -40,25 +40,26 @@ function create(time,fontSize)
     dig:setFillColor(0)
     w=w+dig.width
   end
-
-  local period=display.newText({
-    parent=group,
-    text=".",
-    fontSize=fontSize or 40,
-    align="center"
-  })
-  period:setFillColor(0)
-  w=w+period.width
-
-  for i=1,2 do
-    local dig=display.newText({
+  local period
+  if millis then
+    period=display.newText({
       parent=group,
-      text="0",
+      text=".",
       fontSize=fontSize or 40,
-      align="right"
+      align="center"
     })
-    dig:setFillColor(0)
-    w=w+dig.width
+    period:setFillColor(0)
+    w=w+period.width
+    for i=1,2 do
+      local dig=display.newText({
+        parent=group,
+        text="0",
+        fontSize=fontSize or 40,
+        align="right"
+      })
+      dig:setFillColor(0)
+      w=w+dig.width
+    end
   end
 
   local x=-w/2
@@ -90,7 +91,7 @@ function create(time,fontSize)
     end
 
     for i=1,numbers.numChildren do
-      local base=10^((numbers.numChildren-2)-i)
+      local base=10^((numbers.numChildren-(millis and 2 or 0))-i)
       numbers[numbers.numChildren+1-i].text=math.floor(t/base)%10
     end
     if t==0 then

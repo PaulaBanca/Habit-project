@@ -19,7 +19,6 @@ local os=os
 local Runtime=Runtime
 local system=system
 local math=math
-local NUM_KEYS=NUM_KEYS
 
 setfenv(1,scene)
 
@@ -77,7 +76,7 @@ function scene:show(event)
   })
   start:setFillColor(0)
 
-  local counter=countdown.create(3*1000,80)
+  local counter=countdown.create(3*1000,80,true)
   counter:translate(display.contentCenterX,start.y+counter.height)
   counter:start()
   local function delete(obj)

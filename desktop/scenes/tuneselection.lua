@@ -604,7 +604,7 @@ function scene:show(event)
     })
     start:setFillColor(0)
 
-    local counter=countdown.create(3*1000,80)
+    local counter=countdown.create(3*1000,80,true)
     counter:translate(display.contentCenterX,start.y+counter.height)
     self.view:insert(counter)
     counter:start()
