@@ -47,6 +47,21 @@ function start(config)
   config.trialLimit=3
   local nextScene,nextParams=config.nextScene,config.nextParams
   local run
+
+  local function showFixationCross()
+    local itTime=config.itTime
+    if not itTime then
+      return run()
+    end
+    itTime=itTime()
+    composer.gotoScene("scenes.iti",{params={time=itTime}})
+    if not config.trialLimit or count<config.trialLimit then
+      timer.performWithDelay(itTime,run)
+    else
+      timer.performWithDelay(10,function() composer.gotoScene(nextScene,{params=nextParams}) end)
+    end
+  end
+
   run=function()
     local tune=table.remove(trials)
     if not tune then
@@ -67,24 +82,13 @@ function start(config)
       logField("mistakes",mistakes)
       logField("date",os.date())
       logField("shock",shock and config.enableShocks)
-
-      local itTime=config.itTime
-      if not itTime then
-        return run()
-      end
-      itTime=itTime()
-      composer.gotoScene("scenes.iti",{params={time=itTime}})
-      if not config.trialLimit or count<config.trialLimit then
-        timer.performWithDelay(itTime,run)
-      else
-        timer.performWithDelay(10,function() composer.gotoScene(nextScene,{params=nextParams}) end)
-      end
+      showFixationCross()
     end
     opts.tune=tunemanager.getID(tune)
     opts.time=config.getTaskTime()+REACTION_TIME
     composer.gotoScene("scenes.playtune",{params=opts})
   end
-  run()
+  showFixationCross()
 end
 
 local pageSetup={
