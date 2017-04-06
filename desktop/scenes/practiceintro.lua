@@ -170,8 +170,8 @@ local pageSetup={
           end,-1)
         end
 
-        vischedule.setup(1,2000,1000)
-        vischedule.setup(2,2000,1000)
+        vischedule.setup(1,7000,8)
+        vischedule.setup(2,7000,8)
         vischedule.start()
 
         opts.onTuneSelect=function()
