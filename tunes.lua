@@ -12,6 +12,8 @@ local print=print
 
 setfenv(1,M)
 
+local simpleSequences=false
+
 local config
 function generateTunes()
   local function findLongestOverlap(a,b)
@@ -70,6 +72,30 @@ function generateTunes()
     end
   end
 
+  if simpleSequences then
+    config[1]={
+        stimulus=1,
+        tune={
+          {chord={"c4","none","none","none"},forceLayout=true},
+          {chord={"c4","none","none","none"},forceLayout=true},
+          {chord={"c4","none","none","none"},forceLayout=true},
+          {chord={"c4","none","none","none"},forceLayout=true},
+          {chord={"c4","none","none","none"},forceLayout=true},
+          {chord={"c4","none","none","none"},forceLayout=true},
+      }
+    }
+    config[2]={
+        stimulus=2,
+        tune={
+          {chord={"none","c4","none","none"},forceLayout=true},
+          {chord={"none","c4","none","none"},forceLayout=true},
+          {chord={"none","c4","none","none"},forceLayout=true},
+          {chord={"none","c4","none","none"},forceLayout=true},
+          {chord={"none","c4","none","none"},forceLayout=true},
+          {chord={"none","c4","none","none"},forceLayout=true},
+      }
+    }
+  end
   config[4]={tune=_.first(config[1].tune,5),stimulus=1}
   config[5]={tune=_.first(config[2].tune,5),stimulus=2}
 end
