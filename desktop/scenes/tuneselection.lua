@@ -126,8 +126,8 @@ function scene:flashMessage(message,y)
   transition.to(t, {tag="mistake",alpha=0,onComplete=display.remove,onCancel=display.remove})
 end
 
-function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getLastWinnings,round)
-  local logField=logger.create(logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice","winnings"})
+function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getLastWinnings,round,getSelectionTime,getSelectionChoices)
+  local logField=logger.create(logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice","winnings","selection time","selection choices"})
 
   local steps=0
   local mistakes=0
@@ -193,6 +193,8 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
       matched=right
       notMatched=left
     end
+
+    local choices=getSelectionChoices()
     local side=matched==left and 1 or 2
     onTuneCompleteFunc(side)
 
@@ -224,6 +226,8 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
     logField("left choice",left.tune)
     logField("right choice",right.tune)
     logField("winnings",getLastWinnings())
+    logField("selection time",getSelectionTime())
+    logField("selection choices",choices)
     start=system.getTimer()
 
     matched:setSelected()
@@ -594,7 +598,8 @@ function scene:show(event)
 
   local left,right=setup(event.params.leftTune,event.params.rightTune,event.params.leftReward,event.params.rightReward,event.params.doors)
   local start
-  if event.params.timed then
+  local timed=event.params.timed
+  if timed then
     start=display.newText({
       parent=self.view,
       text="Get Ready!",
@@ -626,7 +631,7 @@ function scene:show(event)
     updateWinnings=self:setupWinnings(left,right,leftReward,rightReward,titrateTune)
   end
 
-  self.timer=timer.performWithDelay(event.params.timed and 3000 or 0, function()
+  self.timer=timer.performWithDelay(timed and 3000 or 0, function()
     self.timer=nil
 
     local incrementCount
@@ -634,9 +639,9 @@ function scene:show(event)
       start.text="Go!"
       transition.to(start,{alpha=0,xScale=5,yScale=5,time=200,onComplete=display.remove})
     end
-    if event.params.timed then
+    if timed then
       assert(event.params.onTimerComplete,"Time parameter requires onTimerComplete parameter")
-      self:startTimer(event.params.timed,event.params.onTimerComplete)
+      self:startTimer(timed,event.params.onTimerComplete)
     end
     if event.params.iterations then
       local timerGroup
@@ -648,15 +653,20 @@ function scene:show(event)
     end
 
     local tuneSelected
+    local selectionTime
+    local startTime=system.getTimer()
+    local choices=0
     local resetSelection=self:setupSideSelector(left,right,function(tune)
       tuneSelected=tune
       if tune then
+        choices=choices+1
         if self.pauseTimer then
           self:pauseTimer()
         end
         if event.params.onTuneSelect then
           event.params.onTuneSelect()
         end
+        selectionTime=system.getTimer()-startTime
       end
     end)
 
@@ -672,6 +682,8 @@ function scene:show(event)
           self:resumeTimer()
         end
         resetSelection()
+        startTime=system.getTimer()
+        choices=0
         if incrementCount then
           incrementCount()
         end
@@ -682,7 +694,9 @@ function scene:show(event)
       event.params.onTuneComplete,
       function() return tuneSelected end,
       function() return currentWinnings end,
-      event.params.round)
+      event.params.round,
+      function() return selectionTime or "n/a" end,
+      function() return choices end)
   end)
 end
 
