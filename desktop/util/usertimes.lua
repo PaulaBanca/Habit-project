@@ -44,21 +44,23 @@ end
 
 function startDebugDisplay()
   local group=display.newGroup()
-  local meanStr="Means: %.1f\t%.1f"
+  local meanStr="Means: %3.1f\t%3.1f"
   local meanTimes=display.newText({
     parent=group,
     text=meanStr:format(0,0),
     fontSize=30,
+    font="Courier",
     align="left",
   })
 
-  local sdStr="S.D: %.1f\t%.1f"
+  local sdStr="S.D:   %3.1f\t%3.1f"
   local sd=display.newText({
     parent=group,
     text=sdStr:format(0,0),
     fontSize=30,
+    font="Courier",
     align="left",
-  }) 
+  })
   meanTimes.anchorX=0
   meanTimes.anchorY=0
   sd.anchorX=0
