@@ -45,7 +45,7 @@ function login(force)
             err=err.error
             if err == "network error" then
               start()
-              return 
+              return
             end
           end
           native.showAlert("Problem creating user", "Error: " .. err .. ". Enter new user id?", {"OK","No"}, function(event)
