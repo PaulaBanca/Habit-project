@@ -14,6 +14,9 @@ local options={
     c:setup(v=="A" and 0 or 1)
     user.store("melody setup",v)
   end},
+  {label="Left Handed",options={"Yes","No"},selectFunc=function(v)
+    user.store("left handed",v=="Yes")
+  end},
 }
 
 function scene:create()
@@ -64,7 +67,7 @@ function scene:create()
   self.view:insert(button)
   local bg=display.newRect(button,display.contentCenterX,y,display.contentWidth/8,50)
   bg:setFillColor(83/255, 148/255, 250/255)
-  
+
   display.newText({
     parent=button,
     text="Done",

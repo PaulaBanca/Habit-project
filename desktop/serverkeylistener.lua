@@ -2,6 +2,7 @@ local M={}
 serverkeylistener=M
 
 local events=require "events"
+local composer=require "composer"
 local NUM_KEYS=NUM_KEYS
 local Runtime=Runtime
 local tonumber=tonumber
@@ -17,10 +18,26 @@ local arrowMapping={
   left=4
 }
 
+local reverseMapping={
+  up="left",
+  right="down",
+  down="right",
+  left="up",
+  ["1"]=4,
+  ["2"]=3,
+  ["3"]=2,
+  ["4"]=1
+}
+
 local down={}
 Runtime:addEventListener("key", function(event)
-  local key=tonumber(event.keyName)
-  key=key or arrowMapping[event.keyName]
+  local reverseKeys=composer.getVariable("left handed")
+  local keyName=event.keyName
+  if reverseKeys then
+    keyName=reverseMapping[keyName]
+  end
+  local key=tonumber(keyName)
+  key=key or arrowMapping[keyName]
   if not key or type (key)=="number" and key<1 or key>NUM_KEYS then
     return false
   end

@@ -8,6 +8,7 @@ local playlayout=require "playlayout"
 local clientloop=require "clientloop"
 local logger=require "logger"
 local keylayout=require "keylayout"
+local user=require "user"
 local serpent=require "serpent"
 local _=require "util.moses"
 local keysparks=require "ui.keysparks"
@@ -43,7 +44,7 @@ function create(allReleasedFunc,mistakeFunc,releaseFunc,networked,noLogging)
     keys[i]=keyInstance
     keyInstance.index=i
     group:insert(keyInstance)
-    local x,y=playlayout.layout(i)
+    local x,y=playlayout.layout(user.get("left handed") and (NUM_KEYS-i+1) or i)
     keyInstance:translate(x,y)
     local h=keyInstance:getHighlight()
     h:translate(keyInstance:localToContent(0,0))

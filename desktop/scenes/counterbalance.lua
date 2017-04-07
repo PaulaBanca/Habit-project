@@ -27,6 +27,7 @@ local options={
   {label="Switch sides - Preference 4",options={"No","Yes"},selectFunc=function(v) setSwitch(4,v) end},
   {label="Switch sides - Preference 5",options={"No","Yes"},selectFunc=function(v) setSwitch(5,v) end},
   {label="Preferred Shocks",options={"Left","Right"},selectFunc=function(v) composer.setVariable("shockerpreferred",v) end},
+  {label="Left Handed",options={"Yes","No"},selectFunc=function(v) composer.setVariable("left handed",v=="Yes") end,debugSelection=2},
 }
 
 function scene:create()
@@ -98,7 +99,7 @@ function scene:show(event)
   if system.getInfo("environment")=="simulator" then
     for i=1,#options do
       local row=options[i]
-      local select=math.random(#row.options)
+      local select=row.debugSelection or math.random(#row.options)
       local selection=row.options[select]
       row.selectFunc(selection)
     end
