@@ -12,8 +12,6 @@ setfenv(1,M)
 
 local path=system.pathForFile("days.json",system.DocumentsDirectory)
 local data=jsonreader.load(path) or {start=os.date("*t"),practices={}}
-local lastDate=data.last
-local today=os.date("*t")
 
 if not data.version then
   for i=1,#data.practices do
@@ -31,7 +29,7 @@ elseif data.version==1 then
     end
   end
   data.version=2
-end  
+end
 
 local function secsToDays(secs)
   return math.floor(secs/60/60/24)
@@ -54,14 +52,8 @@ function getDaysDiff(d1,d2)
   return secsToDays(diffsecs)
 end
 
-function getDaysMissed()
-  if not lastDate then
-    return nil
-  end
-  return getDaysDiff(today,lastDate)
-end
-
 function getDayCount()
+  local today=os.date("*t")
   return getDaysDiff(today,data.start)
 end
 
@@ -75,6 +67,7 @@ function getPracticeDay()
 end
 
 function completedPractice(track)
+  local today=os.date("*t")
   data.last=today
   if not data.practices[practiceDay] then
     data.practices[practiceDay]={}

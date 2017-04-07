@@ -7,7 +7,6 @@ local daycounter=require "daycounter"
 local incompletetasks=require "incompletetasks"
 local user=require "user"
 local display=display
-local native=native
 local math=math
 local pairs=pairs
 local print=print
