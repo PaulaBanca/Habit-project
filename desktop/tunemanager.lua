@@ -25,10 +25,10 @@ end
 
 function getID(param,truncated)
   if param=="discarded" then
-    return discarded+(truncated and truncated or 0)
+    return discarded+(truncated and (truncated-2) or 0)
   end
   if param=="preferred" then
-    return preferred+(truncated and truncated or 0)
+    return preferred+(truncated and (truncated-2) or 0)
   end
   if param=="wildcard3" then
     return -3

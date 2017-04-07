@@ -27,16 +27,18 @@ function generateSeeds()
   if #_.unique(seeds)~=#seeds then
     generateSeeds()
   end
+  seeds[6]=seeds[4]
+  seeds[4]=seeds[1]
+  seeds[5]=seeds[2]
 end
 
 function getStimulus(n)
   if n<0 then
     return getWildcardSimuli(-n)
   end
-  local truncated=n-4
-  if truncated>0 then
-    n=n%2+1
-    truncated=truncated>1 and 5 or 3
+  local truncated
+  if n==4 or n==5 then
+    truncated=5
   else
     truncated=nil
   end

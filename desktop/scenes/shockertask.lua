@@ -38,6 +38,7 @@ local debugShocker=function(side)
 end
 
 local REACTION_TIME=0.25*1000
+local SAFE_ID=6
 
 local shockerCalls={}
 local trials={}
@@ -129,7 +130,7 @@ local pageSetup={
         shockerCalls[tunemanager.getID("discarded")]=setup.discarded
         shockerCalls[tunemanager.getID("preferred",5)]=setup.preferred
         shockerCalls[tunemanager.getID("discarded",5)]=setup.discarded
-        shockerCalls[4]=function() end
+        shockerCalls[SAFE_ID]=function() end
       end
       if noShocker then
         mapShockerFuctions(function() debugShocker("left") end,function() debugShocker("right") end)
@@ -143,7 +144,7 @@ local pageSetup={
   end},
   {text="These are the symbols you will see",img=function()
     local group=display.newGroup()
-    local images={tunemanager.getID("preferred"),tunemanager.getID("discarded"),4}
+    local images={tunemanager.getID("preferred"),tunemanager.getID("discarded"),SAFE_ID}
     local width=0
     for i=1,#images do
       local img=stimuli.getStimulus(images[i])
@@ -184,14 +185,14 @@ local pageSetup={
     end
   },
   {text="This is a SAFE symbol. You will NEVER be shocked when you seen this symbol.\n\nYou do NOT need to play anything.",img=function()
-    return stimuli.getStimulus(4)
+    return stimuli.getStimulus(SAFE_ID)
   end},
   {text="Let’s do the task now!\n\nPress a button to continue.",
     onKeyPress=function()
       trials=trialorder.generate({
         {value="discarded",n=5},
         {value="preferred",n=5},
-        {value=4,n=5}},5)
+        {value=SAFE_ID,n=5}},5)
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
@@ -225,11 +226,11 @@ local pageSetup={
   },
   {
     text="The SAFE symbol remains SAFE. You do NOT need to play anything.",
-    img=function() return stimuli.getStimulus(4) end
+    img=function() return stimuli.getStimulus(SAFE_ID) end
   },
   {text="Let’s do the task now!\n\nPress a button to continue.",
     onKeyPress=function()
-      trials=trialorder.generate({{value="discarded",n=10},{value=tunemanager.getID("preferred",5),n=10},{value=4,n=10}},6)
+      trials=trialorder.generate({{value="discarded",n=10},{value=tunemanager.getID("preferred",5),n=10},{value=SAFE_ID,n=10}},6)
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
@@ -241,7 +242,7 @@ local pageSetup={
   {text="Now, let’s start again with the old symbols. Your goal remains to avoid getting shocks on your wrists.\n\nThe symbol will tell you which sequence to play.\n\nTo avoid being shocked, you have to play the sequence once, without making mistakes and before the time runs out."},
   {text="These are the symbols you will see",img=function()
     local group=display.newGroup()
-    local images={tunemanager.getID("preferred"),tunemanager.getID("discarded"),4}
+    local images={tunemanager.getID("preferred"),tunemanager.getID("discarded"),SAFE_ID}
     local width=0
     for i=1,#images do
       local img=stimuli.getStimulus(images[i])
@@ -255,7 +256,7 @@ local pageSetup={
   end},
   {text="Let’s do the task again!\n\nPress a button to continue.",
     onKeyPress=function()
-      trials=trialorder.generate({{value="discarded",n=30},{value="preferred",n=30},{value=4,n=30}},15)
+      trials=trialorder.generate({{value="discarded",n=30},{value="preferred",n=30},{value=SAFE_ID,n=30}},15)
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
@@ -289,14 +290,14 @@ local pageSetup={
   },
   {
     text="The SAFE symbol remains SAFE. You do NOT need to play anything.",
-    img=function() return stimuli.getStimulus(4) end
+    img=function() return stimuli.getStimulus(SAFE_ID) end
   },
   {text="Let’s do the task now!\n\nPress a button to continue.",
     onKeyPress=function()
       trials=trialorder.generate({
         {value=tunemanager.getID("discarded",5),n=15},
         {value="preferred",n=15},
-        {value=4,n=15}},9)
+        {value=SAFE_ID,n=15}},9)
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
@@ -323,11 +324,11 @@ local pageSetup={
     end
   },
   {text="This symbol remains a SAFE. You will never be shocked when you see it. You do NOT need to play anything.",img=function()
-    return stimuli.getStimulus(4)
+    return stimuli.getStimulus(SAFE_ID)
   end},
   {
     text="Let’s do the task now!\n\nPress a button to continue.",
-    onShow=function() trials=trialorder.generate({{value=tunemanager.getID("discarded"),n=5},{value=tunemanager.getID("preferred"),n=5},{value=4,n=5}},5) end,
+    onShow=function() trials=trialorder.generate({{value=tunemanager.getID("discarded"),n=5},{value=tunemanager.getID("preferred"),n=5},{value=SAFE_ID,n=5}},5) end,
     onKeyPress=function()
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
