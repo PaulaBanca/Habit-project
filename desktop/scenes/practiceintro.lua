@@ -158,7 +158,7 @@ local pageSetup={
         opts.logChoicesFilename="doors-choices-2"
         opts.logInputFilename="doors-inputs-2"
         opts.doors=true
-        opts.timed=30*1000
+        opts.timed=60*1000
 
         local overLayIsOpen
         opts.onTimerComplete=function()
