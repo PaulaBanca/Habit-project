@@ -354,7 +354,8 @@ function scene:setupUserInput(logChoicesFilename,logInputFilename,onTuneComplete
     getSelectedTune=getTuneSelected,
     getWildCardLength=getWildCardLength,
     getRegisterInput=function() return getTuneSelected()~=nil end,
-    onIllegalInput=function() madeMistake() end})
+    onIllegalInput=function() madeMistake() end,
+    allowWildCard=self.left.tune<0 or self.right.tune<0})
 
   reset=_.wrap(reset,function(f,clearMeters)
     if clearMeters then
@@ -368,6 +369,7 @@ function scene:setupUserInput(logChoicesFilename,logInputFilename,onTuneComplete
   events.addEventListener("key released",onRelease)
   self.onRelease=onRelease
   self.onPlay=onPlay
+  return reset
 end
 
 function scene:setupWinnings(leftReward,rightReward,titrateTune)
@@ -678,8 +680,10 @@ function scene:show(event)
     local selectionTime
     local startTime=system.getTimer()
     local choices=0
+    local resetInputs
     local resetSelection=self:setupSideSelector(function(tune)
       tuneSelected=tune
+      resetInputs(true)
       if tune then
         choices=choices+1
         if self.pauseTimer then
@@ -696,7 +700,7 @@ function scene:show(event)
       return
     end
     local currentWinnings="n/a"
-    self:setupUserInput(
+    resetInputs=self:setupUserInput(
       event.params.logChoicesFilename,
       event.params.logInputFilename,
       function(side)
