@@ -135,6 +135,7 @@ local pageSetup={
       doorschedule.start()
       winnings.startTracking()
       composer.gotoScene("scenes.practiceintro",{params={page=15}})
+      composer.setVariable("round",0)
     end},
     {text="Get Ready!",
       onKeyPress=function()
@@ -143,7 +144,6 @@ local pageSetup={
         [tunemanager.getID("wildcard6")]=2,
         [tunemanager.getID("wildcard3")]=2,
       }
-      local round=0
       function run()
         local opts=doorschedule.nextRound()
 
@@ -152,7 +152,8 @@ local pageSetup={
           composer.gotoScene("scenes.gemconversion",{params={winnings=result,nextScene="scenes.practiceintro",nextParams={page=16}}})
           return
         end
-        round=round+1
+        local round=composer.getVariable("round")+1
+        composer.setVariable("round",round)
         opts.round=round
         opts.logChoicesFilename="doors-choices-2"
         opts.logInputFilename="doors-inputs-2"
