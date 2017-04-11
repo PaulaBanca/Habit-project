@@ -170,16 +170,19 @@ local pageSetup={
             composer.gotoScene("scenes.practiceintro",{params={page=15}})
           end,-1)
         end
-
-        vischedule.setup(1,7000,8)
-        vischedule.setup(2,7000,8)
-        vischedule.start()
+        vischedule.stop()
+        vischedule.setup(1,7500,8)
+        vischedule.setup(2,7500,8)
+        timer.performWithDelay(3000,function()
+          vischedule.start()
+        end)
 
         opts.onTuneSelect=function()
           vischedule.pause()
         end
 
         opts.onTuneComplete=function(matched,notMatched,side,resume)
+
           local stage=display.getCurrentStage()
           local params={"x","y","xScale","yScale","parent","isVisible","alpha","anchorX","anchorY"}
           local images={matched.door,matched,notMatched}
@@ -216,8 +219,6 @@ local pageSetup={
             end
             composer.hideOverlay()
             overLayIsOpen=false
-
-            vischedule.resume()
 
             resume()
           end}})

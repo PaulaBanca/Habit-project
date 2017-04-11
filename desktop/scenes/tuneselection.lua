@@ -206,6 +206,10 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
       resetMeters()
       left:unselect()
       right:unselect()
+      if self.resumeTimer then
+        self:resumeTimer()
+      end
+      
       if onTuneCompleteEndFunc then
         onTuneCompleteEndFunc(matched,notMatched,side,function()
           events.addEventListener("key played",self.onPlay)
@@ -462,7 +466,6 @@ function scene:startTimer(time,listener)
   end
 
   function self:resumeTimer()
-    print ("timer resumed")
     counter:resume()
     timer.resume(t)
   end
@@ -678,9 +681,6 @@ function scene:show(event)
       event.params.logChoicesFilename,
       event.params.logInputFilename,
       function(side)
-        if self.resumeTimer then
-          self:resumeTimer()
-        end
         resetSelection()
         startTime=system.getTimer()
         choices=0
