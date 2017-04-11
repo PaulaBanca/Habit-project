@@ -85,6 +85,7 @@ function setup(whenDone)
 
   textField = native.newTextField(display.contentCenterX, display.contentCenterY-40, display.contentWidth-20, 50)
   textField:addEventListener("userInput", textListener)
+  textField.inputType="number"
 end
 
 return M
