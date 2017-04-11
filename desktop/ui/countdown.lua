@@ -111,6 +111,9 @@ function create(time,fontSize,millis)
 
   local pauseStart
   function group:pause()
+    if pauseStart then
+      return
+    end
     self:stop()
     pauseStart=system.getTimer()
   end
@@ -119,6 +122,7 @@ function create(time,fontSize,millis)
     func=fixedTimeStep(update,1000/30)
     self:start()
     period=period+(system.getTimer()-pauseStart)
+    pauseStart=nil
   end
 
   return group
