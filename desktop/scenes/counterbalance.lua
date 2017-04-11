@@ -27,7 +27,7 @@ local options={
   {label="Switch sides - Preference 4",options={"No","Yes"},selectFunc=function(v) setSwitch(4,v) end},
   {label="Switch sides - Preference 5",options={"No","Yes"},selectFunc=function(v) setSwitch(5,v) end},
   {label="Preferred Shocks",options={"Left","Right"},selectFunc=function(v) composer.setVariable("shockerpreferred",v) end},
-  {label="Left Handed",options={"Yes","No"},selectFunc=function(v) composer.setVariable("left handed",v=="Yes") end,debugSelection=2},
+  {label="Handedness",options={"Left","Right"},selectFunc=function(v) composer.setVariable("left handed",v=="Left") end,debugSelection=2},
 }
 
 function scene:create()
