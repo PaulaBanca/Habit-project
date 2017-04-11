@@ -23,6 +23,8 @@ local os=os
 local Runtime=Runtime
 local assert=assert
 local print=print
+local ipairs=ipairs
+local unpack=unpack
 
 setfenv(1,scene)
 
@@ -108,7 +110,8 @@ function setup(leftTune,rightTune,leftReward,rightReward,chests)
 
   scene.leftMeter=leftMeter
   scene.rightMeter=rightMeter
-
+  scene.left,scene.right=left,right
+  
   return left,right
 end
 
@@ -126,7 +129,27 @@ function scene:flashMessage(message,y)
   transition.to(t, {tag="mistake",alpha=0,onComplete=display.remove,onCancel=display.remove})
 end
 
-function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getLastWinnings,round,getSelectionTime,getSelectionChoices)
+function scene:switchSides()
+  local positionalParams={"x","y","anchorX","anchorY","xScale","yScale"}
+  local images={
+    {self.left,self.right},
+    {self.leftMeter,self.rightMeter},
+    {self.left.door,self.right.door}
+  }
+
+  for k,v in ipairs(images) do
+    local mirrored=_.reverse(v)
+    _(v):map(function(i,img) 
+      return _.pick(img,unpack(positionalParams))
+    end):eachi(function(i,params) 
+      _.extend(mirrored[i],params)
+    end)
+  end
+  self.left,self.right=self.right,self.left
+  self.leftMeter,self.rightMeter=self.rightMeter,self.leftMeter
+end
+
+function scene:setupUserInput(logChoicesFilename,logInputFilename,onTuneCompleteFunc,onTuneCompleteEndFunc,getTuneSelected,getLastWinnings,round,getSelectionTime,getSelectionChoices)
   local logField=logger.create(logChoicesFilename,{"date","sequence selected","round","input time","mistakes","left choice","right choice","winnings","selection time","selection choices"})
 
   local steps=0
@@ -140,11 +163,11 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
       mistakes=mistakes+1
       inMistakeStreak=true
     end
-    self:flashMessage(not getTuneSelected() and "Select side first" or "Mistake, start again!",left.y-left.height/2-10)
+    self:flashMessage(not getTuneSelected() and "Select side first" or "Mistake, start again!",self.left.y-self.left.height/2-10)
   end
 
   local function getWildCardLength()
-    if left.tune==-3 or right.tune==-3 then
+    if self.left.tune==-3 or self.right.tune==-3 then
       return 3
     end
     return 6
@@ -186,16 +209,16 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
     end
 
     local matched,notMatched
-    if tune==left.tune or left.tune<0 and right.tune~=tune then
-      matched=left
-      notMatched=right
+    if tune==self.left.tune or self.left.tune<0 and self.right.tune~=tune then
+      matched=self.left
+      notMatched=self.right
     else
-      matched=right
-      notMatched=left
+      matched=self.right
+      notMatched=self.left
     end
 
     local choices=getSelectionChoices()
-    local side=matched==left and 1 or 2
+    local side=matched==self.left and 1 or 2
     onTuneCompleteFunc(side)
 
     meterResetTimer=timer.performWithDelay(500, function()
@@ -204,8 +227,8 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
         return
       end
       resetMeters()
-      left:unselect()
-      right:unselect()
+      self.left:unselect()
+      self.right:unselect()
       if self.resumeTimer then
         self:resumeTimer()
       end
@@ -227,8 +250,8 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
     logField("round",round)
     logField("input time",system.getTimer()-start)
     logField("mistakes",mistakes)
-    logField("left choice",left.tune)
-    logField("right choice",right.tune)
+    logField("left choice",self.left.tune)
+    logField("right choice",self.right.tune)
     logField("winnings",getLastWinnings())
     logField("selection time",getSelectionTime())
     logField("selection choices",choices)
@@ -250,18 +273,18 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
         return
       end
       steps=0
-      if tune~=left.tune and tune~=right.tune then
+      if tune~=self.left.tune and tune~=self.right.tune then
         resetMeters()
         madeMistake()
         return
       end
-      local meter=left.tune==tune and self.leftMeter or self.rightMeter
+      local meter=self.left.tune==tune and self.leftMeter or self.rightMeter
       meter:mark(tune<0 and -tune or 6,true)
       tuneCompleted(tune)
     end,
     onMistake=madeMistake,
     onGoodInput=function(event)
-      if not left or not getTuneSelected() then
+      if not self.left or not getTuneSelected() then
         if not getTuneSelected() then
           madeMistake()
         end
@@ -280,18 +303,18 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
         if not matchingTunes[getTuneSelected()] then
           return madeMistake()
         end
-        if testMatch(matchingTunes, left.tune,self.leftMeter) or
-           testMatch(matchingTunes,right.tune,self.rightMeter) then
+        if testMatch(matchingTunes, self.left.tune,self.leftMeter) or
+           testMatch(matchingTunes,self.right.tune,self.rightMeter) then
           return
         end
       else
         if getTuneSelected()>0 then
           return madeMistake()
         end
-        if left.tune>0 then
+        if self.left.tune>0 then
           self.leftMeter:reset()
         end
-        if right.tune>0 then
+        if self.right.tune>0 then
           self.rightMeter:reset()
         end
       end
@@ -310,7 +333,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
         end
       end
 
-      local wildMeter=left.tune<0 and self.leftMeter or self.rightMeter
+      local wildMeter=self.left.tune<0 and self.leftMeter or self.rightMeter
       if steps>0 then
         wildMeter:mark(steps,good)
         inMistakeStreak=false
@@ -321,7 +344,7 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
       if steps==getWildCardLength() then
         steps=0
         if good then
-          tuneCompleted(left.tune<right.tune and left.tune or right.tune)
+          tuneCompleted(self.left.tune<self.right.tune and self.left.tune or self.right.tune)
         elseif getTuneSelected()<0 then
           madeMistake()
           wildMeter:reset()
@@ -347,11 +370,11 @@ function scene:setupUserInput(left,right,logChoicesFilename,logInputFilename,onT
   self.onPlay=onPlay
 end
 
-function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
-  local lx=left.x+left.contentWidth/2-(left.contentWidth*left.anchorX)-left.contentWidth/2
-  local rx=right.x+right.contentWidth/2-(right.contentWidth*right.anchorX)+right.contentWidth/2
-  local ly=left.y+left.contentHeight/2-(left.contentHeight*left.anchorY)+left.contentHeight/2
-  local ry=right.y+right.contentHeight/2-(right.contentHeight*right.anchorY)+right.contentHeight/2
+function scene:setupWinnings(leftReward,rightReward,titrateTune)
+  local lx=self.left.x+self.left.contentWidth/2-(self.left.contentWidth*self.left.anchorX)-self.left.contentWidth/2
+  local rx=self.right.x+self.right.contentWidth/2-(self.right.contentWidth*self.right.anchorX)+self.right.contentWidth/2
+  local ly=self.left.y+self.left.contentHeight/2-(self.left.contentHeight*self.left.anchorY)+self.left.contentHeight/2
+  local ry=self.right.y+self.right.contentHeight/2-(self.right.contentHeight*self.right.anchorY)+self.right.contentHeight/2
   local y=math.max(ly,ry)+50
 
   local lr=display.newText({
@@ -381,7 +404,7 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
   })
   wonLabel:setFillColor(0)
   wonLabel.x=display.contentCenterX
-  wonLabel.y=left.y-left.contentHeight/2-490
+  wonLabel.y=self.left.y-self.left.contentHeight/2-490
 
   local won=0
   local cash=display.newText({
@@ -419,7 +442,7 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
       reward=leftReward
       cash.text=rewardtext.create(won)
       winnings.add("money",leftReward)
-      if tunemanager.getID(titrateTune)==left.tune then
+      if tunemanager.getID(titrateTune)==self.left.tune then
         count=count+1
         if count==2 then
           count=0
@@ -435,7 +458,7 @@ function scene:setupWinnings(left,right,leftReward,rightReward,titrateTune)
       reward=rightReward
       cash.text=rewardtext.create(won)
       winnings.add("money",rightReward)
-      if tunemanager.getID(titrateTune)==right.tune then
+      if tunemanager.getID(titrateTune)==self.right.tune then
         count=count+1
         if count==2 then
           count=0
@@ -502,10 +525,10 @@ function scene:startCounting(iterations,page)
   end
 end
 
-function scene:setupSideSelector(left,right,setSelection)
-  local maxWidth=math.max(left.width,self.leftMeter.width,right.width,self.rightMeter.width)
+function scene:setupSideSelector(setSelection)
+  local maxWidth=math.max(self.left.width,self.leftMeter.width,self.right.width,self.rightMeter.width)
   local yMin=math.min(self.leftMeter.contentBounds.yMin,self.rightMeter.contentBounds.yMin)
-  local yMax=math.min(left.contentBounds.yMax,right.contentBounds.yMax)
+  local yMax=math.min(self.left.contentBounds.yMax,self.right.contentBounds.yMax)
 
   local padding=30
   local selection=display.newRect(self.view,display.contentCenterX,(yMax-yMin)/2+yMin,maxWidth+padding,yMax-yMin+padding)
@@ -515,9 +538,9 @@ function scene:setupSideSelector(left,right,setSelection)
   selection.isVisible=false
   selection:toBack()
 
-  if left.door then
-    left.door:toBack()
-    right.door:toBack()
+  if self.left.door then
+    self.left.door:toBack()
+    self.right.door:toBack()
   end
 
   local validKeys={
@@ -529,8 +552,8 @@ function scene:setupSideSelector(left,right,setSelection)
     right="left"
   }
   local xpos={
-    left=left.x-(left.door and 0 or left.width/2),
-    right=right.x+(right.door and 0 or right.width/2)
+    left=self.left.x-(self.left.door and 0 or self.left.width/2),
+    right=self.right.x+(self.right.door and 0 or self.right.width/2)
   }
 
   local leftArrow=display.newText({
@@ -553,10 +576,6 @@ function scene:setupSideSelector(left,right,setSelection)
     left=leftArrow,
     right=rightArrow
   }
-  local tunes={
-    left=left.tune,
-    right=right.tune
-  }
 
   local translate={
     space="right",
@@ -569,7 +588,7 @@ function scene:setupSideSelector(left,right,setSelection)
       return
     end
     if (event.phase=="down" or not event.phase) and validKeys[kn] then
-      setSelection(tunes[kn])
+      setSelection(self[kn].tune)
       validKeys[kn]=nil
       validKeys[opposite[kn]]=true
       arrows[kn].alpha=0.3
@@ -599,7 +618,7 @@ function scene:show(event)
     return
   end
 
-  local left,right=setup(event.params.leftTune,event.params.rightTune,event.params.leftReward,event.params.rightReward,event.params.doors)
+  setup(event.params.leftTune,event.params.rightTune,event.params.leftReward,event.params.rightReward,event.params.doors)
   local start
   local timed=event.params.timed
   if timed then
@@ -631,7 +650,7 @@ function scene:show(event)
     local leftReward=event.params.leftReward
     local rightReward=event.params.rightReward
     local titrateTune=event.params.titrate
-    updateWinnings=self:setupWinnings(left,right,leftReward,rightReward,titrateTune)
+    updateWinnings=self:setupWinnings(self.left,self.right,leftReward,rightReward,titrateTune)
   end
 
   self.timer=timer.performWithDelay(timed and 3000 or 0, function()
@@ -659,7 +678,7 @@ function scene:show(event)
     local selectionTime
     local startTime=system.getTimer()
     local choices=0
-    local resetSelection=self:setupSideSelector(left,right,function(tune)
+    local resetSelection=self:setupSideSelector(function(tune)
       tuneSelected=tune
       if tune then
         choices=choices+1
@@ -677,7 +696,7 @@ function scene:show(event)
       return
     end
     local currentWinnings="n/a"
-    self:setupUserInput(left,right,
+    self:setupUserInput(
       event.params.logChoicesFilename,
       event.params.logInputFilename,
       function(side)

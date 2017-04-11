@@ -219,7 +219,9 @@ local pageSetup={
             end
             composer.hideOverlay()
             overLayIsOpen=false
-
+            if math.random(2)==1 then
+              composer.getScene("scenes.tuneselection"):switchSides()
+            end
             resume()
           end}})
         end
