@@ -97,20 +97,20 @@ function scene:show(event)
     local quizzed=user.get("quizzed") or {}
     local qd=quizzed[d] or {}
     local candiate
-    for i=1,2 do 
-      if not qd[i] and practiced[i]==2 then
+    for i=1,2 do
+      if not qd[i] and practiced[i] and practiced[i]>=2 then
         candiate=i
         break
       end
     end
     if candiate then
-      qd[candiate]=true
-      quizzed[d]=qd
-      user.store("quizzed",quizzed)
-      local scene,params="scenes.pleasure",{melody=candiate,rounds=1,practice=practicelogger.getPractices(candiate),track=candiate}
-      incompletetasks.push(scene,params)
-
-      composer.gotoScene(scene,{params=params})
+      local scn,params="scenes.pleasure",{
+        track=candiate,
+        practice=practicelogger.getPractices(candiate),
+        practiceDay=d
+      }
+      incompletetasks.push(scn,params)
+      composer.gotoScene(scn,{params=params})
     else
       composer.gotoScene("scenes.schedule")
     end

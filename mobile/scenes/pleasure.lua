@@ -3,7 +3,6 @@ local scene=composer.newScene()
 
 local stimuli=require "stimuli"
 local button=require "ui.button"
-local logger=require "logger"
 local display=display
 local math=math
 
@@ -22,10 +21,15 @@ function scene:show(event)
   local touchArea=display.newRect(display.contentCenterX,display.contentCenterY,scaleWidth,PADDING*2)
   scene.view:insert(touchArea)
 
-  local line=display.newLine(display.contentCenterX-scaleWidth/2,display.contentCenterY,display.contentCenterX+scaleWidth/2,display.contentCenterY)
-  line:setStrokeColor(0)
-  line.strokeWidth=2
-  scene.view:insert(line)
+  do
+    local x1=display.contentCenterX-scaleWidth/2
+    local x2=display.contentCenterX+scaleWidth/2
+    local y=display.contentCenterY
+    local line=display.newLine(x1,y,x2,y)
+    line:setStrokeColor(0)
+    line.strokeWidth=2
+    scene.view:insert(line)
+  end
 
   local labelLeft=display.newText({
     text="Very boring",
@@ -69,16 +73,6 @@ function scene:show(event)
     sensor:translate(x,self.y)
 
     numTouches=numTouches+1
-    function sensor:writeValue()
-      -- local v=values[i]
-      -- v.value=math.abs((touchArea.x-touchArea.width/2-self.x)*100/touchArea.width)
-      -- v.startTime=v.startTime or system.getTimer()-vasStart
-      -- v.endTime=system.getTimer()-vasStart
-      -- v.touches=numTouches
-      -- v.minValue=v.minValue and math.min(v.minValue,v.value) or v.value
-      -- v.maxValue=v.maxValue and math.max(v.maxValue,v.value) or v.value
-    end
-    sensor:writeValue()
 
     local lx=0
     function touchSensor:touch(event)
@@ -97,7 +91,6 @@ function scene:show(event)
         lx=event.x
         sensor.x=math.max(sensor.x,touchArea.x-touchArea.width/2)
         sensor.x=math.min(sensor.x,touchArea.x+touchArea.width/2)
-        sensor:writeValue()
         return true
       end
     end
@@ -107,21 +100,31 @@ function scene:show(event)
   touchArea:addEventListener("tap")
   done=button.create("Done","change",function()
     local data=event.params.data or {}
-    data["pleasure_melody_" .. event.params.melody]=math.abs((touchArea.x-touchArea.width/2-sensor.x)*100/touchArea.width)
+    do
+      local key="pleasure_melody_" .. event.params.track
+      data[key]=math.abs((touchArea.x-touchArea.width/2-sensor.x)*100/touchArea.width)
+    end
     sensor:removeSelf()
     sensor=nil
 
     for i=self.view.numChildren,1,-1 do
       self.view[i]:removeSelf()
     end
-    composer.gotoScene("scenes.confidence",{params={melody=event.params.melody,rounds=event.params.rounds,data=data,resumed=event.params.resumed,practice=event.params.practice,track=event.params.track}})
+    composer.gotoScene("scenes.confidence",{
+      params={
+        data=data,
+        resumed=event.params.resumed,
+        practice=event.params.practice,
+        track=event.params.track,
+        practiceDay=event.params.practiceDay
+      }
+    })
   end)
   done.isVisible=false
   done.anchorChildren=true
   done.anchorY=1
   done:translate(display.contentCenterX, display.contentHeight*3/4)
   scene.view:insert(done)
-
 
   local query=display.newText({
     text="How much did you enjoy playing this sequence?",
@@ -133,7 +136,7 @@ function scene:show(event)
   query:translate(display.contentCenterX, display.contentCenterY-touchArea.height/2-PADDING)
   scene.view:insert(query)
 
-  local img=stimuli.getStimulus(event.params.melody)
+  local img=stimuli.getStimulus(event.params.track)
   scene.view:insert(img)
   img.anchorY=1
   img.x=display.contentCenterX

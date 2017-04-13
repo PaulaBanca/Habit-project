@@ -30,11 +30,15 @@ function scene:show(event)
   local touchArea=display.newRect(display.contentCenterX,display.contentCenterY,scaleWidth,PADDING*2)
   scene.view:insert(touchArea)
 
-  local line=display.newLine(display.contentCenterX-scaleWidth/2,display.contentCenterY,display.contentCenterX+scaleWidth/2,display.contentCenterY)
-  line:setStrokeColor(0)
-  line.strokeWidth=2
-  scene.view:insert(line)
-
+  do
+    local x1=display.contentCenterX-scaleWidth/2
+    local x2=display.contentCenterX+scaleWidth/2
+    local y=display.contentCenterY
+    local line=display.newLine(x1,y,x2,y)
+    line:setStrokeColor(0)
+    line.strokeWidth=2
+    scene.view:insert(line)
+  end
   local labelLeft=display.newText({
     text="Not confident at all",
     fontSize=15,
@@ -77,16 +81,6 @@ function scene:show(event)
     sensor:translate(x,self.y)
 
     numTouches=numTouches+1
-    function sensor:writeValue()
-      -- local v=values[i]
-      -- v.value=math.abs((touchArea.x-touchArea.width/2-self.x)*100/touchArea.width)
-      -- v.startTime=v.startTime or system.getTimer()-vasStart
-      -- v.endTime=system.getTimer()-vasStart
-      -- v.touches=numTouches
-      -- v.minValue=v.minValue and math.min(v.minValue,v.value) or v.value
-      -- v.maxValue=v.maxValue and math.max(v.maxValue,v.value) or v.value
-    end
-    sensor:writeValue()
 
     local lx=0
     function touchSensor:touch(event)
@@ -105,7 +99,6 @@ function scene:show(event)
         lx=event.x
         sensor.x=math.max(sensor.x,touchArea.x-touchArea.width/2)
         sensor.x=math.min(sensor.x,touchArea.x+touchArea.width/2)
-        sensor:writeValue()
         return true
       end
     end
@@ -115,7 +108,8 @@ function scene:show(event)
   touchArea:addEventListener("tap")
   done=button.create("Done","change",function()
     local data=event.params.data
-    data["confidence_melody_" .. event.params.melody]=math.abs((touchArea.x-touchArea.width/2-sensor.x)*100/touchArea.width)
+    local key="confidence_melody_" .. event.params.track
+    data[key]=math.abs((touchArea.x-touchArea.width/2-sensor.x)*100/touchArea.width)
 
     sensor:removeSelf()
     sensor=nil
@@ -123,24 +117,32 @@ function scene:show(event)
       self.view[i]:removeSelf()
     end
 
+    local track=event.params.track
     data["date"]=os.date("%F")
     data["time"]=os.date("%T")
     data["practice"]=event.params.practice
-    data["track"]=event.params.track
+    data["track"]=track
     logger.log("questionnaire",data)
+
+    local completedQuestionnaires=user.get("quizzed") or {}
+    local day=event.params.practiceDay
+    completedQuestionnaires[day]=completedQuestionnaires[day] or {}
+    completedQuestionnaires[day][track]=true
+    user.store("quizzed",completedQuestionnaires)
+
     if event.params.resumed then
       incompletetasks.lastCompleted()
     else
       incompletetasks.removeLast("scenes.pleasure")
     end
-    local difficulty=math.ceil(practicelogger.getPractices(event.params.melody)/3)
+    local difficulty=math.ceil(practicelogger.getPractices(track)/3)
     logger.stopCatchUp()
     local scene,params="scenes.message",{
       text="Play the following sequence five times as quickly as possible.",
       nextScene="scenes.play",
       nextParams={
         nextScene="scenes.schedule",
-        track=event.params.melody,
+        track=track,
         iterations=5,
         rounds=1,
         difficulty=difficulty,
@@ -149,13 +151,10 @@ function scene:show(event)
     }
     incompletetasks.push(scene,params)
 
-    local d=daycounter.getPracticeDay()
-    local practiced=daycounter.getPracticed(d)
-    local quizzed=user.get("quizzed") or {}
-    local qd=quizzed[d] or {}
+    local practiced=daycounter.getPracticed(day)
     local switchTest=true
     for i=1,2 do
-      if not qd[i] or practiced[i]<2 then
+      if not completedQuestionnaires[i] or not practiced[i] or practiced[i]<2 then
         switchTest=false
         break
       end
@@ -194,7 +193,7 @@ function scene:show(event)
   query:translate(display.contentCenterX, display.contentCenterY-touchArea.height/2-PADDING)
   scene.view:insert(query)
 
-  local img=stimuli.getStimulus(event.params.melody)
+  local img=stimuli.getStimulus(event.params.track)
   scene.view:insert(img)
   img.anchorY=1
   img.x=display.contentCenterX
