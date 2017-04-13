@@ -67,12 +67,12 @@ function getPracticeDay()
 end
 
 function completedPractice(track)
-  local today=os.date("*t")
-  data.last=today
-  if not data.practices[practiceDay] then
+  local dayPractices=data.practices[practiceDay]
+  if not dayPractices then
     data.practices[practiceDay]={}
+    dayPractices=data.practices[practiceDay]
   end
-  data.practices[practiceDay][track]=(data.practices[practiceDay][track] and 1 or 0) +1
+  dayPractices[track]=(dayPractices[track] or 0) + 1
   jsonreader.store(path,data)
 end
 
