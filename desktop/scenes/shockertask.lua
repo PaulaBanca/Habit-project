@@ -22,7 +22,7 @@ local serpent=require "serpent"
 
 setfenv(1,scene)
 
-local noShocker=true
+local noShocker=false
 composer.setVariable("shockerpreferred","Left")
 
 local debugShocker=function(side)
