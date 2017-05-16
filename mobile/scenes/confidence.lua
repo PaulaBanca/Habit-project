@@ -154,7 +154,7 @@ function scene:show(event)
     local practiced=daycounter.getPracticed(day)
     local switchTest=true
     for i=1,2 do
-      if not completedQuestionnaires[i] or not practiced[i] or practiced[i]<2 then
+      if not completedQuestionnaires[day][i] or not practiced[i] or practiced[i]<2 then
         switchTest=false
         break
       end
