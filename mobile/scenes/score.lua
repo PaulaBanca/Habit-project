@@ -91,29 +91,28 @@ function scene:show(event)
     fontSize=20
   }):translate(bg.x, bg.y)
 
+  local d=daycounter.getPracticeDay()
+  local practiced=daycounter.getPracticed(d)
+  local quizzed=user.get("quizzed") or {}
+  local qd=quizzed[d] or {}
+  local candiate
+  for i=1,2 do
+    if not qd[i] and practiced[i] and practiced[i]>=2 then
+      candiate=i
+      break
+    end
+  end
+  local scn,params="scenes.schedule"
+  if candiate then
+    scn,params="scenes.pleasure",{
+      track=candiate,
+      practice=practicelogger.getPractices(candiate),
+      practiceDay=d
+    }
+    incompletetasks.push(scn,params)
+  end
   bg:addEventListener("tap", function()
-    local d=daycounter.getPracticeDay()
-    local practiced=daycounter.getPracticed(d)
-    local quizzed=user.get("quizzed") or {}
-    local qd=quizzed[d] or {}
-    local candiate
-    for i=1,2 do
-      if not qd[i] and practiced[i] and practiced[i]>=2 then
-        candiate=i
-        break
-      end
-    end
-    if candiate then
-      local scn,params="scenes.pleasure",{
-        track=candiate,
-        practice=practicelogger.getPractices(candiate),
-        practiceDay=d
-      }
-      incompletetasks.push(scn,params)
-      composer.gotoScene(scn,{params=params})
-    else
-      composer.gotoScene("scenes.schedule")
-    end
+    composer.gotoScene(scn,{params=params})
   end)
 end
 
