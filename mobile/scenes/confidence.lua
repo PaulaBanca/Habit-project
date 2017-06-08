@@ -146,7 +146,8 @@ function scene:show(event)
         iterations=5,
         rounds=1,
         difficulty=difficulty,
-        mode="timed"
+        mode="timed",
+        noQuit=true,
       }
     }
     incompletetasks.push(scene,params)
@@ -169,7 +170,8 @@ function scene:show(event)
           iterations=10,
           rounds=1,
           difficulty=difficulty,
-          mode="switch"
+          mode="switch",
+          noQuit=true,
         }
       }
       incompletetasks.push(scene,params)

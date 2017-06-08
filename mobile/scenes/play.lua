@@ -777,7 +777,7 @@ function scene:show(event)
 
   self:setUpKeyLayers()
   self.cross:toFront()
-  self.cross.isVisible=not isStart
+  self.cross.isVisible=not isStart and not event.params.noQuit
   self.keyLayers:switchTo(modeIndex,true)
 
   local setTrack=event.params and event.params.track
