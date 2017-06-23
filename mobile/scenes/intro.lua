@@ -4,6 +4,7 @@ local scene=composer.newScene()
 local display=display
 local table=table
 local system=system
+local media=media
 local keys=require "keys"
 local chordbar=require "ui.chordbar"
 local jsonreader=require "jsonreader"
@@ -12,7 +13,7 @@ setfenv(1,scene)
 
 local instructions={
   {text="Welcome!\n\nThis App will help you to learn 2 sequences of finger presses",y=display.contentCenterY-40},
-  {text="You will tap out the sequences on circles like the ones below.\n\nGive it a go! Tap the three coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function()
+  {text="You will tap out the sequences on circles like the ones below.\n\nPlace one finger on each circle and give it a go! Tap the coloured circles.\nIn the example below, tap the 3 coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function()
     local k=keys.create(function() end,function() end,function() end,false,true)
     scene.view:insert(k)
     k:toBack()
@@ -35,6 +36,15 @@ local instructions={
   {img="img/instructions1.png"},
   {img="img/instructions2.png"},
   {img="img/instructions3.png"},
+  {img="img/instructions4.png"},
+  {onShow=function()
+    media.playVideo("img/IMG_3659.MOV",system.ResourceDirectory,false,function()
+      for i=scene.view.numChildren,1,-1 do
+        scene.view[i]:removeSelf()
+      end
+      composer.gotoScene("scenes.intro",{params=16})
+    end)
+  end},
   {text="Now, let’s play the same sequence as last time. Play it once at each of the different levels.\n\nDon’t forget to place a spare finger one the screen while playing!",y=display.contentCenterY-120,scene="scenes.play",params={intro=true,modeProgression=4,nextScene="scenes.intro"}},
   {text="Now you are ready to start practising your sequences.\n\nYou have a month to master the sequences!\n\nGood luck!",y=display.contentCenterY-120},
 }
@@ -67,6 +77,15 @@ function scene:show(event)
       fontSize=step.fontSize or 20
     })
     obj.anchorY=0
+    local bg=display.newRect(
+      self.view,
+      obj.x,
+      obj.y+obj.height/2,
+      display.contentWidth,
+      obj.height+20
+    )
+    bg:setFillColor(0.2)
+    obj:toFront()
   elseif step.img then
     obj=display.newImage(self.view,step.img,display.contentCenterX,20)
     obj.anchorY=0
@@ -79,24 +98,24 @@ function scene:show(event)
       obj:scale(scale,scale)
     end
   end
+  if obj then
+    local bg=display.newRect(scene.view,display.contentCenterX, obj.y+obj.contentHeight+20,100 ,30)
+    bg:setFillColor(83/255, 148/255, 250/255)
+    display.newText({
+      parent=scene.view,
+      x=bg.x,
+      y=bg.y,
+      text="Next",
+      align="center"
+    })
 
-  local bg=display.newRect(scene.view,display.contentCenterX, obj.y+obj.contentHeight+20,100 ,30)
-  bg:setFillColor(83/255, 148/255, 250/255)
-  display.newText({
-    parent=scene.view,
-    x=bg.x,
-    y=bg.y,
-    text="Next",
-    align="center"
-  })
-
-  bg:addEventListener("tap", function ()
-    for i=scene.view.numChildren,1,-1 do
-      scene.view[i]:removeSelf()
-    end
-    composer.gotoScene(step.scene and step.scene or "scenes.intro",{params=step.params})
-  end)
-
+    bg:addEventListener("tap", function ()
+      for i=scene.view.numChildren,1,-1 do
+        scene.view[i]:removeSelf()
+      end
+      composer.gotoScene(step.scene and step.scene or "scenes.intro",{params=step.params})
+    end)
+  end
 end
 scene:addEventListener("show")
 
