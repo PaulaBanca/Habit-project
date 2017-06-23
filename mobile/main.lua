@@ -28,36 +28,15 @@ end
 
 function login(force)
   user.setup(function(newUser)
-    require "util.logginginfo"
-
     if newUser then
       logSessionStart("new user")
     end
-    local seet=require "seed"
+    local seed=require "seed"
     seed.setup(function()
       local logger=require "logger"
       logger.startCatchUp()
-      -- local func=newUser and logger.create or logger.login
-      -- func(user.getID(),user.getPassword(),function (ok,err)
-        ok=true
-        if not ok then
-          if type(err) == "table" then
-            err=err.error
-            if err == "network error" then
-              start()
-              return
-            end
-          end
-          native.showAlert("Problem creating user", "Error: " .. err .. ". Enter new user id?", {"OK","No"}, function(event)
-            if event.action == "clicked" then
-              login(event.index==1)
-            end
-          end)
-        else
-          start()
-        end
-      end)
-    -- end)
+      start()
+    end)
   end,force)
 end
 login()
@@ -80,28 +59,3 @@ Runtime:addEventListener("system", function(event)
     sessionlogger.logSessionEnd(event.type)
   end
 end)
-
--- local randompoints=require "ui.randompoints"
--- local countdownpoints=require "ui.countdownpoints"
-
--- function computeRound()
---   local delays={math.random(500),math.random(500),math.random(500),math.random(500),math.random(500),math.random(500)}
---   local left=#delays
---   local randomScore=0
---   local timedScore=0
---   local r=randompoints.create(500,1000)
---   local c=countdownpoints.create(100,1000)
---   for i=1,#delays do
---     timer.performWithDelay(delays[i], function() 
---       left=left-1
---       randomScore=randomScore+r:getPoints()
---       timedScore=timedScore+c:getPoints()
---       r:remove()
---       if left==0 then
---         print (randomScore,timedScore)
---         return computeRound()
---       end
---     end)
---   end
--- end
--- computeRound()
