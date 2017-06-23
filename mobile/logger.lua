@@ -135,41 +135,39 @@ function startCatchUp()
   end
 
   stop=false
-  unsent.flushQueuedCommands(function()
-    syncMessage.text="Background Syncing..."
-    syncMessage:setTextColor(1)
-    local tables=unsent.getTableNames()
-    local cur=1
-    local process
-    process=function(complete)
-      if stop then
+  syncMessage.text="Background Syncing..."
+  syncMessage:setTextColor(1)
+  local tables=unsent.getTableNames()
+  local cur=1
+  local process
+  process=function(complete)
+    if stop then
+      syncMessage:removeSelf()
+      syncMessage=nil
+      return
+    end
+    if complete then
+      cur=cur+1
+      if cur>#tables then
         syncMessage:removeSelf()
         syncMessage=nil
         return
       end
-      if complete then
-        cur=cur+1
-        if cur>#tables then
-          syncMessage:removeSelf()
-          syncMessage=nil
-          return
-        end
-      end
-      local table=tables[cur]
-      local rows=getRows(table,unsent.getData)
-      if #rows==0 then
-        return process(true)
-      end
-
-      sendRows(rows,function(sendSuccesful)
-        if sendSuccesful then
-          unsent.clearDataUpTo(table,rows[#rows].ID)
-        end
-        process(false)
-      end)
     end
-    process()
-  end)
+    local table=tables[cur]
+    local rows=getRows(table,unsent.getData)
+    if #rows==0 then
+      return process(true)
+    end
+
+    sendRows(rows,function(sendSuccesful)
+      if sendSuccesful then
+        unsent.clearDataUpTo(table,rows[#rows].ID)
+      end
+      process(false)
+    end)
+  end
+  process()
 end
 
 return M

@@ -61,7 +61,6 @@ function test(sendData,questionnaire)
   else
     createTouches(60)
   end
-  unsent.flushQueuedCommands(function() end)
 end
 
 return M

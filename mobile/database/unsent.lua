@@ -156,10 +156,10 @@ local function preparedHandler(stmt,t)
   database.step(stmt)
 end
 
-local queuedCommands={}
 local logHandler={
   touch=function(t)
-    queuedCommands[#queuedCommands+1]=t
+    fillInNulls("touch", t)
+    preparedHandler(preparedInsert,t)
   end,
   switchRelease=function(t)
     fillInNulls("switchreleases", t)
@@ -221,27 +221,6 @@ function clearDataUpTo(tablename,id)
   database.runSQLQuery(deleteDataCmd[tablename]:format(id))
 end
 
-function flushQueuedCommands(onComplete)
-  local total=#queuedCommands
-  if total==0 then
-    return onComplete()
-  end
-  native.setActivityIndicator(true)
-  timer.performWithDelay(1, function()
-    database.runSQLQuery("BEGIN TRANSACTION;")
-    for i=1, #queuedCommands do
-      local q=queuedCommands[i]
-      fillInNulls("touch", q)
-      preparedInsert:bind_names(q)
-      database.step(preparedInsert)
-    end
-    database.runSQLQuery("END TRANSACTION;")
-    queuedCommands={}
-    native.setActivityIndicator(false)
-    onComplete()
-  end)
-end
-
 function hasDataToSend()
   for k,v in pairs(hasDataCmd) do
     local foundData=false
@@ -254,10 +233,6 @@ function hasDataToSend()
     end
   end
   return false
-end
-
-function getUnsent()
-  return queuedCommands
 end
 
 function count(tablename)
