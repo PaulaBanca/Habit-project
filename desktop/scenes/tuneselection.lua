@@ -373,12 +373,18 @@ function scene:setupUserInput(logChoicesFilename,logInputFilename,onTuneComplete
 end
 
 function scene:setupWinnings(leftReward,rightReward,titrateTune)
-  local lx=self.left.x+self.left.contentWidth/2-(self.left.contentWidth*self.left.anchorX)-self.left.contentWidth/2
-  local rx=self.right.x+self.right.contentWidth/2-(self.right.contentWidth*self.right.anchorX)+self.right.contentWidth/2
-  local ly=self.left.y+self.left.contentHeight/2-(self.left.contentHeight*self.left.anchorY)+self.left.contentHeight/2
-  local ry=self.right.y+self.right.contentHeight/2-(self.right.contentHeight*self.right.anchorY)+self.right.contentHeight/2
-  local y=math.max(ly,ry)+50
-
+  local lx,rx,y
+  do
+    local lw=self.left.contentWidth
+    lx=self.left.x+lw/2-(lw*self.left.anchorX)-lw/2
+    local rw=self.right.contentWidth
+    rx=self.right.x+rw/2-(rw*self.right.anchorX)+rw/2
+    local lh=self.left.contentHeight
+    local ly=self.left.y+lh/2-(lh*self.left.anchorY)+lh/2
+    local rh=self.right.contentHeight
+    local ry=self.right.y+rh/2-(rh*self.right.anchorY)+rh/2
+    y=math.max(ly,ry)+50
+  end
   local lr=display.newText({
     parent=self.view,
     text=rewardtext.create(leftReward),
@@ -652,7 +658,7 @@ function scene:show(event)
     local leftReward=event.params.leftReward
     local rightReward=event.params.rightReward
     local titrateTune=event.params.titrate
-    updateWinnings=self:setupWinnings(self.left,self.right,leftReward,rightReward,titrateTune)
+    updateWinnings=self:setupWinnings(leftReward,rightReward,titrateTune)
   end
 
   self.timer=timer.performWithDelay(timed and 3000 or 0, function()
