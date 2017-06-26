@@ -6,7 +6,6 @@ local Runtime=Runtime
 local tunemanager=require "tunemanager"
 local doorschedule=require "doorschedule"
 local vischedule=require "util.vischedule"
-local vrschedule=require "util.vrschedule"
 local stimuli=require "stimuli"
 local winnings=require "winnings"
 local _=require "util.moses"
@@ -44,7 +43,7 @@ local pageSetup={
   },
   {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nOne of the chests may reward you more than the other. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nMake your choices as quickly as possible.",
     onKeyPress=function()
-      doorschedule.start()
+      doorschedule.start(1)
 
       local createReward={
         [tunemanager.getID("discarded")]=function() return 8+math.random(4) end,
@@ -132,7 +131,7 @@ local pageSetup={
   end},
   {text="In the following task, you will need to choose between 2 chests. Pick a chest using the left and right pads and play the matching sequence to open it.\n\nOpen any chest you want.\n\nYou may be rewarded more often for some sequences. You will receive your winnings at the end of the study.\n\nTry to win as much as you can!\n\nTry to make your choices as quickly as possible.",
     onKeyPress=function()
-      doorschedule.start()
+      doorschedule.start(2)
       winnings.startTracking()
       composer.gotoScene("scenes.practiceintro",{params={page=15}})
       composer.setVariable("round",0)
@@ -232,7 +231,7 @@ local pageSetup={
     },
     {text="Now the chests always contain gems. However, there are bigger rewards in some chests than others.\n\nRemember: the more gems you get the more money you will earn at the end of the task.\n\nTry to win as much as you can.",
     onKeyPress=function()
-      doorschedule.start()
+      doorschedule.start(3)
 
       local highReward=function() return 8+math.random(7) end
       local lowReward=function() return math.random(7) end

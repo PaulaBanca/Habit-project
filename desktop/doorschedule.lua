@@ -24,8 +24,8 @@ do
 end
 
 local schedule
-function start()
-  schedule=table.remove(schedules,1)
+function start(scheduleIndex)
+  schedule=schedules[scheduleIndex]
   round=0
 end
 
