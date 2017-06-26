@@ -31,18 +31,21 @@ function create(w,h,buckets)
 
   function group:mark(i,good)
     if good then
-      group[i]:setFillColor(0,1,0)
-      group[i]:setFillColor(0.5,1,0.5)
+      self[i]:setFillColor(0,1,0)
+      self[i]:setFillColor(0.5,1,0.5)
     else
-      group[i]:setFillColor(0,1,0,0.4)
-      group[i]:setFillColor(0.5,0.7,0.5)
+      self[i]:setFillColor(0,1,0,0.4)
+      self[i]:setFillColor(0.5,0.7,0.5)
     end
   end
 
   function group:reset()
-    for i=1,group.numChildren do
-      group[i]:setFillColor(0.2)
-      group[i]:setStrokeColor(0.3)
+    if not self.numChildren then
+      return
+    end
+    for i=1,self.numChildren do
+      self[i]:setFillColor(0.2)
+      self[i]:setStrokeColor(0.3)
     end
   end
 
