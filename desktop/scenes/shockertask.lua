@@ -45,7 +45,6 @@ local trials={}
 function start(config)
   local count=0
   local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock"})
-  config.trialLimit=3
   local nextScene,nextParams=config.nextScene,config.nextParams
   local run
 
