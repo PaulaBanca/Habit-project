@@ -17,6 +17,7 @@ local type=type
 local table=table
 local os=os
 local math=math
+local system=system
 local print=print
 local serpent=require "serpent"
 
@@ -44,7 +45,7 @@ local shockerCalls={}
 local trials={}
 function start(config)
   local count=0
-  local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock"})
+  local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock","time limit", "round time","debug"})
   local nextScene,nextParams=config.nextScene,config.nextParams
   local run
 
@@ -67,9 +68,12 @@ function start(config)
     if not tune then
       return composer.gotoScene(nextScene,{params=nextParams})
     end
+    local startTime=system.getTimer()
     count=count+1
     local opts={}
     opts.logInputFilename=config.inputLogFile
+    local time=config.getTaskTime()+REACTION_TIME
+    opts.time=time
     opts.onComplete=function(shock,sequencesCompleted,mistakes)
       if shock and config.enableShocks or config.forceShock then
         if not shockerCalls[tunemanager.getID(tune)] then
@@ -82,10 +86,12 @@ function start(config)
       logField("mistakes",mistakes)
       logField("date",os.date())
       logField("shock",shock and config.enableShocks)
+      logField("time limit",time)
+      logField("round time", system.getTimer()-startTime)
+      logField("debug", usertimes.toString())
       showFixationCross()
     end
     opts.tune=tunemanager.getID(tune)
-    opts.time=config.getTaskTime()+REACTION_TIME
     composer.gotoScene("scenes.playtune",{params=opts})
   end
   showFixationCross()

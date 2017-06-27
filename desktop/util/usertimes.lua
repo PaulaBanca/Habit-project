@@ -79,4 +79,10 @@ function startDebugDisplay()
   end)
 end
 
+function toString()
+  return ("Means: %3.1f\t%3.1f  S.D:   %3.1f\t%3.1f"):format(
+    (getAverage(1) or 0)/1000,(getAverage(2) or 0)/1000,
+    (getStandardDeviation(1) or 0)/1000,(getStandardDeviation(2) or 0)/1000)
+end
+
 return M
