@@ -13,12 +13,15 @@ setfenv(1,M)
 
 local ran=false
 local keyWidth,keyHeight
+local isMiniScale=(system.getInfo("model")=="iPad" and display.pixelWidth==768) and  0.5 or 1
+
 function createImages(whenDone)
   if ran then
     return whenDone()
   end
   ran=true
-  local KEYR=math.min(130*display.contentScaleX,display.contentWidth/8)
+
+  local KEYR=math.min(130*display.contentScaleX,display.contentWidth/8)*isMiniScale
   local BLUR=8*display.contentScaleX-- TDODO check for iphone 4
   local c=display.newCircle(0, 0, KEYR)
   c:scale(1,1.75)
