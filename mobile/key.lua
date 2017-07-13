@@ -13,7 +13,7 @@ setfenv(1,M)
 
 local ran=false
 local keyWidth,keyHeight
-local isMiniScale=(system.getInfo("model")=="iPad" and display.pixelWidth==768) and  0.5 or 1
+local isMiniScale=(system.getInfo("model")=="iPad" and display.pixelWidth==768) and  0.6 or 1
 
 function createImages(whenDone)
   if ran then
