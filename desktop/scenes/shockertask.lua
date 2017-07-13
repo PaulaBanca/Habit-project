@@ -11,6 +11,7 @@ local stimuli=require "stimuli"
 local logger=require "util.logger"
 local usertimes=require "util.usertimes"
 local _=require "util.moses"
+local identifyarduinos=require "util.identifyarduinos"
 local timer=timer
 local assert=assert
 local type=type
@@ -18,6 +19,7 @@ local table=table
 local os=os
 local math=math
 local system=system
+local native=native
 local print=print
 local serpent=require "serpent"
 
@@ -25,6 +27,26 @@ setfenv(1,scene)
 
 local noShocker=false
 composer.setVariable("shockerpreferred","Left")
+
+
+function queryMissingArduino(arduinoName,retryPage,continuePage)
+  local function onComplete(event)
+    if event.action == "clicked" then
+      local i=event.index
+      local page
+      if i==1 then
+        page=retryPage
+      elseif i==2 then
+        page=continuePage
+      end
+      composer.gotoScene("scenes.shockertask",{params={page=page}})
+      return
+    end
+  end
+
+  local warning=arduinoName .. " could not be found. Would you like to continue?"
+  native.showAlert("Arduino Not Found",warning, { "Retry", "Yes" }, onComplete)
+end
 
 local debugShocker=function(side)
   local c
@@ -120,8 +142,18 @@ local pageSetup={
     text="Please wait... initialising equipment",
     noKeys=true,
     onShow=function()
-      local path=findfile.find("arduino-serial-server")
-      assert(path,"arduino-serial-server not found. Please make sure it is in your Home directory.")
+
+      local path=findfile.find("arduino-serial")
+      local arduinos=identifyarduinos.createControllerTable(path)
+
+      if not arduinos["Arduino-Controller"] then
+        return queryMissingArduino("Shocker Controller",3,4)
+      elseif not arduinos["BIOPAC-Controller"] then
+        return queryMissingArduino("BIOPac Controller",3,4)
+      end
+      local serialpath=findfile.find("arduino-serial-server")
+
+      assert(serialpath,"arduino-serial-server not found. Please make sure it is in your Home directory.")
       local function mapShockerFuctions(activateLeftShocker,activateRightShocker)
         local sides={left=activateLeftShocker,right=activateRightShocker}
         local setup={}
@@ -142,7 +174,7 @@ local pageSetup={
         composer.gotoScene("scenes.shockertask",{params={page=4}})
         return
       end
-      shocker.startServer(path,function(activateLeftShocker,activateRightShocker)
+      shocker.startServer(serialpath,arduinos["Arduino-Controller"],function(activateLeftShocker,activateRightShocker)
         mapShockerFuctions(activateLeftShocker,activateRightShocker)
         composer.gotoScene("scenes.shockertask",{params={page=4}})
       end)

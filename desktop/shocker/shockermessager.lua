@@ -51,7 +51,7 @@ local function attemptConnect(onConnect)
 end
 
 local isServerRunning=[[
-for pid in $(pgrep arduino-serial-server); do
+for pid in $(pgrep -f arduino-serial-server.+%s); do
     if [ $pid != $$ ]; then
         echo "[$(date)] : arduino-serial-server.sh : Process is already running with PID $pid"
         exit 1
@@ -59,14 +59,19 @@ for pid in $(pgrep arduino-serial-server); do
 done
 ]]
 
-function startServer(path,onConnect)
-  local isRunning=os.execute(isServerRunning)
+function startServer(path,device,onConnect)
+  local cmd=isServerRunning:format(device)
+  local isRunning=os.execute(cmd)
   if isRunning>0 then
     return attemptConnect(onConnect)
   end
   path=path:gsub("%s","\\ ")
-  os.execute(path..(" -a /dev/$(ls /dev | grep tty.usbmodem) -p %d &"):format(PORT))
-  timer.performWithDelay(1000,function() startServer(path,onConnect) end)
+  local startServerShellCmd=path..(" -a %s -p %d &"):format(device,PORT)
+  print (startServerShellCmd)
+  os.execute(startServerShellCmd)
+  timer.performWithDelay(1000,function() 
+    startServer(path,device,onConnect) 
+  end)
 end
 
 return M
