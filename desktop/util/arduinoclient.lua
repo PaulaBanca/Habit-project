@@ -1,5 +1,5 @@
 local M={}
-shockermessager=M
+arduinoclient=M
 
 local socket = require("socket")
 local assert=assert
@@ -11,11 +11,9 @@ local timer=timer
 
 setfenv(1,M)
 
-local PORT=8888
-
-local function connect()
+local function connect(port)
   -- Connect to the client
-  local client = assert(socket.connect("localhost", PORT))
+  local client = assert(socket.connect("localhost", port))
   client:settimeout(10)
   -- Get IP and port from client
   local ip, port = client:getsockname()
@@ -24,30 +22,22 @@ local function connect()
   print("IP Address:", ip)
   print("Port:", port)
 
-  local function left()
-    print ("sending left")
-    local sent,status=client:send(1)
+  local function sendValue(v)
+    local sent,status=client:send(v)
     if status then
       error(status)
     end
   end
 
-  local function right()
-    print ("sending right")
-    local sent,status=client:send(2)
-    if status then
-      error(status)
-    end
-  end
-  return left,right
+  return sendValue
 end
 
-local function attemptConnect(onConnect)
-  local ok,left,right=pcall(connect)
+local function attemptConnect(port,onConnect)
+  local ok,sendValue=pcall(connect,port)
   if ok then
-    return onConnect(left,right)
+    return onConnect(sendValue)
   end
-  timer.performWithDelay(500, function() attemptConnect(onConnect) end)
+  timer.performWithDelay(500, function() attemptConnect(port,onConnect) end)
 end
 
 local isServerRunning=[[
@@ -59,18 +49,17 @@ for pid in $(pgrep -f arduino-serial-server.+%s); do
 done
 ]]
 
-function startServer(path,device,onConnect)
+function startServer(path,device,port,onConnect)
   local cmd=isServerRunning:format(device)
   local isRunning=os.execute(cmd)
   if isRunning>0 then
-    return attemptConnect(onConnect)
+    return attemptConnect(port,onConnect)
   end
   path=path:gsub("%s","\\ ")
-  local startServerShellCmd=path..(" -a %s -p %d &"):format(device,PORT)
-  print (startServerShellCmd)
+  local startServerShellCmd=path..(" -a %s -p %d &"):format(device,port)
   os.execute(startServerShellCmd)
-  timer.performWithDelay(1000,function() 
-    startServer(path,device,onConnect) 
+  timer.performWithDelay(1000,function()
+    startServer(path,device,port,onConnect)
   end)
 end
 
