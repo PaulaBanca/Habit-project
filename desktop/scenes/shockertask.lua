@@ -6,7 +6,8 @@ local Runtime=Runtime
 local tunemanager=require "tunemanager"
 local trialorder=require "util.trialorder"
 local findfile=require "util.findfile"
-local shocker=require "shocker.shockermessager"
+local shocker=require "shocker.shockermessenger"
+local biopac=require "biopac.biopacmessenger"
 local stimuli=require "stimuli"
 local logger=require "util.logger"
 local usertimes=require "util.usertimes"
@@ -21,6 +22,7 @@ local math=math
 local system=system
 local native=native
 local print=print
+local tostring=tostring
 local serpent=require "serpent"
 
 setfenv(1,scene)
@@ -28,24 +30,44 @@ setfenv(1,scene)
 local noShocker=false
 composer.setVariable("shockerpreferred","Left")
 
-
-function queryMissingArduino(arduinoName,retryPage,continuePage)
+local connectArduinos
+function queryMissingArduino(arduinoName,continueFunc)
   local function onComplete(event)
     if event.action == "clicked" then
       local i=event.index
-      local page
-      if i==1 then
-        page=retryPage
-      elseif i==2 then
-        page=continuePage
-      end
-      composer.gotoScene("scenes.shockertask",{params={page=page}})
+      timer.performWithDelay(1,i==1 and connectArduinos or continueFunc)
       return
     end
   end
 
   local warning=arduinoName .. " could not be found. Would you like to continue?"
   native.showAlert("Arduino Not Found",warning, { "Retry", "Yes" }, onComplete)
+end
+
+local dontCare={}
+local function checkArduinoDeviceFiles(arduinos)
+  if not dontCare["Arduino-Controller"] and not arduinos["Arduino-Controller"] then
+    queryMissingArduino("Shocker Controller",function()
+      dontCare["Arduino-Controller"]=true
+      connectArduinos()
+    end)
+    return false
+  elseif not dontCare["BIOPAC-Controller"] and not arduinos["BIOPAC-Controller"] then
+    queryMissingArduino("BIOPac Controller",function()
+      dontCare["BIOPAC-Controller"]=true
+      connectArduinos()
+    end)
+    return false
+  end
+  return true
+end
+
+local function getArduinoDeviceFiles(onComplete)
+  local path=findfile.find("arduino-serial")
+  local arduinos=identifyarduinos.createControllerTable(path)
+  if checkArduinoDeviceFiles(arduinos) then
+    onComplete(arduinos)
+  end
 end
 
 local debugShocker=function(side)
@@ -60,10 +82,68 @@ local debugShocker=function(side)
   transition.to(c, {alpha=0,onComplete=function(obj) obj:removeSelf() end})
 end
 
-local REACTION_TIME=0.25*1000
-local SAFE_ID=6
-
 local shockerCalls={}
+local sendBIOPacSignal=function(v)
+  local group=display.newGroup()
+  group:translate(display.contentCenterX,display.contentCenterY)
+  local c=display.newCircle(group,0,0,80)
+  c:setFillColor(1)
+  display.newText({
+    parent=group,
+    text=tostring(v),
+    fontSize=60,
+  })
+  transition.to(group, {alpha=0,onComplete=function(obj) 
+    obj:removeSelf() 
+  end})
+end
+
+local SAFE_ID=6
+connectArduinos=function()
+  local serialpath=findfile.find("arduino-serial-server")
+
+  assert(serialpath,"arduino-serial-server not found. Please make sure it is in your Home directory.")
+  local function mapShockerFuctions(activateLeftShocker,activateRightShocker)
+    local sides={left=activateLeftShocker,right=activateRightShocker}
+    local setup={}
+    local opposite={left="right",right="left"}
+    setup.preferred=composer.getVariable("shockerpreferred"):lower()
+    setup.discarded=assert(opposite[setup.preferred])
+    setup=_.map(setup,function(_,v)
+      return assert(sides[v])
+    end)
+    shockerCalls[tunemanager.getID("preferred")]=setup.preferred
+    shockerCalls[tunemanager.getID("discarded")]=setup.discarded
+    shockerCalls[tunemanager.getID("preferred",5)]=setup.preferred
+    shockerCalls[tunemanager.getID("discarded",5)]=setup.discarded
+    shockerCalls[SAFE_ID]=function() end
+  end
+  getArduinoDeviceFiles(function(arduinos)
+    if not arduinos["Arduino-Controller"] then
+      mapShockerFuctions(
+        function() debugShocker("left") end,
+        function() debugShocker("right") end
+      )
+    else
+      shocker.connect(serialpath,arduinos["Arduino-Controller"],
+        function(activateLeftShocker,activateRightShocker)
+        mapShockerFuctions(activateLeftShocker,activateRightShocker)
+      end)
+    end
+    if arduinos["BIOPAC-Controller"] then
+      biopac.connect(serialpath,arduinos["BIOPAC-Controller"],
+        function(sendSignal)
+        sendBIOPacSignal=sendSignal 
+      end)
+    end
+    composer.gotoScene("scenes.shockertask",{params={page=4}})
+  end)
+end
+
+local REACTION_TIME=0.25*1000
+local TASK_SIGNAL=1
+local SHOCK_SIGNAL=2
+
 local trials={}
 function start(config)
   local count=0
@@ -90,6 +170,7 @@ function start(config)
     if not tune then
       return composer.gotoScene(nextScene,{params=nextParams})
     end
+    sendBIOPacSignal(1)
     local startTime=system.getTimer()
     count=count+1
     local opts={}
@@ -101,6 +182,7 @@ function start(config)
         if not shockerCalls[tunemanager.getID(tune)] then
           print (tune,tunemanager.getID(tune),serpent.block(shockerCalls,{comment=false}))
         end
+        sendBIOPacSignal(2)
         shockerCalls[tunemanager.getID(tune)]()
       end
       logField("sequence",tune)
@@ -111,6 +193,7 @@ function start(config)
       logField("time limit",time)
       logField("round time", system.getTimer()-startTime)
       logField("debug", usertimes.toString())
+      sendBIOPacSignal(1)
       showFixationCross()
     end
     opts.tune=tunemanager.getID(tune)
@@ -142,43 +225,8 @@ local pageSetup={
     text="Please wait... initialising equipment",
     noKeys=true,
     onShow=function()
-
-      local path=findfile.find("arduino-serial")
-      local arduinos=identifyarduinos.createControllerTable(path)
-
-      if not arduinos["Arduino-Controller"] then
-        return queryMissingArduino("Shocker Controller",3,4)
-      elseif not arduinos["BIOPAC-Controller"] then
-        return queryMissingArduino("BIOPac Controller",3,4)
-      end
-      local serialpath=findfile.find("arduino-serial-server")
-
-      assert(serialpath,"arduino-serial-server not found. Please make sure it is in your Home directory.")
-      local function mapShockerFuctions(activateLeftShocker,activateRightShocker)
-        local sides={left=activateLeftShocker,right=activateRightShocker}
-        local setup={}
-        local opposite={left="right",right="left"}
-        setup.preferred=composer.getVariable("shockerpreferred"):lower()
-        setup.discarded=assert(opposite[setup.preferred])
-        setup=_.map(setup,function(_,v)
-          return assert(sides[v])
-        end)
-        shockerCalls[tunemanager.getID("preferred")]=setup.preferred
-        shockerCalls[tunemanager.getID("discarded")]=setup.discarded
-        shockerCalls[tunemanager.getID("preferred",5)]=setup.preferred
-        shockerCalls[tunemanager.getID("discarded",5)]=setup.discarded
-        shockerCalls[SAFE_ID]=function() end
-      end
-      if noShocker then
-        mapShockerFuctions(function() debugShocker("left") end,function() debugShocker("right") end)
-        composer.gotoScene("scenes.shockertask",{params={page=4}})
-        return
-      end
-      shocker.startServer(serialpath,arduinos["Arduino-Controller"],function(activateLeftShocker,activateRightShocker)
-        mapShockerFuctions(activateLeftShocker,activateRightShocker)
-        composer.gotoScene("scenes.shockertask",{params={page=4}})
-      end)
-  end},
+      connectArduinos()
+    end},
   {text="These are the symbols you will see",img=function()
     local group=display.newGroup()
     local images={tunemanager.getID("preferred"),tunemanager.getID("discarded"),SAFE_ID}
