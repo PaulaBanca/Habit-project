@@ -341,7 +341,10 @@ local pageSetup={
   end},
   {text="Let’s do the task again!\n\nPress a button to continue.",
     onKeyPress=function()
-      trials=trialorder.generate({{value="discarded",n=30},{value="preferred",n=30},{value=SAFE_ID,n=30}},15)
+      trials=trialorder.generate({
+        {value="discarded",n=30},
+        {value="preferred",n=30},
+        {value=SAFE_ID,n=30}},15)
       local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
       local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
