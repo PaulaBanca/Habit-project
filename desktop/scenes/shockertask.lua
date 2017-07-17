@@ -27,7 +27,6 @@ local serpent=require "serpent"
 
 setfenv(1,scene)
 
-local noShocker=false
 composer.setVariable("shockerpreferred","Left")
 
 local connectArduinos
