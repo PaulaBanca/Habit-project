@@ -34,23 +34,27 @@ function start(startFunc,noTouchesFunc)
   bg:toBack()
   bg:setFillColor(0, 0.6)
 
-  local hitSensor=display.newRect(display.contentCenterX, display.contentCenterY,display.actualContentWidth,display.actualContentHeight)
+  local hitSensor=display.newRect(
+    display.contentCenterX,
+    display.contentCenterY,
+    display.actualContentWidth,
+    display.actualContentHeight)
   hitSensor.isHitTestable=true
   hitSensor.isVisible=false
-
+ 
   instructionGroup:translate(display.contentCenterX, display.contentCenterY)
   local restingTouches={}
-
   local listener=function(event)
     if event.phase=="began" then
-      restingTouches[event.id]=true
-      local first=instructionGroup.isVisible
-      if first then
-        startFunc()
-        display.getCurrentStage():setFocus(hitSensor,event.id)
+      local first=next(restingTouches)==nil
+      if not first then
+        return false
       end
+      restingTouches[event.id]=true
+      startFunc()
+      display.getCurrentStage():setFocus(hitSensor,event.id)
       instructionGroup.isVisible=false
-      return first
+      return true
     end
     if event.phase=="cancelled" or event.phase=="ended" then
       restingTouches[event.id]=nil
