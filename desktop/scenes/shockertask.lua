@@ -87,14 +87,14 @@ local sendBIOPacSignal=function(v)
   local group=display.newGroup()
   group:translate(display.contentCenterX,display.contentCenterY)
   local c=display.newCircle(group,0,0,80)
-  c:setFillColor(1)
+  c:setFillColor(0)
   display.newText({
     parent=group,
     text=tostring(v),
     fontSize=60,
   })
-  transition.to(group, {alpha=0,onComplete=function(obj) 
-    obj:removeSelf() 
+  transition.to(group, {alpha=0,onComplete=function(obj)
+    obj:removeSelf()
   end})
 end
 
@@ -170,7 +170,7 @@ function start(config)
     if not tune then
       return composer.gotoScene(nextScene,{params=nextParams})
     end
-    sendBIOPacSignal(1)
+    sendBIOPacSignal(TASK_SIGNAL)
     local startTime=system.getTimer()
     count=count+1
     local opts={}
@@ -178,11 +178,12 @@ function start(config)
     local time=config.getTaskTime()+REACTION_TIME
     opts.time=time
     opts.onComplete=function(shock,sequencesCompleted,mistakes)
+      local biopacCmd=TASK_SIGNAL
       if shock and config.enableShocks or config.forceShock then
         if not shockerCalls[tunemanager.getID(tune)] then
           print (tune,tunemanager.getID(tune),serpent.block(shockerCalls,{comment=false}))
         end
-        sendBIOPacSignal(2)
+        biopacCmd=biopacCmd+SHOCK_SIGNAL
         shockerCalls[tunemanager.getID(tune)]()
       end
       logField("sequence",tune)
@@ -193,7 +194,7 @@ function start(config)
       logField("time limit",time)
       logField("round time", system.getTimer()-startTime)
       logField("debug", usertimes.toString())
-      sendBIOPacSignal(1)
+      sendBIOPacSignal(biopacCmd)
       showFixationCross()
     end
     opts.tune=tunemanager.getID(tune)
