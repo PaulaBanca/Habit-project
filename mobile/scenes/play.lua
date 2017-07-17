@@ -336,6 +336,7 @@ function setupNextKeys()
   if scene.keys:hasPendingInstruction() or headless then
     return
   end
+
   scene.keys:enable()
   state.increment("stepID")
   local index=getIndex()
@@ -354,6 +355,9 @@ function setupNextKeys()
       scene.view:insert(hint)
       hint:toBack()
     end
+  end
+  if scene.deadSensor then
+    scene.deadSensor:toFront()
   end
 end
 
@@ -837,7 +841,6 @@ function scene:show(event)
     self.keys:disable()
   end)
   self.view:insert(deadSensor)
-  deadSensor:toBack()
   self.deadSensor=deadSensor
   self.view:insert(deadMansSwitchGroup)
   self.deadMansSwitchGroup=deadMansSwitchGroup
