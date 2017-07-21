@@ -1,11 +1,9 @@
 local composer=require "composer"
 local scene=composer.newScene()
 
-local server=require "server"
 local events=require "events"
 local serpent=require "serpent"
 local tunes=require "tunes"
-local stimuli=require "stimuli"
 local countdown=require "ui.countdown"
 local keyeventslisteners=require "util.keyeventslisteners"
 local notes=require "notes"
@@ -15,28 +13,24 @@ local progress=require "ui.progress"
 local sound=require "sound"
 local transition=transition
 local display=display
-local table=table
 local pairs=pairs
 local print=print
 local timer=timer
 local tonumber=tonumber
-local next=next
 local unpack=unpack
 local NUM_KEYS=NUM_KEYS
 
 setfenv(1,scene)
-
-local tns=tunes.getTunes()
-local stim={}
-for i=1,#tns do
-  stim[i]=tunes.getStimulus(tns[i])
-end
 
 function scene:show(event)
   if event.phase=="did" then
     return
   end
   local tuneLearning=event.params.tune
+  local logFile=event.params.logInputFilename or "learntune"
+  local startAdvanced=event.params.advanced
+  local nextScene=event.params.nextScene or "scenes.practiceintro"
+  local iterations=event.params.iterations or 20
   local img=tunemanager.getImg(tuneLearning)
   scene.view:insert(img)
   img.anchorY=1
@@ -51,13 +45,13 @@ function scene:show(event)
     y=img and (img.y-img.height-200) or display.contentCenterY
   })
   start:setFillColor(0)
-  
+
   local counter=countdown.create(3*1000,80)
   counter:translate(display.contentCenterX,start.y+counter.height)
   counter:start()
 
   local circles={}
-  do 
+  do
     local cr=80
     local cpadding=50
     local ctw=cr*2*NUM_KEYS+cpadding*(NUM_KEYS-1)
@@ -92,7 +86,7 @@ function scene:show(event)
     end
     local instructions=tuneSteps[index]
     local scientficNotes=keylayout.layout(instructions)
-    
+
     if noLights and not hints[index] then
       return
     end
@@ -105,7 +99,7 @@ function scene:show(event)
   end
 
   transition.to(counter,{alpha=0,delay=2500,time=500,onComplete=function(obj) obj:removeSelf() end})
-  
+
   self.timer=timer.performWithDelay(3000, function()
     self.timer=nil
     start.text="Go!"
@@ -138,7 +132,7 @@ function scene:show(event)
     count:setFillColor(0)
 
     local steps=1
-    local advancedMode=false
+    local advancedMode=startAdvanced
     local hints={}
     highlightKeys(steps,advancedMode,hints)
     local reset
@@ -165,7 +159,7 @@ function scene:show(event)
     end
     local resetMeterTimer
     local onPlay,onRelease,_r=keyeventslisteners.create({
-      logName="learntune",
+      logName=logFile,
       onTuneComplete=function(tune)
         if tune~=tuneLearning then
           madeMistake()
@@ -175,9 +169,11 @@ function scene:show(event)
           count.text=n
           steps=1
 
-          if n==40 then
-            composer.gotoScene("scenes.practiceintro",{params={page=event.params.page}})
-          elseif n>=20 then
+          if advancedMode and (
+            (startAdvanced and n==iterations) or
+            (not startAdvanced and n==iterations*2)) then
+            composer.gotoScene(nextScene,{params={page=event.params.page}})
+          elseif n>=iterations then
             advancedMode=true
           end
           meter:mark(6,true)

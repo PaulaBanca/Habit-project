@@ -2,6 +2,7 @@ local composer=require "composer"
 local scene=composer.newScene()
 
 local logger=require "util.logger"
+local versionoptions=require "options.versionoptions"
 local native=native
 local display=display
 local system=system
@@ -15,8 +16,12 @@ function scene:show(event)
 
   if system.getInfo("environment")=="simulator" then
     logger.setUserID("test")
-    composer.gotoScene("scenes.counterbalance")   
-    return 
+    composer.gotoScene("scenes.optionsmenu",{
+      params={
+        options=versionoptions.create()
+      }
+    })
+    return
   end
   local userIDField
   local instruction
@@ -28,7 +33,11 @@ function scene:show(event)
         if event.action == "clicked" then
           if event.index==1 then
             userIDField:removeSelf()
-            composer.gotoScene("scenes.counterbalance")
+            composer.gotoScene("scenes.optionsmenu",{
+              params={
+                options=versionoptions.create()
+              }
+            })
           end
         end
       end)
