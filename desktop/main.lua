@@ -4,25 +4,6 @@ local logger=require "util.logger"
 logger.setUserID("test")
 display.setDefault("background", 1, 1, 1)
 local function start()
-  -- local doorschedule=require "doorschedule"
-  -- doorschedule.start()
-  -- function run()
-  --   local opts=doorschedule.nextRound()
-  --   local opts=doorschedule.nextRound()
-  --   opts.logChoicesFilename="doors-choices"
-  --   opts.logInputFilename="doors-inputs"
-  --   opts.doors=true
-  --   opts.onTuneComplete=function(tune,reward,side)
-  --     composer.gotoScene("scenes.doorresult",{params={reward=reward,track=tune,side=side,onClose=run,[[nextScene=event.params.nextScene,nextParams=event.params.nextParams]]}})
-  --   end
-
-  --   composer.gotoScene("scenes.tuneselection",{params=opts})
-  -- end
-  -- local vischedule=require "util.vischedulen"
-  -- vischedule.setup(2,30000,1000)
-  -- vischedule.start()
-
-  -- run()
   local seed=require "scenes.seed"
   seed.setup(function()
     local stimuli=require "stimuli"
