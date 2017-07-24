@@ -7,6 +7,7 @@ local keyeventslisteners=require "util.keyeventslisteners"
 local display=display
 local print=print
 local timer=timer
+local system=system
 local math=math
 
 setfenv(1,scene)
@@ -24,8 +25,9 @@ function scene:show(event)
   local mistakes=0
   local completed=0
   local shock=true
+  local sequenceTimes={}
   self.timer=timer.performWithDelay(event.params.time, function()
-    event.params.onComplete(shock,completed,mistakes)
+    event.params.onComplete(shock,completed,mistakes,sequenceTimes)
     self.timer=nil
   end)
 
@@ -36,6 +38,7 @@ function scene:show(event)
     reset()
   end
 
+  local startTime=system.getTimer()
   local onPlay,onRelease,_r=keyeventslisteners.create({
     logName=event.params.logInputFilename,
     onTuneComplete=function(tune)
@@ -45,12 +48,14 @@ function scene:show(event)
         shock=mistakes>0
         completed=completed+1
       end
+      sequenceTimes[#sequenceTimes+1]=system.getTimer()-startTime
+      startTime=system.getTimer()
     end,
     onMistake=madeMistake,
     onGoodInput=function() end,
     getSelectedTune=function() return tunePlaying end,
     allowWildCard=tunePlaying<0,
-    getWildCardLenght=function() return math.abs(tunePlaying) end
+    getWildCardLength=function() return math.abs(tunePlaying) end
   })
   reset=_r
   events.addEventListener("key played",onPlay)

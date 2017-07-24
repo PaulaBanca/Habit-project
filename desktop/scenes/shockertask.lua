@@ -23,6 +23,7 @@ local system=system
 local native=native
 local print=print
 local tostring=tostring
+local unpack=unpack
 local serpent=require "serpent"
 
 setfenv(1,scene)
@@ -146,7 +147,8 @@ local SHOCK_SIGNAL=2
 local trials={}
 function start(config)
   local count=0
-  local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock","time limit", "round time","debug"})
+  local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock","time limit", "round time","debug",
+    "sequence time"})
   local nextScene,nextParams=config.nextScene,config.nextParams
   local run
 
@@ -176,7 +178,7 @@ function start(config)
     opts.logInputFilename=config.inputLogFile
     local time=config.getTaskTime()+REACTION_TIME
     opts.time=time
-    opts.onComplete=function(shock,sequencesCompleted,mistakes)
+    opts.onComplete=function(shock,sequencesCompleted,mistakes,sequenceTimes)
       local biopacCmd=TASK_SIGNAL
       if shock and config.enableShocks or config.forceShock then
         if not shockerCalls[tunemanager.getID(tune)] then
@@ -192,6 +194,7 @@ function start(config)
       logField("shock",shock and config.enableShocks)
       logField("time limit",time)
       logField("round time", system.getTimer()-startTime)
+      logField("sequence time",#sequenceTimes>0 and math.min(unpack(sequenceTimes)))
       logField("debug", usertimes.toString())
       sendBIOPacSignal(biopacCmd)
       showFixationCross()
