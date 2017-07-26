@@ -25,7 +25,7 @@ local pageSetup={
   {
     text="Now you will be given 2 sequences to choose from. You can play either of them and switch as you go.\n\nSelect the sequences using the left and right pads.",
     onKeyPress=function()
-      local options={leftTune=tunemanager.getID("discarded"),rightTune="preferred"}
+      local options={leftTune=1,rightTune=2}
       local switch=composer.getVariable("preferencetest")[3].switch
       if switch then options.leftTune,options.rightTune=options.rightTune,options.leftTune end
       composer.gotoScene("scenes.tuneselection",{params={iterations=15,logChoicesFilename="preferencetest-choices-1",logInputFilename="preferencetest-inputs-1",leftTune=options.leftTune,rightTune=options.rightTune,page=4}}) end
