@@ -147,7 +147,7 @@ local SHOCK_SIGNAL=2
 local trials={}
 function start(config)
   local count=0
-  local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock","time limit", "round time","debug",
+  local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock","time window","debug",
     "sequence time"})
   local nextScene,nextParams=config.nextScene,config.nextParams
   local run
@@ -192,8 +192,7 @@ function start(config)
       logField("mistakes",mistakes)
       logField("date",os.date())
       logField("shock",shock and config.enableShocks)
-      logField("time limit",time)
-      logField("round time", system.getTimer()-startTime)
+      logField("time window", system.getTimer()-startTime)
       logField("sequence time",#sequenceTimes>0 and math.min(unpack(sequenceTimes)))
       logField("debug", usertimes.toString())
       sendBIOPacSignal(biopacCmd)
