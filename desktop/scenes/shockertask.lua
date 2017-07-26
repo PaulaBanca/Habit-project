@@ -176,7 +176,7 @@ function start(config)
     count=count+1
     local opts={}
     opts.logInputFilename=config.inputLogFile
-    local time=config.getTaskTime()+REACTION_TIME
+    local time=config.getTaskTime(tune)
     opts.time=time
     opts.onComplete=function(shock,sequencesCompleted,mistakes,sequenceTimes)
       local biopacCmd=TASK_SIGNAL
@@ -202,6 +202,45 @@ function start(config)
     composer.gotoScene("scenes.playtune",{params=opts})
   end
   showFixationCross()
+end
+
+function createTaskTimeFunc(numTrials)
+  local averages={
+    usertimes.getAverage(1),
+    usertimes.getAverage(2)
+}
+  local sds={
+    usertimes.getStandardDeviation(1),
+    usertimes.getStandardDeviation(2),
+  }
+
+  local types={"discarded","preferred"}
+  for i=1,2 do
+    local pruncTune=tunemanager.getID(types[i],5)
+    averages[pruncTune]=averages[i]
+    sds[pruncTune]=sds[i]
+  end
+
+  local quartTrials=math.floor(numTrials/4+0.5)
+  local sdOffsets=_({-2,-1,1,2}):map(
+    function(k,v) return _.rep(v,quartTrials) end
+  ):flatten():shuffle():value()
+  local count=0
+  return function (tune)
+    if tune==SAFE_ID then
+      tune=math.random(2)
+    end
+    tune=tunemanager.getID(tune)
+    count=count+1
+    if count>#sdOffsets then
+      count=1
+    end
+    if not sds[tune] then
+      print (tune,tunemanager.getID(tune),serpent.block(sds))
+    end
+    local offSet=sdOffsets[count]*sds[tune]
+    return averages[tune]+offSet
+  end
 end
 
 local pageSetup={
@@ -280,11 +319,18 @@ local pageSetup={
         {value="discarded",n=5},
         {value="preferred",n=5},
         {value=SAFE_ID,n=5}},5)
-      local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
 
-      local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
-
-      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=9},enableShocks=true,inputLogFile="shocker-inputs-over-training-1",taskLogFile="shocker-summary-over-training-1"})
+      start({
+        getTaskTime=createTaskTimeFunc(#trials),
+        itTime=function() return 8000+math.random(2000) end,
+        nextScene="scenes.shockertask",
+        nextParams={
+          page=9
+        },
+        enableShocks=true,
+        inputLogFile="shocker-inputs-over-training-1",
+        taskLogFile="shocker-summary-over-training-1"
+      })
     end
  },
  {
@@ -298,9 +344,17 @@ local pageSetup={
       local sd=usertimes.getStandardDeviation(tune)
       tune=tunemanager.getID("preferred",5)
       trials={tune,tune,tune}
-      start({getTaskTime=function()
-        return average+sd*2
-      end,itTime=function() return 2000 end,nextScene="scenes.shockertask",nextParams={page=10},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred5",taskLogFile="shocker-summary-practice-preferred5"})
+      start({
+        getTaskTime=function() return average+sd*2 end,
+        itTime=function() return 2000 end,
+        nextScene="scenes.shockertask",
+        nextParams={
+          page=10
+        },
+        enableShocks=true,
+        inputLogFile="shocker-inputs-practice-preferred5",
+        taskLogFile="shocker-summary-practice-preferred5"
+      })
     end
   },
   {
@@ -317,12 +371,23 @@ local pageSetup={
   },
   {text="Let’s do the task now!\n\nPress a button to continue.",
     onKeyPress=function()
-      trials=trialorder.generate({{value="discarded",n=10},{value=tunemanager.getID("preferred",5),n=10},{value=SAFE_ID,n=10}},6)
-      local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
-
-      local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
-
-      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=14},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-1",taskLogFile="shocker-summary-breaking-habit-1"})
+      trials=trialorder.generate({
+        {value="discarded",n=10},
+        {value=tunemanager.getID("preferred",5),n=10},
+        {value=SAFE_ID,n=10}
+      },6)
+      
+      start({
+        getTaskTime=createTaskTimeFunc(#trials),
+        itTime=function() return 8000+math.random(2000) end,
+        nextScene="scenes.shockertask",
+        nextParams={
+          page=14
+        },
+        enableShocks=true,
+        inputLogFile="shocker-inputs-breaking-habit-1",
+        taskLogFile="shocker-summary-breaking-habit-1"
+      })
     end
   },
   {text="Interval\n\nTake a break!\n\nPress a button to continue."},
@@ -346,12 +411,19 @@ local pageSetup={
       trials=trialorder.generate({
         {value="discarded",n=30},
         {value="preferred",n=30},
-        {value=SAFE_ID,n=30}},15)
-      local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
-
-      local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
-
-      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=18},enableShocks=true,inputLogFile="shocker-inputs-over-training-2",taskLogFile="shocker-summary-over-training-2"})
+        {value=SAFE_ID,n=30}
+      },15)
+      start({
+        getTaskTime=createTaskTimeFunc(#trials),
+        itTime=function() return 8000+math.random(2000) end,
+        nextScene="scenes.shockertask",
+        nextParams={
+          page=18
+        },
+        enableShocks=true,
+        inputLogFile="shocker-inputs-over-training-2",
+        taskLogFile="shocker-summary-over-training-2"
+      })
     end
   },
   {
@@ -387,12 +459,20 @@ local pageSetup={
       trials=trialorder.generate({
         {value=tunemanager.getID("discarded",5),n=15},
         {value="preferred",n=15},
-        {value=SAFE_ID,n=15}},9)
-      local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
+        {value=SAFE_ID,n=15}
+      },9)
 
-      local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
-
-      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.shockertask",nextParams={page=23},enableShocks=true,inputLogFile="shocker-inputs-breaking-habit-2",taskLogFile="shocker-summary-breaking-habit-2"})
+      start({
+        getTaskTime=createTaskTimeFunc(#trials),
+        itTime=function() return 8000+math.random(2000) end,
+        nextScene="scenes.shockertask",
+        nextParams={
+          page=23
+        },
+        enableShocks=true,
+        inputLogFile="shocker-inputs-breaking-habit-2",
+        taskLogFile="shocker-summary-breaking-habit-2"
+      })
     end
   },
   {text="Interval\n\nTake a break!\n\nPress a button to continue."},
@@ -418,13 +498,22 @@ local pageSetup={
   end},
   {
     text="Let’s do the task now!\n\nPress a button to continue.",
-    onShow=function() trials=trialorder.generate({{value=tunemanager.getID("discarded"),n=5},{value=tunemanager.getID("preferred"),n=5},{value=SAFE_ID,n=5}},5) end,
+    onShow=function() 
+      trials=trialorder.generate({
+        {value=tunemanager.getID("discarded"),n=5},
+        {value=tunemanager.getID("preferred"),n=5},
+        {value=SAFE_ID,n=5}
+      },5) end,
     onKeyPress=function()
-      local maxAverage=math.max(usertimes.getAverage(tunemanager.getID("discarded")),usertimes.getAverage(tunemanager.getID("preferred")))
-
-      local sd=math.max(usertimes.getStandardDeviation(tunemanager.getID("discarded")),usertimes.getStandardDeviation(tunemanager.getID("preferred")))
-
-      start({getTaskTime=function() return maxAverage+2*sd end,itTime=function() return 8000+math.random(2000) end,nextScene="scenes.thankyou",nextParams=nil,trialLimit=nil,enableShocks=false,inputLogFile="shocker-inputs-disconnected",taskLogFile="shocker-summary-disconnected"}) end
+      start({
+        getTaskTime=createTaskTimeFunc(#trials),
+        itTime=function() return 8000+math.random(2000) end,
+        nextScene="scenes.thankyou",
+        nextParams=nil,trialLimit=nil,
+        enableShocks=false,
+        inputLogFile="shocker-inputs-disconnected",
+        taskLogFile="shocker-summary-disconnected"
+      }) end
   }
 }
 
