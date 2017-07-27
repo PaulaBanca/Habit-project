@@ -20,7 +20,7 @@ local function start()
   local skipTool={}
   skipTool[1]=function()
     page=page+1
-    if page==17 then
+    if page==18 then
       page=0
       return true
     end

@@ -199,7 +199,15 @@ local pageSetup={
 
           local payout=vischedule.reward(viMapping[tunemanager.getID(matched.tune)])
           overLayIsOpen=true
-          composer.showOverlay("scenes.doorresult",{params={time=1000,matched=matched,notMatched=notMatched,payout=payout,chest=matched.door,loggerFieldTask="door-2",gems=true,onClose=function()
+          composer.showOverlay("scenes.doorresult",{params={
+            time=1000,
+            matched=matched,
+            notMatched=notMatched,
+            payout=payout,
+            chest=matched.door,
+            loggerFieldTask="door-2",
+            gems=true,
+            onClose=function()
             if images[1].removeSelf then
               for i=1,#images do
                 local img=images[i]
@@ -230,6 +238,15 @@ local pageSetup={
       run()
       end
     },
+    {text="Lets have a quick reminder of the new sequence you just learned",img=function()
+    return stimuli.getStimulus(3)
+    end,onKeyPress=function() composer.gotoScene("scenes.learntune", {params={
+      iterations=3,
+      tune=tunemanager.getID(3),
+      page=17
+    }})
+    end},
+    
     {text="Now the chests always contain gems. However, there are bigger rewards in some chests than others.\n\nRemember: the more gems you get the more money you will earn at the end of the task.\n\nTry to win as much as you can.",
     onKeyPress=function()
       doorschedule.start(3)
