@@ -158,6 +158,7 @@ local pageSetup={
         opts.logInputFilename="doors-inputs-2"
         opts.doors=true
         opts.timed=60*1000
+        opts.hideTimed=true
 
         local overLayIsOpen
         opts.onTimerComplete=function()

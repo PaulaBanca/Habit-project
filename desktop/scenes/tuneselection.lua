@@ -484,10 +484,11 @@ function scene:setupWinnings(leftReward,rightReward,titrateTune)
   end
 end
 
-function scene:startTimer(time,listener)
+function scene:startTimer(time,hide,listener)
   local counter=countdown.create(time,80)
   counter:translate(display.contentCenterX,display.contentHeight-counter.height)
   counter:start()
+  counter.isVisible=false
   self.view:insert(counter)
   local t=timer.performWithDelay(time,listener)
 
@@ -671,7 +672,7 @@ function scene:show(event)
     end
     if timed then
       assert(event.params.onTimerComplete,"Time parameter requires onTimerComplete parameter")
-      self:startTimer(timed,event.params.onTimerComplete)
+      self:startTimer(timed,event.params.hideTimed,event.params.onTimerComplete)
     end
     if event.params.iterations then
       local timerGroup
