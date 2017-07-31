@@ -19,6 +19,8 @@ local os=os
 local Runtime=Runtime
 local system=system
 local math=math
+local type=type
+local print=print
 
 setfenv(1,scene)
 
@@ -270,7 +272,6 @@ function scene:show(event)
         timeField("sequence",tunePracticing)
         timeField("date",os.date())
         local tuneCompleteTime=system.getTimer()-time
-        usertimes.addTime(tunePracticing,tuneCompleteTime)
         timeField("time to complete",tuneCompleteTime)
         time=system.getTimer()
 
@@ -280,12 +281,15 @@ function scene:show(event)
       end
       local onPlay,onRelease,_r=keyeventslisteners.create({
         logName=event.params.logInputFilename,
-        onTuneComplete=function(tune)
+        onTuneComplete=function(tune,timeCompletedIn)
           if tune~=tunePracticing then
             madeMistake(MAX_ITER and "no tunes" or "mistake")
           elseif not isSelected then
             madeMistake("not selected")
           else
+            if type(timeCompletedIn)=="number" then
+              usertimes.addTime(tunePracticing,timeCompletedIn)
+            end
             inMistakeStreak=false
             self.meter:mark(6,true)
             markCompleted()

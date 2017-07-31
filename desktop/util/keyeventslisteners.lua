@@ -16,9 +16,9 @@ setfenv(1,M)
 
 function create(opts)
   local startTime=nil
-  local wrapper=function(f,arg)
+  local wrapper=function(f,...)
     startTime=nil
-    f(arg)
+    f(...)
   end
   local onTuneComplete=_.wrap(assert(opts.onTuneComplete),wrapper)
   local onMistake=_.wrap(assert(opts.onMistake),wrapper)
@@ -127,12 +127,13 @@ function create(opts)
       complete=tune==getSelectedTune() or wildcardCompleted
     end
 
-    logInput("sequence millis",startTime and (system.getTimer()-startTime) or "n/a")
+    local sequenceTime=startTime and (system.getTimer()-startTime) or "n/a"
+    logInput("sequence millis",sequenceTime)
     if mistake then
       onMistake()
     elseif complete then
       wildcardSteps=0
-      onTuneComplete(tune or -getWildCardLength())
+      onTuneComplete(tune or -getWildCardLength(),sequenceTime)
     else
       onGoodInput({complete=isComplete,allReleased=allReleased,phase="released",matchingTunes=matchingTunes})
       isComplete=isComplete and not allReleased
