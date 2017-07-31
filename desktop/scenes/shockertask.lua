@@ -299,8 +299,14 @@ local pageSetup={
       local sd=usertimes.getStandardDeviation(tune)
       trials={tune,tune,tune}
       start({itTime=function() return 2000 end,getTaskTime=function()
-        return average+sd*2
-      end,nextScene="scenes.shockertask",nextParams={page=6},enableShocks=true,inputLogFile="shocker-inputs-practice-preferred",taskLogFile="shocker-summary-practice-preferred"})
+        return REACTION_TIME+average+sd*2
+      end,
+      nextScene="scenes.shockertask",
+      nextParams={page=6},
+      enableShocks=true,
+      forceShock=true,
+      inputLogFile="shocker-inputs-practice-preferred",
+      taskLogFile="shocker-summary-practice-preferred"})
     end
   },
   {
@@ -313,8 +319,14 @@ local pageSetup={
       local sd=usertimes.getStandardDeviation(tune)
       trials={tune,tune,tune}
       start({itTime=function() return 2000 end,getTaskTime=function()
-        return average+sd*2
-      end,nextScene="scenes.shockertask",nextParams={page=7},enableShocks=true,inputLogFile="shocker-inputs-practice-discarded",taskLogFile="shocker-summary-practice-discarded"})
+        return REACTION_TIME+average+sd*2
+      end,
+      nextScene="scenes.shockertask",
+      nextParams={page=7},
+      enableShocks=true,
+      forceShock=true,
+      inputLogFile="shocker-inputs-practice-discarded",
+      taskLogFile="shocker-summary-practice-discarded"})
     end
   },
   {text="This is a SAFE symbol. You will NEVER be shocked when you seen this symbol.\n\nYou do NOT need to play anything.",img=function()
