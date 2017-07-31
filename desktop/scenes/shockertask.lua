@@ -140,11 +140,22 @@ connectArduinos=function()
   end)
 end
 
-local REACTION_TIME=0.25*1000
+local REACTION_TIME=0.75*1000
 local TASK_SIGNAL=1
 local SHOCK_SIGNAL=2
 
 local trials={}
+local delays={}
+
+local function logDelay(tune,delay)
+  if not delay then
+    return
+  end
+  local tuneDelays=delays[tune] or {}
+  tuneDelays[#tuneDelays+1]=delay
+  delays[tune]=tuneDelays
+end
+
 function start(config)
   local count=0
   local logField=logger.create(config.taskLogFile,{"date","system millis","sequence","sequences completed","mistakes","shock","time window","debug",
@@ -215,26 +226,35 @@ function start(config)
 end
 
 function createTaskTimeFunc(numTrials)
-  local averages={
-    usertimes.getAverage(1),
-    usertimes.getAverage(2)
-}
-  local sds={
-    usertimes.getStandardDeviation(1),
-    usertimes.getStandardDeviation(2),
+  local quartileIntervals={
+    {usertimes.getInterQuartileRange(1)},
+    {usertimes.getInterQuartileRange(2)}
   }
 
+  local reactionTimes={
+    _.reduce(delays[1],function(state,value)
+      return state+value
+    end,0)/#delays[1],
+    _.reduce(delays[2],function(state,value)
+      return state+value
+    end,0)/#delays[2],
+  }
   local types={"discarded","preferred"}
   for i=1,2 do
     local pruncTune=tunemanager.getID(types[i],5)
-    averages[pruncTune]=averages[i]
-    sds[pruncTune]=sds[i]
+    quartileIntervals[pruncTune]=quartileIntervals[i]
+    reactionTimes[pruncTune]=reactionTimes[i]
   end
 
-  local quartTrials=math.floor(numTrials/4+0.5)
-  local sdOffsets=_({-2,-1,1,2}):map(
-    function(k,v) return _.rep(v,quartTrials) end
-  ):flatten():shuffle():value()
+  local intervalRatios={}
+  for i=1, numTrials,2 do
+    local ratio=math.random()
+    intervalRatios[i]=ratio
+    intervalRatios[i+1]=1-ratio
+  end
+  _.shuffle(intervalRatios)
+  print (serpent.block(intervalRatios))
+
   local count=0
   return function (tune)
     if tune==SAFE_ID then
@@ -242,14 +262,12 @@ function createTaskTimeFunc(numTrials)
     end
     tune=tunemanager.getID(tune)
     count=count+1
-    if count>#sdOffsets then
-      count=1
-    end
-    if not sds[tune] then
-      print (tune,tunemanager.getID(tune),serpent.block(sds))
-    end
-    local offSet=sdOffsets[count]*sds[tune]
-    return averages[tune]+offSet
+    local lowerQuartileTime, upperQuartileTime=unpack(quartileIntervals[tune])
+    local delay=(reactionTimes[tune] or REACTION_TIME)
+    local range=upperQuartileTime-lowerQuartileTime
+    local interval=lowerQuartileTime+range*intervalRatios[count]
+    print ("task time",tune,delay,range,interval)
+    return delay+interval
   end
 end
 

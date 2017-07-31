@@ -3,6 +3,8 @@ usertimes=M
 
 local display=display
 local Runtime=Runtime
+local math=math
+local _=require "util.moses"
 
 setfenv(1,M)
 
@@ -40,6 +42,15 @@ function getStandardDeviation(tune)
   end
 
   return (total/#list)^0.5
+end
+
+function getInterQuartileRange(tune)
+  local sortedTimes=_(times[tune]):clone(false):sort():value()
+  local len=#sortedTimes
+  local median=math.floor((len+1)/2)
+  local lowerQuartile=math.floor((len+1-median)/2)
+  local upperQuartile=median+math.floor((len+1-median)/2)
+  return sortedTimes[lowerQuartile],sortedTimes[upperQuartile]
 end
 
 function startDebugDisplay()
@@ -80,9 +91,11 @@ function startDebugDisplay()
 end
 
 function toString()
-  return ("Means: %3.1f\t%3.1f  S.D:   %3.1f\t%3.1f"):format(
-    (getAverage(1) or 0)/1000,(getAverage(2) or 0)/1000,
-    (getStandardDeviation(1) or 0)/1000,(getStandardDeviation(2) or 0)/1000)
+  local aQ1,aQ3=getInterQuartileRange(1)
+  local bQ1,bQ3=getInterQuartileRange(2)
+  return ("Q2: %3.1f\t%3.1f  Q3:   %3.1f\t%3.1f"):format(
+    (aQ1 or 0)/1000,(aQ3 or 0)/1000,
+    (bQ1 or 0)/1000,(bQ3 or 0)/1000)
 end
 
 return M
