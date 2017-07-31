@@ -181,6 +181,9 @@ function start(config)
     opts.time=time
     opts.onComplete=function(shock,sequencesCompleted,mistakes,sequenceTimes,delay)
       local biopacCmd=TASK_SIGNAL
+      if tune==SAFE_ID then
+        shock=false
+      end
       if shock and config.enableShocks or config.forceShock then
         if not shockerCalls[tunemanager.getID(tune)] then
           print (tune,tunemanager.getID(tune),serpent.block(shockerCalls,{comment=false}))
