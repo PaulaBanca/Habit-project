@@ -384,7 +384,7 @@ local pageSetup={
         {value=SAFE_ID,n=10}
       },6)
       
-      start({
+    start({
         getTaskTime=createTaskTimeFunc(#trials),
         itTime=function() return 8000+math.random(2000) end,
         nextScene="scenes.shockertask",
@@ -517,7 +517,7 @@ local pageSetup={
         itTime=function() return 8000+math.random(2000) end,
         nextScene="scenes.thankyou",
         nextParams=nil,trialLimit=nil,
-        enableShocks=false,
+        enableShocks=true,
         inputLogFile="shocker-inputs-disconnected",
         taskLogFile="shocker-summary-disconnected"
       }) end
