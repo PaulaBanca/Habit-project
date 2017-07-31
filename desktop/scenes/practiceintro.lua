@@ -241,12 +241,12 @@ local pageSetup={
     {text="Lets have a quick reminder of the new sequence you just learned",img=function()
     return stimuli.getStimulus(3)
     end,onKeyPress=function() composer.gotoScene("scenes.learntune", {params={
-      iterations=3,
+      iterations= 3,
       tune=tunemanager.getID(3),
       page=17
     }})
     end},
-    
+     
     {text="Now the chests always contain gems. However, there are bigger rewards in some chests than others.\n\nRemember: the more gems you get the more money you will earn at the end of the task.\n\nTry to win as much as you can.",
     onKeyPress=function()
       doorschedule.start(3)

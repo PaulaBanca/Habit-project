@@ -147,8 +147,8 @@ local SHOCK_SIGNAL=2
 local trials={}
 function start(config)
   local count=0
-  local logField=logger.create(config.taskLogFile,{"date","sequence","sequences completed","mistakes","shock","time window","debug",
-    "sequence time"})
+  local logField=logger.create(config.taskLogFile,{"date","system millis","sequence","sequences completed","mistakes","shock","time window","debug",
+    "sequence time","preceding iti interval","stimuli presented at system millis","stimuli hidden at system millis","response delay"})
   local nextScene,nextParams=config.nextScene,config.nextParams
   local run
 
@@ -159,6 +159,7 @@ function start(config)
     end
     itTime=itTime()
     composer.gotoScene("scenes.iti",{params={time=itTime}})
+    logField("preceding iti interval",itTime)
     if not config.trialLimit or count<config.trialLimit then
       timer.performWithDelay(itTime,run)
     else
@@ -178,7 +179,7 @@ function start(config)
     opts.logInputFilename=config.inputLogFile
     local time=config.getTaskTime(tune)
     opts.time=time
-    opts.onComplete=function(shock,sequencesCompleted,mistakes,sequenceTimes)
+    opts.onComplete=function(shock,sequencesCompleted,mistakes,sequenceTimes,delay)
       local biopacCmd=TASK_SIGNAL
       if shock and config.enableShocks or config.forceShock then
         if not shockerCalls[tunemanager.getID(tune)] then
@@ -187,13 +188,19 @@ function start(config)
         biopacCmd=biopacCmd+SHOCK_SIGNAL
         shockerCalls[tunemanager.getID(tune)]()
       end
+
+      logDelay(tune,delay)
       logField("sequence",tune)
+      logField("system millis",system.getTimer())
       logField("sequences completed",sequencesCompleted)
       logField("mistakes",mistakes)
       logField("date",os.date())
       logField("shock",shock and config.enableShocks)
       logField("time window", system.getTimer()-startTime)
       logField("sequence time",#sequenceTimes>0 and math.min(unpack(sequenceTimes)))
+      logField("stimuli presented at system millis",startTime)
+      logField("stimuli hidden at system millis",system.getTimer())
+      logField("response delay", delay)
       logField("debug", usertimes.toString())
       sendBIOPacSignal(biopacCmd)
       showFixationCross()

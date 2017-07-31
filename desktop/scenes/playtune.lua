@@ -26,19 +26,21 @@ function scene:show(event)
   local completed=0
   local shock=true
   local sequenceTimes={}
+  local delay
+  local startTime=system.getTimer()
   self.timer=timer.performWithDelay(event.params.time, function()
-    event.params.onComplete(shock,completed,mistakes,sequenceTimes)
+    event.params.onComplete(shock,completed,mistakes,sequenceTimes,delay)
     self.timer=nil
   end)
 
   local reset
   local function madeMistake()
+    delay=delay or system.getTimer()-startTime
     mistakes=mistakes+1
     shock=true
     reset()
   end
 
-  local startTime=system.getTimer()
   local onPlay,onRelease,_r=keyeventslisteners.create({
     logName=event.params.logInputFilename,
     onTuneComplete=function(tune)
@@ -52,7 +54,9 @@ function scene:show(event)
       startTime=system.getTimer()
     end,
     onMistake=madeMistake,
-    onGoodInput=function() end,
+    onGoodInput=function()
+      delay=delay or system.getTimer()-startTime
+    end,
     getSelectedTune=function() return tunePlaying end,
     allowWildCard=tunePlaying<0,
     getWildCardLength=function() return math.abs(tunePlaying) end
