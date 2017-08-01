@@ -15,8 +15,9 @@ function scene:show(event)
     return
   end
   local gems=winnings.getSinceLastTrack("gems")
-  local conversionRate=240
+  local conversionRate=360
   local money=gems/conversionRate
+  money=math.min(money,10)
   local reward=rewardtext.create(money)
   winnings.add("money",money)
   local str=("You won %d gems!\n\nThat has earned you\n\n%s"):format(gems,reward)
