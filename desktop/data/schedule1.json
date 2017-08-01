@@ -3,14 +3,6 @@
   {"tunes":["wildcard3","preferred"],"rewards":[10,10]},
   {"tunes":["preferred","wildcard6"],"rewards":[10,10]},
   {"tunes":["preferred","wildcard3"],"rewards":[10,10]},
-  {"tunes":["wildcard6","preferred"],"rewards":[10,10]},
   {"tunes":["wildcard3","preferred"],"rewards":[10,10]},
-  {"tunes":["wildcard6","preferred"],"rewards":[10,10]},
-  {"tunes":["preferred","wildcard6"],"rewards":[10,10]},
-  {"tunes":["preferred","wildcard6"],"rewards":[10,10]},
-  {"tunes":["preferred","wildcard3"],"rewards":[10,10]},
-  {"tunes":["preferred","wildcard6"],"rewards":[10,10]},
-  {"tunes":["wildcard3","preferred"],"rewards":[10,10]},
-  {"tunes":["wildcard3","preferred"],"rewards":[10,10]},
-  {"tunes":["preferred","wildcard3"],"rewards":[10,10]},
+  {"tunes":["wildcard6","preferred"],"rewards":[10,10]}
 ]
