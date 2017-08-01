@@ -93,7 +93,7 @@ end
 function toString()
   local aQ1,aQ3=getInterQuartileRange(1)
   local bQ1,bQ3=getInterQuartileRange(2)
-  return ("Q2: %3.1f\t%3.1f  Q3:   %3.1f\t%3.1f"):format(
+  return ("S1: %3.1f\t%3.1f  S2:   %3.1f\t%3.1f"):format(
     (aQ1 or 0)/1000,(aQ3 or 0)/1000,
     (bQ1 or 0)/1000,(bQ3 or 0)/1000)
 end
