@@ -318,14 +318,13 @@ local pageSetup={
       local tune=tunemanager.getID("preferred")
       local average=usertimes.getAverage(tune)
       local sd=usertimes.getStandardDeviation(tune)
-      trials={tune,tune,tune}
+      trials={tune,tune,tune,tune,tune}
       start({itTime=function() return 2000 end,getTaskTime=function()
         return REACTION_TIME+average+sd*2
       end,
       nextScene="scenes.shockertask",
       nextParams={page=6},
       enableShocks=true,
-      forceShock=true,
       inputLogFile="shocker-inputs-practice-preferred",
       taskLogFile="shocker-summary-practice-preferred"})
     end
@@ -338,14 +337,13 @@ local pageSetup={
       local tune=tunemanager.getID("discarded")
       local average=usertimes.getAverage(tune)
       local sd=usertimes.getStandardDeviation(tune)
-      trials={tune,tune,tune}
+      trials={tune,tune,tune,tune,tune}
       start({itTime=function() return 2000 end,getTaskTime=function()
         return REACTION_TIME+average+sd*2
       end,
       nextScene="scenes.shockertask",
       nextParams={page=7},
       enableShocks=true,
-      forceShock=true,
       inputLogFile="shocker-inputs-practice-discarded",
       taskLogFile="shocker-summary-practice-discarded"})
     end
