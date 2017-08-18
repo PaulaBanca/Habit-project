@@ -24,8 +24,18 @@ function create()
     {label="Switch sides - Preference 3",options={"No","Yes"},selectFunc=function(v) setSwitch(3,v) end},
     {label="Switch sides - Preference 4",options={"No","Yes"},selectFunc=function(v) setSwitch(4,v) end},
     {label="Switch sides - Preference 5",options={"No","Yes"},selectFunc=function(v) setSwitch(5,v) end},
-    {label="Preferred Shocks",options={"Left","Right"},selectFunc=function(v) composer.setVariable("shockerpreferred",v) end},
-    {label="Handedness",options={"Left","Right"},selectFunc=function(v) composer.setVariable("left handed",v=="Left") end,debugSelection=2},
+    {
+      label="Preferred Shocks",
+      options={"Left","Right"},
+        selectFunc=function(v) composer.setVariable("shockerpreferred",v)
+      end
+    },
+    {
+      label="Handedness",
+      options={"Left","Right"},
+      selectFunc=function(v) composer.setVariable("left handed",v=="Left") end,
+      debugSelection=2
+    },
   }
   return options
 end
