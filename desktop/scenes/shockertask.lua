@@ -447,10 +447,10 @@ local pageSetup={
   {text="Let’s do the task again!\n\nPress a button to continue.",
     onKeyPress=function()
       trials=trialorder.generate({
-        {value="discarded",n=30},
-        {value="preferred",n=30},
-        {value=SAFE_ID,n=30}
-      },15)
+        {value="discarded",n=20},
+        {value="preferred",n=20},
+        {value=SAFE_ID,n=10}
+      },10)
       start({
         getTaskTime=createTaskTimeFunc(#trials),
         itTime=function() return 8000+math.random(2000) end,
