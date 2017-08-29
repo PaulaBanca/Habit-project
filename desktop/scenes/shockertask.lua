@@ -107,13 +107,12 @@ connectArduinos=function()
     local opposite={left="right",right="left"}
     setup.preferred=composer.getVariable("shockerpreferred"):lower()
     setup.discarded=assert(opposite[setup.preferred])
-    setup=_.map(setup,function(_,v)
-      return assert(sides[v])
-    end)
-    shockerCalls[tunemanager.getID("preferred")]=setup.preferred
-    shockerCalls[tunemanager.getID("discarded")]=setup.discarded
-    shockerCalls[tunemanager.getID("preferred",5)]=setup.preferred
-    shockerCalls[tunemanager.getID("discarded",5)]=setup.discarded
+    local preferred,discarded=sides[setup.preferred],sides[setup.discarded]
+
+    shockerCalls[tunemanager.getID("preferred")]=preferred
+    shockerCalls[tunemanager.getID("discarded")]=discarded
+    shockerCalls[tunemanager.getID("preferred",5)]=preferred
+    shockerCalls[tunemanager.getID("discarded",5)]=discarded
     shockerCalls[SAFE_ID]=function() end
   end
   getArduinoDeviceFiles(function(arduinos)
