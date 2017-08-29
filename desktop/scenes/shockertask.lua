@@ -13,6 +13,7 @@ local logger=require "util.logger"
 local usertimes=require "util.usertimes"
 local _=require "util.moses"
 local identifyarduinos=require "util.identifyarduinos"
+local datatools=require "util.datatools"
 local timer=timer
 local assert=assert
 local type=type
@@ -228,14 +229,13 @@ function createTaskTimeFunc(numTrials)
     {usertimes.getInterQuartileRange(2)}
   }
 
-  local reactionTimes={
-    _.reduce(delays[1],function(state,value)
-      return state+value
-    end,0)/#delays[1],
-    _.reduce(delays[2],function(state,value)
-      return state+value
-    end,0)/#delays[2],
-  }
+  local reactionTimes={}
+  for i=1,2 do
+    delays[i]=datatools.removeOutliers(delays[i])
+    local tuneDelays=delays[i]
+
+    reactionTimes[i]=_.reduce(tuneDelays,function(state,v) return v+state end,0)/#tuneDelays
+  end
   local types={"discarded","preferred"}
   for i=1,2 do
     local pruncTune=tunemanager.getID(types[i],5)
@@ -264,7 +264,7 @@ function createTaskTimeFunc(numTrials)
     local range=upperQuartileTime-lowerQuartileTime
     local interval=lowerQuartileTime+range*intervalRatios[count]
     print ("task time",tune,delay,range,interval)
-    return delay+interval
+    return delay+interval+300
   end
 end
 
