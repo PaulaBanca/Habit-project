@@ -28,8 +28,6 @@ local serpent=require "serpent"
 
 setfenv(1,scene)
 
-composer.setVariable("shockerpreferred","Left")
-
 local connectArduinos
 function queryMissingArduino(arduinoName,continueFunc)
   local function onComplete(event)
