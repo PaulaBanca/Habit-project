@@ -46,6 +46,8 @@ function step(prepared)
     if res==sqlite3.BUSY then
     elseif res==sqlite3.MISUSE then
       error("MISUSE")
+    elseif res==sqlite3.FULL then
+      error("FULL")
     end
   end
   prepared:reset()
