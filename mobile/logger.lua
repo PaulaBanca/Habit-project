@@ -92,7 +92,7 @@ function sendRows(rows,doneFunc)
   local params={}
   params.progress="upload"
   params.body=json.encode(rows)
-  network.request("http://multipad-server.herokuapp.com/submit", "POST", listener, params)
+  network.request("http://habitproject2017.herokuapp.com/submit", "POST", listener, params)
   -- network.request("http://localhost:8080/submit", "POST", listener, params)
 end
 
