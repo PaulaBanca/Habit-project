@@ -752,6 +752,7 @@ function scene:show(event)
   end
   rounds=event.params.rounds or 2
   maxLearningLength=event.params.iterations or 10
+  learningLength=maxLearningLength
   -- composer.showOverlay("scenes.dataviewer")
   mistakesPerMode=_.rep(0,#modes)
   countMistakes=true
