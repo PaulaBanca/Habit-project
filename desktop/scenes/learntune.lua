@@ -91,10 +91,15 @@ function scene:show(event)
       return
     end
     hints[index]=false
+    local reverseKeys=composer.getVariable("left handed")
     for k,v in pairs(scientficNotes) do
       local note=notes.toNotePitch(v)
-      circles[k]:setFillColor(unpack(notes.getColour(notes.getIndex(note))))
-      circles[k].strokeWidth=6
+      local index=k
+      if reverseKeys then
+        index=NUM_KEYS-index+1
+      end
+      circles[index]:setFillColor(unpack(notes.getColour(notes.getIndex(note))))
+      circles[index].strokeWidth=6
     end
   end
 
