@@ -8,8 +8,13 @@ local system=system
 setfenv(1,M)
 
 CX,CY=display.contentWidth/2, display.contentHeight
-local isMiniScale=(system.getInfo("model")=="iPad" and display.pixelWidth==768) and  0.72 or 1
-RADIUS=(math.min(130*display.contentScaleX,display.contentWidth/8)*1.7)*isMiniScale
+local keyScale=1
+if system.getInfo("model")=="iPad" and display.pixelWidth==768 then
+  keyScale=0.72
+elseif display.pixelHeight>=1920 and system.getInfo("model")=="iPhone" then
+  keyScale=1.25
+end
+RADIUS=(math.min(130*display.contentScaleX,display.contentWidth/8)*1.7)*keyScale
 ELIPSE_XSCALE=3
 
 function layout(i)
