@@ -789,6 +789,8 @@ function scene:show(event)
   if setTrack=="random" then
     trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
     setTrack=table.remove(trackList, 1)
+  else
+    trackList=nil
   end
 
   state=playstate.create()
