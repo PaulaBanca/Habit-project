@@ -39,6 +39,11 @@ Runtime:addEventListener("key", function(event)
   local key=tonumber(keyName)
   key=key or arrowMapping[keyName]
   if not key or type (key)=="number" and key<1 or key>NUM_KEYS then
+    if event.keyName=="space" and event.phase=="up" then
+      events.fire({
+        type="start sequence input"
+      })
+    end
     return false
   end
   if event.phase=="down" and not down[key] then

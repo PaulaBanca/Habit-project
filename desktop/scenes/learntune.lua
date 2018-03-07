@@ -32,6 +32,12 @@ function scene:show(event)
   local nextScene=event.params.nextScene or "scenes.practiceintro"
   local iterations=event.params.iterations or 20
   local img=tunemanager.getImg(tuneLearning)
+  local noMistakes=event.params.noMistakes
+  local discreteSequences=event.params.discreteSequences
+  local corrections= not event.params.noCorrections
+  local countSequences=not event.params.countAttempts
+  local allowRestarts=event.params.canRestart
+
   scene.view:insert(img)
   img.anchorY=1
   img.x=display.contentCenterX
@@ -108,7 +114,14 @@ function scene:show(event)
   self.timer=timer.performWithDelay(3000, function()
     self.timer=nil
     start.text="Go!"
-    transition.to(start,{alpha=0,xScale=5,yScale=5,time=200,onComplete=function(obj) obj:removeSelf() end})
+    transition.to(start,{
+      alpha=0,
+      xScale=5,
+      yScale=5,
+      time=200,
+      onComplete=display.remove
+    })
+    
     local meter=progress.create(img.contentWidth,60,{6})
     meter.x=display.contentCenterX
     meter.y=img.y-img.contentHeight-60
@@ -117,7 +130,7 @@ function scene:show(event)
     local tuneCount=display.newGroup()
     self.view:insert(tuneCount)
     local t=display.newText({
-      text="Completed Sequences:",
+      text=countSequences and "Completed Sequences:" or "Attempts Made:",
       fontSize=60,
       parent=tuneCount,
       x=display.contentCenterX,
@@ -141,15 +154,18 @@ function scene:show(event)
     local hints={}
     highlightKeys(steps,advancedMode,hints)
     local reset
+    local canEnterSequence=not discreteSequences
     local function madeMistake()
       reset()
       sound.playSound("wrong")
       meter:reset()
-      hints[steps]=true
+      if corrections then
+        hints[steps]=true
+      end
       steps=1
       highlightKeys(steps,advancedMode,hints)
       local t=display.newText({
-        text="Mistake, start again!",
+        text=canEnterSequence and "Mistake, start again!" or "Press space to start sequence",
         fontSize=120,
         parent=self.view,
         x=display.contentCenterX,
@@ -161,47 +177,68 @@ function scene:show(event)
         obj:removeSelf()
       end
       transition.to(t, {tag="mistake",alpha=0,onComplete=delete,onCancel=delete})
+      canEnterSequence=not discreteSequences
     end
+
+    local function checkEndOfTask(completed)
+      if advancedMode and (
+        (startAdvanced and completed==iterations) or
+        (not startAdvanced and completed==iterations*2)) then
+        composer.gotoScene(nextScene,{params={page=event.params.page}})
+      elseif completed>=iterations then
+        advancedMode=true
+      end
+    end
+
     local resetMeterTimer
+    local function tuneCompleted(tune)
+      canEnterSequence=not discreteSequences
+      sound.playSound("correct")
+      local n=tonumber(count.text)+1
+      count.text=n
+      steps=1
+
+      checkEndOfTask(n)
+     
+      meter:mark(6,true)
+      resetMeterTimer=timer.performWithDelay(250, function()
+        resetMeterTimer=nil
+        if meter.numChildren then
+          meter:reset()
+        end
+      end)
+      highlightKeys(steps,advancedMode,hints)
+    end    
+
     local onPlay,onRelease,_r=keyeventslisteners.create({
       logName=logFile,
+      allowWildCard=noMistakes,
       onTuneComplete=function(tune)
         if tune~=tuneLearning then
           madeMistake()
         else
-          sound.playSound("correct")
-          local n=tonumber(count.text)+1
-          count.text=n
-          steps=1
-
-          if advancedMode and (
-            (startAdvanced and n==iterations) or
-            (not startAdvanced and n==iterations*2)) then
-            composer.gotoScene(nextScene,{params={page=event.params.page}})
-          elseif n>=iterations then
-            advancedMode=true
-          end
-          meter:mark(6,true)
-          resetMeterTimer=timer.performWithDelay(250, function()
-            resetMeterTimer=nil
-            if meter.numChildren then
-              meter:reset()
-            end
-          end)
-          highlightKeys(steps,advancedMode,hints)
+          tuneCompleted(tune)
         end
       end,
       onMistake=madeMistake,
       onGoodInput=function(event)
+        if not canEnterSequence then
+          madeMistake()
+          return
+        end
         if resetMeterTimer then
           meter:reset()
           timer.cancel(resetMeterTimer)
           resetMeterTimer=nil
         end
-        if event.complete and event.phase=="released" and event.allReleased then
+        local isValid=noMistakes or event.complete
+        if isValid and event.phase=="released" and event.allReleased then
           meter:mark(steps,true)
           steps=steps+1
           if steps>6 then
+            if noMistakes then
+              tuneCompleted(tuneLearning)
+            end
             steps=1
           end
           highlightKeys(steps,advancedMode,hints)
@@ -210,11 +247,28 @@ function scene:show(event)
       getSelectedTune=function() return tuneLearning end,
     })
     reset=_r
-
-    events.addEventListener("key played",onPlay)
-    events.addEventListener("key released",onRelease)
     self.onRelease=onRelease
     self.onPlay=onPlay
+    events.addEventListener("key played",onPlay)
+    events.addEventListener("key released",onRelease)  
+ 
+    if discreteSequences then
+      self.onStartSequence=function()
+        if not allowRestarts and steps>1 then
+          return
+        end
+        if steps>1 and not countSequences then
+          local n=tonumber(count.text)+1
+          count.text=n
+          checkEndOfTask(n)
+        end
+        canEnterSequence=true
+        reset()
+        meter:reset()
+        steps=1
+      end
+      events.addEventListener("start sequence input", self.onStartSequence)
+    end
   end)
 end
 
