@@ -54,11 +54,55 @@ local pageSetup={
           noMistakes=true,
           noCorrections=true,
           discreteSequences=true,
-          logInputFilename="longrecall-blind-"..tune,
+          logInputFilename="longrecall-blind-norestarts-"..tune,
           tune=tune,
           advanced=true,
           nextScene="scenes.longrecall",
           page=4,
+          iterations=10,
+        }
+      })
+    end
+  },
+  {
+    text="Now if you make a mistake the app will correct you",
+    img=function()
+      return stimuli.getStimulus(composer.getVariable("first test"))
+    end,
+    onKeyPress=function()
+      local tune=tunemanager.getID(composer.getVariable("first test"))
+      composer.gotoScene("scenes.learntune", {
+        params={
+          canRestart=true,
+          countAttempts=true,
+          noCorrections=true,
+          discreteSequences=true,
+          logInputFilename="longrecall-corrected-"..tune,
+          tune=tune,
+          advanced=true,
+          nextScene="scenes.longrecall",
+          page=5,
+          iterations=10,
+        }
+      })
+    end
+  },
+  {
+    text="Now if you make a mistake the app will correct you and highlight the correct keys.",
+    img=function()
+      return stimuli.getStimulus(composer.getVariable("first test"))
+    end,
+    onKeyPress=function()
+      local tune=tunemanager.getID(composer.getVariable("first test"))
+      composer.gotoScene("scenes.learntune", {
+        params={
+          canRestart=true,
+          iscreteSequences=true,
+          logInputFilename="longrecall-coached-"..tune,
+          tune=tune,
+          advanced=true,
+          nextScene="scenes.longrecall",
+          page=6,
           iterations=10,
         }
       })

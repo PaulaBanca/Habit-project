@@ -155,12 +155,29 @@ function scene:show(event)
     highlightKeys(steps,advancedMode,hints)
     local reset
     local canEnterSequence=not discreteSequences
+
+    local function checkEndOfTask(completed)
+      if advancedMode and (
+        (startAdvanced and completed==iterations) or
+        (not startAdvanced and completed==iterations*2)) then
+        composer.gotoScene(nextScene,{params={page=event.params.page}})
+      elseif completed>=iterations then
+        advancedMode=true
+      end
+    end
+
     local function madeMistake()
       reset()
       sound.playSound("wrong")
       meter:reset()
       if corrections then
         hints[steps]=true
+      end
+
+      if steps>1 and not countSequences then
+        local n=tonumber(count.text)+1
+        count.text=n
+        checkEndOfTask(n)
       end
       steps=1
       highlightKeys(steps,advancedMode,hints)
@@ -173,21 +190,12 @@ function scene:show(event)
       })
       t.anchorY=0
       t:setFillColor(1,0,0)
-      local delete=function(obj)
-        obj:removeSelf()
-      end
-      transition.to(t, {tag="mistake",alpha=0,onComplete=delete,onCancel=delete})
+      transition.to(t, {
+        tag="mistake",
+        alpha=0,
+        onComplete=display.remove,
+        onCancel=display.remove})
       canEnterSequence=not discreteSequences
-    end
-
-    local function checkEndOfTask(completed)
-      if advancedMode and (
-        (startAdvanced and completed==iterations) or
-        (not startAdvanced and completed==iterations*2)) then
-        composer.gotoScene(nextScene,{params={page=event.params.page}})
-      elseif completed>=iterations then
-        advancedMode=true
-      end
     end
 
     local resetMeterTimer
