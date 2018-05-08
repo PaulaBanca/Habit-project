@@ -121,7 +121,7 @@ function scene:show(event)
       time=200,
       onComplete=display.remove
     })
-    
+
     local meter=progress.create(img.contentWidth,60,{6})
     meter.x=display.contentCenterX
     meter.y=img.y-img.contentHeight-60
@@ -207,7 +207,7 @@ function scene:show(event)
       steps=1
 
       checkEndOfTask(n)
-     
+
       meter:mark(6,true)
       resetMeterTimer=timer.performWithDelay(250, function()
         resetMeterTimer=nil
@@ -216,7 +216,7 @@ function scene:show(event)
         end
       end)
       highlightKeys(steps,advancedMode,hints)
-    end    
+    end
 
     local onPlay,onRelease,_r=keyeventslisteners.create({
       logName=logFile,
@@ -258,8 +258,8 @@ function scene:show(event)
     self.onRelease=onRelease
     self.onPlay=onPlay
     events.addEventListener("key played",onPlay)
-    events.addEventListener("key released",onRelease)  
- 
+    events.addEventListener("key released",onRelease)
+
     if discreteSequences then
       self.onStartSequence=function()
         if not allowRestarts and steps>1 then
