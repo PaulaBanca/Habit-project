@@ -15,43 +15,44 @@ setfenv(1,M)
 local simpleSequences=false
 
 local config
+
+local function findLongestOverlap(a,b)
+  local longest=0
+  for offset=-#a+1,0 do
+    local streak=0
+    for i=1,#b do
+      local bkeys=b[i]
+      local akeys=a[(offset+i)%#a+1]
+      if _.sameKeys(akeys,bkeys) then
+        streak=streak+1
+        longest=math.max(streak,longest)
+      else
+        streak=0
+      end
+    end
+  end
+  return longest
+end
+
+local function passesTest(tuneKeys)
+  for i=1, #tuneKeys do
+    local keys=tuneKeys[i]
+    for k=i+1, #tuneKeys do
+      local overlap=findLongestOverlap(keys,tuneKeys[k])
+      if overlap>1 then
+        return false
+      end
+    end
+  end
+  return true
+end
+
+local recipe={
+  length=6,
+  multipleTouches={2,2,2,3}
+}
+
 function generateTunes()
-  local function findLongestOverlap(a,b)
-    local longest=0
-    for offset=-#a+1,0 do
-      local streak=0
-      for i=1,#b do
-        local bkeys=b[i]
-        local akeys=a[(offset+i)%#a+1]
-        if _.sameKeys(akeys,bkeys) then
-          streak=streak+1
-          longest=math.max(streak,longest)
-        else
-          streak=0
-        end
-      end
-    end
-    return longest
-  end
-
-  local function passesTest(tuneKeys)
-    for i=1, #tuneKeys do
-      local keys=tuneKeys[i]
-      for k=i+1, #tuneKeys do
-        local overlap=findLongestOverlap(keys,tuneKeys[k])
-        if overlap>1 then
-          return false
-        end
-      end
-    end
-    return true
-  end
-
-  local recipe={
-    length=6,
-    multipleTouches={2,2,2,3}
-  }
-
   while true do
     config={}
     local tuneKeys={}
@@ -96,8 +97,42 @@ function generateTunes()
       }
     }
   end
-  config[4]={tune=_.first(config[1].tune,5),stimulus=1}
-  config[5]={tune=_.first(config[2].tune,5),stimulus=2}
+  config[4]={tune=_.first(config[1].tune,5),stimulus=1,truncated=true}
+  config[5]={tune=_.first(config[2].tune,5),stimulus=2,truncated=true}
+end
+
+local function collateUnindexedKeyLayouts()
+  local tuneKeys={}
+  for i=1,#config do
+    if not config[i].truncated then
+      keylayout.reset()
+      local keys={}
+      local instructions=config[i].tune
+      for k=1, #instructions do
+        keys[k]=keylayout.layout(instructions[k])
+      end
+      tuneKeys[#tuneKeys+1]=keys
+    end
+  end
+  return tuneKeys
+end
+
+function extendTunes()
+  local n=#config+1
+  local tuneKeys=collateUnindexedKeyLayouts()
+  while true do
+    local instructions=tunegenerator.create(recipe)
+    config[n]={tune=instructions,stimulus=n}
+    keylayout.reset()
+    local keys={}
+    for k=1, #instructions do
+      keys[k]=keylayout.layout(instructions[k])
+    end
+    tuneKeys[n]=keys
+    if passesTest(_.append(tuneKeys,{instructions})) then
+      return
+    end
+  end
 end
 
 local maxLength=6
@@ -161,7 +196,7 @@ local function matchesSong(song,sequence)
     else
       table.sort(notes)
     end
-    for j=1,#notes do 
+    for j=1,#notes do
       if notes[j]~=sequenceNotes[j] then
         return false
       end
