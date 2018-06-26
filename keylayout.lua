@@ -49,7 +49,7 @@ function layout(instruction)
   else
     local scientificNote=instruction
     local found=false
-    
+
     lastChanged=lastChanged+1
     if lastChanged>NUM_KEYS then
       lastChanged=1
