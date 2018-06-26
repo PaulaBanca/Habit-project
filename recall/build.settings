@@ -1,0 +1,28 @@
+settings={
+  orientation={
+    default="landscapeRight",
+    supported= { "landscapeLeft", "landscapeRight" },
+  },
+  iphone={
+    xcassets="Images.xcassets",
+    plist={
+      ITSAppUsesNonExemptEncryption=false,
+      NSPhotoLibraryUsageDescription="Not Used",
+      NSCameraUsageDescription="Not Used",
+      NSAppTransportSecurity={
+        NSAllowsArbitraryLoads=true,
+      },
+      ITSAppUsesNonExemptEncryption=false,
+      UIStatusBarHidden = true,
+      UILaunchStoryboardName = "LaunchScreen",
+      UIFileSharingEnabled = true
+    }
+  },
+  android =
+  {
+      usesPermissions =
+      {
+         "android.permission.INTERNET",
+      },
+  }
+}
