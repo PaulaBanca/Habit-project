@@ -9,14 +9,15 @@ local tostring=tostring
 local timer=timer
 local al=al
 local FLAGS=FLAGS
-
 local display=display
 local math=math
 local assert=assert
 
 setfenv(1,M)
 
-audio.setVolume(0.6)
+FLAGS=FLAGS or {}
+
+audio.setVolume(FLAGS.NO_SOUND and 0 or 0.6)
 
 local soundFiles={
   {name="c.wav", purpose="c note"},
@@ -57,7 +58,7 @@ function showDebugButtons()
       local button=display.newRoundedRect(x,y,80,80,8)
       function button:touch(event)
         if self.disable then
-          return 
+          return
         end
         if event.phase=="began" then
           self.touchId=event.id
@@ -69,7 +70,7 @@ function showDebugButtons()
             self:setFillColor(50/255,124/255,9/255)
             self.disable=false
           end
-          audio.play(sound,{onComplete=onComplete}) 
+          audio.play(sound,{onComplete=onComplete})
         end
       end
       button:addEventListener("touch",button)
@@ -78,7 +79,7 @@ function showDebugButtons()
       x=x+100
       if x+40>display.contentWidth-80 then
         y=y+100
-        x=80  
+        x=80
       end
     end
   end
@@ -102,7 +103,7 @@ function playSound(purpose,onComplete,pitch)
   --     end
   --   end
   -- end
-  
+
   local mysource
   if pitch then
     local oldC=onComplete or function() end
@@ -113,7 +114,7 @@ function playSound(purpose,onComplete,pitch)
   end
 
   local channel=audio.play(soundInstancesByPurpose[purpose][index],{onComplete=onComplete})
-  audio.setVolume(1,{channel=channel})
+  audio.setVolume(FLAGS.NO_SOUND and 0 or 1,{channel=channel})
   if pitch then
     mysource=audio.getSourceFromChannel(channel)
     al.Source(mysource, al.PITCH, pitch)
@@ -125,11 +126,11 @@ end
 function loopSound(purpose)
   local index=math.random(#soundInstancesByPurpose[purpose])
   local channel=audio.play(soundInstancesByPurpose[purpose][index],{loops=-1})
-  audio.setVolume(1,{channel=channel})
+  audio.setVolume(FLAGS.NO_SOUND and 0 or 1,{channel=channel})
   return function(time)
     time=500
     audio.fadeOut({channel=channel,time=time})
-    timer.performWithDelay(time, function() audio.setVolume(1,{channel=channel}) end)
+    timer.performWithDelay(time, function() audio.setVolume(FLAGS.NO_SOUND and 0 or 1,{channel=channel}) end)
   end, channel
 end
 
