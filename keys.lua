@@ -161,7 +161,11 @@ function create(listenerFunctions,noLogging)
           logger.log("touch",data)
         end
 
-        timer.performWithDelay(100, function()
+        if keyInstance.sparkTimer then
+          timer.cancel(keyInstance.sparkTimer)
+        end
+        keyInstance.sparkTimer=timer.performWithDelay(100, function()
+          keyInstance.sparkTimer=nil
           keysparks.stopSparks(i)
           keyInstance.setPressed(false)
         end)
@@ -239,7 +243,7 @@ function create(listenerFunctions,noLogging)
       keylayout.reset()
     end
     complete=false
-    for i=1,#keys do
+    for i=1,NUM_KEYS do
       local k=keys[i]
       k:clear()
       k.time=nil
@@ -249,6 +253,13 @@ function create(listenerFunctions,noLogging)
 
       k:highlight(false)
       k.scientificNote=nil
+
+      if k.sparkTimer then
+        timer.cancel(k.sparkTimer)
+        k.sparkTimer=nil
+      end
+      k.setPressed(false)
+      keysparks.stopSparks(i)
     end
   end
 

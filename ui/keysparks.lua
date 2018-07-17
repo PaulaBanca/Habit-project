@@ -45,9 +45,10 @@ function stopSparks(i)
     return
   end
   sparks[i]:stop()
-  transition.to(sparks[i],{alpha=0,onComplete=function(obj)
-    display.remove(obj)
-  end})
+  transition.to(sparks[i],{
+    alpha=0,
+    onComplete=display.remove
+  })
   sparks[i]=nil
 end
 
