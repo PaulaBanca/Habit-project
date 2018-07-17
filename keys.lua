@@ -217,6 +217,8 @@ function create(listenerFunctions,noLogging)
     end
 
     if forceNotes then
+      noAid=true
+      noHighlight=true
       local ni
       for i=1, #keys do
         if not keys[i].note then
