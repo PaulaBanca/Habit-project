@@ -297,7 +297,7 @@ function scene:createKeys()
       end
       mistakeInLastTouches=false
       if scene.phase=='B' and roundComplete then
-        composer.showOverlay('scenes.feedback',{
+        composer.showOverlay('scenes.feedbacksimple',{
           params={
             feedback=scene.presses,
             onComplete=function()
