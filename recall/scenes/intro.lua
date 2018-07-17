@@ -25,7 +25,7 @@ local getTrackMT={
 local instructions={
   {
     phase='Intro',
-    text="Welcome back, let’s see how much you remember from your sequences",
+    text="Welcome back! We would like to see if you can remember any of the sequences you practiced some months ago",
     y=display.contentCenterY-40,
     onComplete=function()
       events.fire({type='phase finished'})
@@ -33,7 +33,7 @@ local instructions={
   },
   {
     phase='A',
-    text="For this bit you will need to tap the start button before you begin the sequence.",
+    text="Do you remember this pattern?",
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -48,7 +48,32 @@ local instructions={
   },
   {
     phase='A',
-    text="Try playing what you remember",
+    text="Try to play the sequence that goes with this pattern. Don’t worry if you make mistakes! There will be a re-start button available if you wish to start again.",
+    y=5,
+    width=display.contentWidth*7/8,
+    fontSize=15,
+    img=function()
+      local icon=phasemanager.getCurrentStimulus()
+      if icon.contentHeight>display.contentHeight*3/4 then
+        local scale=icon.contentHeight/display.contentHeight*3/4
+        icon:scale(scale,scale)
+      end
+      return icon
+    end,
+    scene="scenes.play",
+    params=setmetatable({
+      requireStartButton=true,
+      phase="A",
+      nextScene="scenes.intro",
+      noSwitch=true,
+      allowRestarts=true,
+      rounds=1,
+      iterations=FLAGS.QUICK_ROUNDS and 1
+    },getTrackMT)
+  },
+  {
+    phase='A2',
+    text="Let’s do it again. This time the re-start option is no longer available. Once you start playing the sequence you have to finish it in one go.",
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -73,7 +98,7 @@ local instructions={
   -- PHASE B
   {
     phase='B',
-    text="Now let's do that again. This time however you will get some feedback about where you made mistakes after each sequence.",
+    text="Let’s do this again but this time you get feedback on your mistakes after playing the sequence.",
     y=display.contentCenterY-40,
     scene="scenes.play",
     params=setmetatable({
@@ -93,6 +118,30 @@ local instructions={
     width=display.contentWidth*7/8,
     fontSize=15,
     scene="scenes.play",
+    params=setmetatable({
+      phase="C",
+      requireStartButton=true,
+      nextScene="scenes.intro",
+      noSwitch=true,
+      iterations=FLAGS.QUICK_ROUNDS and 1
+    },getTrackMT)
+  },
+  {
+
+    phase='C2',
+    text="New instructions",
+    y=5,
+    width=display.contentWidth*7/8,
+    fontSize=15,
+    scene="scenes.play",
+    img=function()
+      local icon=phasemanager.getCurrentStimulus()
+      if icon.contentHeight>display.contentHeight*3/4 then
+        local scale=icon.contentHeight/display.contentHeight*3/4
+        icon:scale(scale,scale)
+      end
+      return icon
+    end,
     params=setmetatable({
       phase="C",
       requireStartButton=true,
