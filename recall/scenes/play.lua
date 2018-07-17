@@ -87,6 +87,7 @@ local function restart()
   state.restart()
   scene.keys:clear()
   scene:switchOnStartButton()
+  scene.stepProgresBar:reset()
 end
 
 local countMistakes
