@@ -209,8 +209,8 @@ function create(listenerFunctions,noLogging)
         end
       end
     end
-    local notes=keylayout.layout(instruction)
-    for k,v in pairs(notes) do
+    local keyNotes=keylayout.layout(instruction)
+    for k,v in pairs(keyNotes) do
       local key=keys[k]
       setNote(key,v)
       targetKeys[key.index]=true
@@ -219,13 +219,14 @@ function create(listenerFunctions,noLogging)
     if forceNotes then
       noAid=true
       noHighlight=true
+      local unused=notes.getUnusedNotes(keyNotes)
       local ni
       for i=1, #keys do
         if not keys[i].note then
           repeat
-            ni=next(notes,ni)
+            ni=next(unused,ni)
           until ni
-          setNote(keys[i],notes[ni])
+          setNote(keys[i],unused[ni]..'4')
         end
       end
     end

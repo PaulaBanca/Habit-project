@@ -3,6 +3,7 @@ notes=M
 
 local math=math
 local tonumber=tonumber
+local pairs=pairs
 
 setfenv(1,M)
 
@@ -28,6 +29,22 @@ end
 
 function toNotePitch(note)
   return note:sub(1,1),math.pow(2.0, (tonumber(note:sub(2,2))*12)*1.0/12.0)/16
+end
+
+function getUnusedNotes(scientificNotes)
+  local used={}
+  for _,v in pairs(scientificNotes) do
+    local note=toNotePitch(v)
+    used[note]=true
+  end
+
+  local unused={}
+  for i=1,#notes do
+    if not used[notes[i]] then
+      unused[#unused+1]=notes[i]
+    end
+  end
+  return unused
 end
 
 return M
