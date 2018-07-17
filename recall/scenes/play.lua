@@ -88,6 +88,7 @@ local function restart()
   scene.keys:clear()
   scene:switchOnStartButton()
   scene.stepProgresBar:reset()
+  scene:setRestartButtonVisibility(false)
 end
 
 local countMistakes
@@ -214,7 +215,7 @@ function scene:create(event)
   scene.bg=bg
 
   bg:addEventListener("tap",function(event)
-    if self.startButton.isVisible then
+    if self.startButtonTimer then
       return true
     end
     local wrong=display.newCircle(scene.view,event.x,event.y,10)
@@ -242,15 +243,7 @@ function scene:create(event)
   redBackground:setFillColor(1,0,0)
   redBackground.alpha=0
   self.redBackground=redBackground
-  self.startButton=button.create('Start','use',function()
-    self.startButton.isVisible=false
-    self.bg:toBack()
-    self.sequenceStartMillis=system.getTimer()
-    return true
-  end)
-  self.startButton:translate(display.contentCenterX,display.contentCenterY/2)
-  self.view:insert(self.startButton)
-
+  self:createRestartButton()
   for i=1, self.view.numChildren do
     self.view[i].doNotRemoveOnHide=true
   end
@@ -264,6 +257,7 @@ function scene:createKeys()
       if stepID and stepID~=state.get("stepID") then
         return
       end
+      self:setRestartButtonVisibility(self.allowRestarts)
       logger.setProgress(nil)
       if data then
         data.phase=self.phase
@@ -363,11 +357,38 @@ function scene:createKeys()
   return group
 end
 
+function scene:createRestartButton()
+  self.restartButton=display.newImage(self.view,'img/restart.png')
+  self.restartButton:scale(0.25,0.25)
+  self.restartButton.anchorX=1
+  self.restartButton.anchorY=0
+  self.restartButton.x=display.contentWidth-20
+  self.restartButton.y=20
+  self.restartButton.isVisible=false
+
+  self.restartSensor=display.newCircle(
+    self.view,
+    self.restartButton.x-self.restartButton.contentWidth/2,
+    self.restartButton.y+self.restartButton.contentHeight/2,
+    self.restartButton.contentHeight)
+  self.restartSensor.isVisible=false
+  self.restartSensor.isHitTestable=false
+
+  self.restartSensor:addEventListener('tap', restart)
+end
+
+function scene:setRestartButtonVisibility(bool)
+  self.restartButton.isVisible=bool
+  self.restartSensor.isHitTestable=bool
+end
+
 function scene:switchOnStartButton()
   if self.hasStartButton then
-    self.startButton.isVisible=true
     self.bg:toFront()
-    self.startButton:toFront()
+    self.startButtonTimer=timer.performWithDelay(1000, function()
+      self.startButtonTimer=nil
+      self.bg:toBack()
+    end)
   end
 end
 
@@ -391,9 +412,9 @@ function scene:show(event)
   nextScene=params.nextScene or "scenes.score"
   isScheduledPractice=params.isScheduledPractice
   self.hasStartButton=params.requireStartButton
-  self.startButton.isVisible=self.hasStartButton
   logger.setIsScheduled(isScheduledPractice or false)
   self.phase=params.phase
+  self.allowRestarts=params.allowRestarts
 
   local setTrack=params.track
 
@@ -438,8 +459,10 @@ function scene:show(event)
 end
 
 function scene:hide(event)
-  scene.startButton:toFront()
   if event.phase=="will" then
+    if self.startButtonTimer then
+      timer.cancel(self.startButtonTimer)
+    end
   end
   if event.phase=="did" then
     keysparks.clear()
