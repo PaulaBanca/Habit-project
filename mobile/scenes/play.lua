@@ -429,82 +429,86 @@ end
 function scene:createKeys()
   local mistakeInLastTouches=false
   local group=display.newGroup()
-  local ks=keys.create(function(stepID,data)
-    if stepID and stepID~=state.get("stepID") then
-      return
-    end
-    logger.setProgress(nil)
-    if data then
-      data.mistakes=mistakesPerMode[modeIndex]
-      if rewardType~="none" then
-        data.bank=tonumber(scene.bank:getScore())
+  local ks=keys.create({
+    onAllReleased=function(stepID,data)
+      if stepID and stepID~=state.get("stepID") then
+        return
       end
-    end
-    if not mistakeInLastTouches then
-      if getIndex()==1 then
-        countMistakes=true
+      logger.setProgress(nil)
+      if data then
+        data.mistakes=mistakesPerMode[modeIndex]
+        if rewardType~="none" then
+          data.bank=tonumber(scene.bank:getScore())
+        end
       end
-      bankPoints()
-      if hasCompletedRound() then
-        if data then
-          data["practiceProgress"]="sequence completed"
+      if not mistakeInLastTouches then
+        if getIndex()==1 then
+          countMistakes=true
         end
-        completeRound()
-        if completeTask() then
-          return
-        end
-        if trackList then
-          switchSong(table.remove(trackList))
-          if #trackList==0 then
-            trackList=nil
+        bankPoints()
+        if hasCompletedRound() then
+          if data then
+            data["practiceProgress"]="sequence completed"
+          end
+          completeRound()
+          if completeTask() then
+            return
+          end
+          if trackList then
+            switchSong(table.remove(trackList))
+            if #trackList==0 then
+              trackList=nil
+            end
           end
         end
-      end
-      if isStart and getIndex()==#sequence then
-        local done=modeIndex==startModeProgression
-        changeModeUp()
-        sequence=startModeProgression and modeProgressionSequence or startInstructions
-        restart()
-        if done or not startModeProgression then
-          composer.hideOverlay()
-          composer.gotoScene(nextScene)
+        if isStart and getIndex()==#sequence then
+          local done=modeIndex==startModeProgression
+          changeModeUp()
+          sequence=startModeProgression and modeProgressionSequence or startInstructions
+          restart()
+          if done or not startModeProgression then
+            composer.hideOverlay()
+            composer.gotoScene(nextScene)
+          end
+        else
+          proceedToNextStep()
         end
-      else
-        proceedToNextStep()
       end
-    end
-    mistakeInLastTouches=false
-    setUpReward()
-    setupNextKeys()
-  end,function(allReleased,stepID,data)
-    madeMistake()
-    mistakeAnimation(self.redBackground)
-
-    if data then
-      data.mistakes=mistakesPerMode[modeIndex]
-      data.lives=3-state.get("mistakes")
-      if rewardType~="none" then
-        data.bank=tonumber(scene.bank:getScore())
-      end
-    end
-
-    local modesDropped=shouldDropModeDown()
-    restart()
-    if modesDropped then
-      dropModeDown()
       mistakeInLastTouches=false
+      setUpReward()
       setupNextKeys()
-    else
-      mistakeInLastTouches=true
-    end
-   end,function (data)
-    data.mistakes=mistakesPerMode[modeIndex]
-    data.lives=3-state.get("mistakes")
+    end,
+    onMistake=function(allReleased,stepID,data)
+      madeMistake()
+      mistakeAnimation(self.redBackground)
 
-    if rewardType~="none" then
-      data.bank=tonumber(scene.bank:getScore())
-    end
-   end,headless,isStart)
+      if data then
+        data.mistakes=mistakesPerMode[modeIndex]
+        data.lives=3-state.get("mistakes")
+        if rewardType~="none" then
+          data.bank=tonumber(scene.bank:getScore())
+        end
+      end
+
+      local modesDropped=shouldDropModeDown()
+      restart()
+      if modesDropped then
+        dropModeDown()
+        mistakeInLastTouches=false
+        setupNextKeys()
+      else
+        mistakeInLastTouches=true
+      end
+     end,
+     onKeyRelease=function (data)
+        data.mistakes=mistakesPerMode[modeIndex]
+        data.lives=3-state.get("mistakes")
+
+        if rewardType~="none" then
+          data.bank=tonumber(scene.bank:getScore())
+        end
+       end
+     },isStart)
 
   group:insert(ks)
 

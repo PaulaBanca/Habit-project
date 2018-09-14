@@ -89,7 +89,9 @@ function create(listenerFunctions,noLogging)
           data.complete=complete
           data.instructionIndex=keyInstance.instructionIndex
           data.keyIndex=keyInstance.index
-          listenerFunctions.onKeyPress(data)
+          if listenerFunctions.onKeyPress then
+            listenerFunctions.onKeyPress(data)
+          end
         end
 
         if keyInstance.onPress then
