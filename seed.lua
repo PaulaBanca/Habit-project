@@ -78,11 +78,20 @@ function setup(whenDone,forceEnter)
         end
       end
 
+      instruction:removeSelf()
+      textField:removeSelf()
+
+      if not text or not tonumber(text) then
+        native.showAlert("Warning", "Seed must be an integer value!", {"Okay" }, function()
+          setup(whenDone,force)
+        end)
+
+        return
+      end
+
       -- Show alert with two buttons
       local alert = native.showAlert("Confirm", "Set User Seed to " .. text .. ". This controlls the symbols and melodies the user will see", { "Cancel", "Okay" }, onComplete )
 
-      instruction:removeSelf()
-      textField:removeSelf()
     end
   end
 
