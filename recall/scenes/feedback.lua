@@ -42,6 +42,7 @@ function scene:show(event)
   bg:setFillColor(0)
 
   bg:addEventListener('tap', function() return true end)
+  bg:addEventListener('touch', function() return true end)
 
   local barWidth=150
   local barHeight=40
