@@ -9,21 +9,27 @@ local tostring=tostring
 local pairs=pairs
 local os=os
 local system=system
+local setmetatable=setmetatable
+local type=type
+local print=print
+local table=table
 
 setfenv(1,M)
 
 local additionalData={}
 local validKeys={
   iterations="setIterations",
-  score="setScore",
-  bank="setBank",
-  isPractice="setIsScheduled",
-  practices="setPractices",
-  attempt="setAttempts",
   mistakes="setTotalMistakes",
   track="setTrack",
-  lives="setLives",
   practiceProgress="setProgress",
+  restartForced="setRestartForced",
+  correctKeyPattern="setCorrectKeys",
+  feedbackPattern="setFeedbackPattern",
+}
+
+local defaultValues={
+  complete=false,
+  wasCorrect=false
 }
 function set(key,value)
   assert(validKeys[key],tostring(key) .. " not recognised")
@@ -45,11 +51,20 @@ function createLoggingTable()
   for k, v in pairs(additionalData) do
     t[k]=v
   end
+
+  t=setmetatable(t,{
+    __index=function(t,k)
+      if defaultValues[k] then
+        return defaultValues[k]
+      end
+      return ''
+    end
+  })
   return t
 end
 
 local csvWriter
-function log(type,t)
+function log(_type,t)
   if not csvWriter then
     local filename=('%s-recall-%s.csv'):format(user.getID(),os.date('%T_%F'))
     filename=filename:gsub(':','·')

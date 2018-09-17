@@ -39,4 +39,3 @@ function login(force)
   end,force)
 end
 login()
-

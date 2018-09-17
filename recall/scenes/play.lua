@@ -16,11 +16,15 @@ local button=require "ui.button"
 local progress=require "ui.progress"
 local _=require "util.moses"
 local events=require "events"
+local serpent=require "serpent"
 local display=display
 local transition=transition
+local easing=easing
 local system=system
 local timer=timer
 local table=table
+local print=print
+local NUM_KEYS=NUM_KEYS
 
 setfenv(1,scene)
 
@@ -34,6 +38,7 @@ local nextScene
 local isScheduledPractice
 local trackList
 local stimulusScale=0.35
+local lastMistakeIndex
 
 local function switchSong(newTrack)
   local x,y=display.contentCenterX, 53
@@ -51,8 +56,7 @@ local function switchSong(newTrack)
   img:scale(stimulusScale,stimulusScale)
   scene.img=img
   logger.setTrack(track)
-  scene:switchOnStartButton()
-  scene.sequenceStartMillis=system.getTimer()
+  scene:itiScreen(function() end)
 end
 
 local function roundCompleteAnimation()
@@ -82,27 +86,25 @@ local function getIndex()
   return state.get("count")%#sequence+1
 end
 
-local lastMistakeTime=system.getTimer()
-local function restart()
+local function restart(onReady)
   state.restart()
   scene.keys:clear()
-  scene:switchOnStartButton()
   scene.stepProgresBar:reset()
   scene:setRestartButtonVisibility(false)
+  logger.setProgress("restart")
+
+  scene:itiScreen(onReady)
 end
 
-local countMistakes
 local function madeMistake()
-  scene.highlight[getIndex()]=true
-  local time=system.getTimer()
-  if time-lastMistakeTime>500 then
-    state.increment("mistakes")
-    lastMistakeTime=time
-    events.fire({type='mistake',total=state.get('mistakes')})
+  local index=getIndex()
+  if index==lastMistakeIndex then
+    return
   end
-  if countMistakes then
-    countMistakes=false
-  end
+  lastMistakeIndex=index
+  scene.highlight[index]=true
+  state.increment("mistakes")
+  events.fire({type='mistake',total=state.get('mistakes')})
 end
 
 function hasCompletedRound()
@@ -112,6 +114,7 @@ end
 
 
 function completeRound()
+
   if scene.keys:hasPendingInstruction() then
     return
   end
@@ -121,6 +124,8 @@ function completeRound()
   if not hasCompletedRound() then
     return
   end
+
+  lastMistakeIndex=nil
 
   state.increment("rounds")
   local rounds=state.get("rounds")
@@ -132,14 +137,12 @@ function completeRound()
 
   state.increment("iterations")
   state.clear("mistakes")
-  logger.setLives(3-state.get("mistakes"))
 
   scene.keys:clear()
+  scene:setRestartButtonVisibility(false)
 
   logger.setIterations(state.get("iterations"))
-  scene:switchOnStartButton()
   roundCompleteAnimation()
-  scene.sequenceStartMillis=system.getTimer()
 end
 
 function proceedToNextStep()
@@ -178,20 +181,30 @@ function setupNextKeys()
 
   scene.keys:enable()
   state.increment("stepID")
+  logger.setTotalMistakes(state.get("mistakes"))
+
   local index=getIndex()
   local nextIntruction=sequence[index]
   local noAid,noFeedback,noHighlight=true,true,true
-  local sequencesPlayed=state.get("rounds")
-  if scene.phase=='B' and sequencesPlayed>=maxLearningLength then
+
+  if scene.phase=='B2' then
     noFeedback=false
   end
-  if scene.phase=='C' then
+  if scene.phase:sub(1,1)=='C' then
     noFeedback=false
     noAid=not scene.highlight[getIndex()]
     noHighlight=noAid
   end
 
   local targetKeys=scene.keys:setup(nextIntruction,noAid,noFeedback,noHighlight,index,state.get("stepID"),true)
+
+  do
+    local pattern={}
+    for i=1, NUM_KEYS do
+      pattern[i]=targetKeys[i] and "1" or "0"
+    end
+    logger.setCorrectKeys(table.concat(pattern, ""))
+  end
 
   display.remove(scene.chordBar)
   scene.chordBar=nil
@@ -258,7 +271,7 @@ function scene:createKeys()
         return
       end
       self:setRestartButtonVisibility(self.allowRestarts)
-      logger.setProgress(nil)
+      logger.setProgress('')
       if data then
         data.phase=self.phase
       end
@@ -267,16 +280,25 @@ function scene:createKeys()
         self.presses[getIndex()]=self.presses[getIndex()] or {}
         self.highlight[getIndex()]=false
         self.stepProgresBar:mark(getIndex(),true)
-        if getIndex()==1 then
-          countMistakes=true
-        end
         if roundComplete then
           if data then
             data["practiceProgress"]="sequence completed"
           end
 
           completeRound()
-          scene.stepProgresBar:reset()
+
+          scene.stepProgresBar:toFront()
+          transition.to(scene.stepProgresBar,{
+            delay=100,
+            time=200,
+            xScale=0,
+            transition=easing.inOutQuart,
+            onComplete=function()
+              scene.stepProgresBar:reset()
+              scene.stepProgresBar:toBack()
+              scene.stepProgresBar.xScale=1
+            end
+          })
 
           if completeTask() then
             return
@@ -291,16 +313,20 @@ function scene:createKeys()
         proceedToNextStep()
       end
       mistakeInLastTouches=false
-      if scene.phase=='B' and roundComplete then
+      if scene.phase:sub(1,1)=='B' and roundComplete then
         composer.showOverlay('scenes.feedbacksimple',{
           params={
             feedback=scene.presses,
             onComplete=function()
-              setupNextKeys()
-              self.presses={}
+              scene:itiScreen(function(feedback)
+                setupNextKeys()
+                self.presses={}
+              end)
             end
           }
         })
+      elseif roundComplete then
+        scene:itiScreen(setupNextKeys)
       else
         setupNextKeys()
       end
@@ -309,42 +335,42 @@ function scene:createKeys()
       madeMistake()
       if data then
         data.instructionIndex=getIndex()
+        data.mistakes=state.get("mistakes")
       end
-      if self.phase=='B' then
+
+      if self.phase:sub(1,1)=='B' then
         local setPresses=self.presses[getIndex()] or {}
         setPresses[data.keyIndex]=false
         self.presses[getIndex()]=setPresses
       end
-      if self.phase~='C' then
+      if self.phase:sub(1,1)~='C' then
         return
       end
       scene.stepProgresBar:reset()
 
-      if data then
-        data.mistakes=state.get("mistakes")
-        data.lives=3-state.get("mistakes")
-      end
-
+      logger.setProgress('restart')
       mistakeAnimation(self.redBackground)
-      restart()
+      restart(function() end)
 
       mistakeInLastTouches=true
     end,
     onKeyRelease=function (data)
       data.mistakes=state.get("mistakes")
-      data.lives=3-state.get("mistakes")
-      data.millisSinceStart=system.getTimer()-self.sequenceStartMillis
+      data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
     end,
     onKeyPress=function(data)
       if not data then
         return
       end
       local setPresses=self.presses[getIndex()] or {}
+
       setPresses[data.keyIndex]=data.wasCorrect
       self.presses[getIndex()]=setPresses
       data.phase=self.phase
-      data.millisSinceStart=system.getTimer()-self.sequenceStartMillis
-      data.hint=self.phase=='C' and self.highlight[getIndex()]
+      data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
+      data.hint=self.phase:sub(1,1)=='C' and self.highlight[getIndex()] or false
+      data.mistakes=state.get("mistakes")
+      logger.setRestartForced(false)
     end
   },
   false)
@@ -374,7 +400,12 @@ function scene:createRestartButton()
   self.restartSensor.isVisible=false
   self.restartSensor.isHitTestable=false
 
-  self.restartSensor:addEventListener('tap', restart)
+  self.restartSensor:addEventListener('tap', function()
+    state.clear("mistakes")
+    lastMistakeIndex=nil
+    logger.setRestartForced(true)
+    restart(setupNextKeys)
+  end)
 end
 
 function scene:setRestartButtonVisibility(bool)
@@ -382,12 +413,16 @@ function scene:setRestartButtonVisibility(bool)
   self.restartSensor.isHitTestable=bool
 end
 
-function scene:switchOnStartButton()
+function scene:itiScreen(onEnd)
   if self.hasStartButton then
     self.bg:toFront()
+    if self.stepProgresBar then
+      self.stepProgresBar:toFront()
+    end
     self.startButtonTimer=timer.performWithDelay(1000, function()
       self.startButtonTimer=nil
       self.bg:toBack()
+      onEnd()
     end)
   end
 end
@@ -403,7 +438,6 @@ function scene:show(event)
   maxLearningLength=params.iterations or 10
   learningLength=maxLearningLength
   -- composer.showOverlay("scenes.dataviewer")
-  countMistakes=true
 
   startModeProgression=params.modeProgression
   headless=params.headless
@@ -412,8 +446,9 @@ function scene:show(event)
   nextScene=params.nextScene or "scenes.score"
   isScheduledPractice=params.isScheduledPractice
   self.hasStartButton=params.requireStartButton
-  logger.setIsScheduled(isScheduledPractice or false)
+  self.loggingPhase=params.loggingPhase
   self.phase=params.phase
+
   self.allowRestarts=params.allowRestarts
 
   local setTrack=params.track
@@ -423,12 +458,10 @@ function scene:show(event)
 
   state=playstate.create()
   state.startTimer()
-  logger.setScore(0)
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(state.get("mistakes"))
-  logger.setLives(3-state.get("mistakes"))
+  logger.setRestartForced(false)
 
-  logger.setBank(0)
   logger.setProgress("start")
 
   local keyGroup=self:createKeys()
@@ -452,10 +485,11 @@ function scene:show(event)
     self.view:insert(self.stepProgresBar)
   end
 
+  self.phaseStartMillis=system.getTimer()
   switchSong(setTrack)
-
-  restart()
-  setupNextKeys()
+  restart(setupNextKeys)
+  logger.setProgress('phase start')
+  logger.setFeedbackPattern('n/a')
 end
 
 function scene:hide(event)
