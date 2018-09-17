@@ -26,17 +26,17 @@ end
 
 function create(path,headers)
   if not testFileExists(path) then
-    local s=table.concat(headers, ", ")
+    local s=table.concat(headers, ",")
     appendToFile(path,s)
   end
 
   return function (t)
     local temp={}
     for k, v in ipairs(headers) do
-      temp[k]=tostring(t[v] or 'false')
+      temp[k]=tostring(t[v])
     end
 
-    appendToFile(path,table.concat(temp, ", "))
+    appendToFile(path,table.concat(temp, ","))
   end
 end
 
