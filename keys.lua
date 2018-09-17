@@ -31,7 +31,7 @@ local noChords=system.getInfo("environment")=="simulator"
 function create(listenerFunctions,noLogging)
   local group=display.newGroup()
   local keys={}
-  local complete
+  local complete=false
   local currentlyPressedKeys={}
   local targetKeys={}
   local noFeedback=false
@@ -69,7 +69,7 @@ function create(listenerFunctions,noLogging)
     img.touch=function(self,event)
       if event.phase=="began" then
         display.getCurrentStage():setFocus(event.target,event.id)
-        wasCorrect=targetKeys[i] and not currentlyPressedKeys[i]
+        wasCorrect=targetKeys[i] and not currentlyPressedKeys[i] or false
         currentlyPressedKeys[i]=true
         stepID=keyInstance.stepID
         self.touchID=event.id
