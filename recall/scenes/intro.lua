@@ -4,11 +4,14 @@ local scene=composer.newScene()
 local phasemanager=require "phasemanager"
 local events=require "events"
 local _=require "util.moses"
+local serpent=require "serpent"
 local display=display
 local type=type
 local math=math
+local timer=timer
 local setmetatable=setmetatable
 local rawget=rawget
+local print=print
 local FLAGS=FLAGS
 
 setfenv(1,scene)
@@ -63,7 +66,7 @@ local instructions={
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
-      phase="A",
+      phase="A1",
       nextScene="scenes.intro",
       noSwitch=true,
       allowRestarts=true,
@@ -88,7 +91,7 @@ local instructions={
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
-      phase="A",
+      phase="A2",
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
@@ -103,9 +106,23 @@ local instructions={
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
-      phase="B",
+      phase="B1",
       nextScene="scenes.intro",
       noSwitch=true,
+      rounds=1,
+      iterations=FLAGS.QUICK_ROUNDS and 4
+    },getTrackMT)
+  },
+  {
+    phase='B2',
+    scene="scenes.play",
+    seamless=true,
+    params=setmetatable({
+      requireStartButton=true,
+      phase="B2",
+      nextScene="scenes.intro",
+      noSwitch=true,
+      rounds=1,
       iterations=FLAGS.QUICK_ROUNDS and 1
     },getTrackMT)
   },
@@ -119,7 +136,7 @@ local instructions={
     fontSize=15,
     scene="scenes.play",
     params=setmetatable({
-      phase="C",
+      phase="C1",
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
@@ -129,7 +146,7 @@ local instructions={
   {
 
     phase='C2',
-    text="New instructions",
+    text="Now you will learn a new sequence. Use the feedback to memorise it.",
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -143,7 +160,7 @@ local instructions={
       return icon
     end,
     params=setmetatable({
-      phase="C",
+      phase="C2",
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
@@ -183,6 +200,19 @@ function scene:show(event)
 
   if step.onShow then
     step.onShow()
+  end
+
+  local function nextPage()
+    self.page=self.page+1
+    if step.onComplete then
+      step.onComplete()
+    end
+    composer.gotoScene(step.scene and step.scene or "scenes.intro",{
+      params=step.params
+    })
+  end
+  if step.seamless then
+    return timer.performWithDelay(1,nextPage)
   end
 
   local obj
@@ -250,15 +280,7 @@ function scene:show(event)
       align="center"
     })
 
-    bg:addEventListener("tap", function ()
-      self.page=self.page+1
-      if step.onComplete then
-        step.onComplete()
-      end
-      composer.gotoScene(step.scene and step.scene or "scenes.intro",{
-        params=step.params
-      })
-    end)
+    bg:addEventListener("tap", nextPage)
   end
 end
 scene:addEventListener("show")
