@@ -31,8 +31,9 @@ local validKeys={
   mode="setMode",
   lives="setLives",
   deadmanSwitchRelease="setDeadmansSwitchID",
-  practiceProgress="setProgress",
+  practiceProgress="setProgress"
 }
+
 function set(key,value)
   assert(validKeys[key],tostring(key) .. " not recognised")
   additionalData[key]=value
