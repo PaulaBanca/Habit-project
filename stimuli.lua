@@ -3,12 +3,18 @@ stimuli=M
 
 local display=display
 local palstyleshapes=require "palstyleshapes.palstyleshapes"
+local kochseed = require "koch.kochseed"
+local colourtools = require "koch.colourtools"
+local koch=require "koch.koch"
+
 local math=math
 local os=os
 local assert=assert
 local _=require "util.moses"
 
 setfenv(1,M)
+
+useNewShapes = false
 
 local seeds={}
 
@@ -48,7 +54,21 @@ function getStimulus(n)
   local bg=display.newRect(group,0, 0, 238, 238)
   bg.strokeWidth=8
   bg:setFillColor(0.3)
-  local shape=palstyleshapes.create(238-strokeWidth/2,238-strokeWidth/2)
+
+  local shape
+  if useNewShapes then
+    shape = koch.create(kochseed.create(),100,25,function(num)
+      local count=-1
+      return function()
+        count=count+1
+        local t=count*math.pi*2/num
+        return colourtools.HSVToRGB(count*360/num,math.sin(t)*0.2+0.8,1)
+      end
+    end, false)
+  else
+    shape=palstyleshapes.create(238-strokeWidth/2,238-strokeWidth/2)
+  end
+
   group:insert(shape)
   group.anchorChildren=true
   math.randomseed(os.time())
