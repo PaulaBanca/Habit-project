@@ -110,7 +110,7 @@ local instructions={
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 4
+      iterations=FLAGS.QUICK_ROUNDS and 4 or 7
     },getTrackMT)
   },
   {
@@ -123,7 +123,7 @@ local instructions={
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 7
     },getTrackMT)
   },
   -- PHASE C
@@ -140,7 +140,7 @@ local instructions={
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
-      iterations=FLAGS.QUICK_ROUNDS and 1
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
     },getTrackMT)
   },
   {
@@ -164,7 +164,7 @@ local instructions={
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
-      iterations=FLAGS.QUICK_ROUNDS and 1
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
     },getTrackMT)
   },
   {
