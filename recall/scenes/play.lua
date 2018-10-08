@@ -164,11 +164,25 @@ function completeTask()
 
     end
     timer.performWithDelay(600, function()
-      events.fire({type='phase finished'})
-      composer.gotoScene(nextScene,{params={
-        track=track}
-      })
-      composer.hideOverlay()
+
+      local function gotoNextScene()
+        events.fire({type='phase finished'})
+        composer.gotoScene(nextScene,{params={
+          track=track}
+        })
+        composer.hideOverlay()
+      end
+
+      if scene.phase:sub(1,1)=='B' then
+        composer.showOverlay('scenes.feedbacksimple',{
+          params={
+            feedback=scene.presses,
+            onComplete=gotoNextScene
+          }
+        })
+      else
+        gotoNextScene()
+      end
     end)
     return true
   end
