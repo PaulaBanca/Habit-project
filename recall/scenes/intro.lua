@@ -140,6 +140,7 @@ local instructions={
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
+      rounds=1,
       iterations=FLAGS.QUICK_ROUNDS and 1 or 15
     },getTrackMT)
   },
@@ -164,6 +165,7 @@ local instructions={
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
+      rounds=1,
       iterations=FLAGS.QUICK_ROUNDS and 1 or 15
     },getTrackMT)
   },
