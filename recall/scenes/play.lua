@@ -347,7 +347,7 @@ function scene:createKeys()
         return
       end
       scene.stepProgresBar:reset()
-
+      logger.setRestartForced('mistake')
       logger.setProgress('restart')
       mistakeAnimation(self.redBackground)
       restart(function() end)
