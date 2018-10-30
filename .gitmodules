@@ -6,4 +6,4 @@
 	url = https://personalnadir@github.com/Yonaba/Moses.git
 [submodule "koch"]
 	path = koch
-	url = /Users/tap32/Programming/KochFractals
+	url = https://personalnadir@github.com/PaulaBanca/koch.git
