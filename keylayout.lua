@@ -22,7 +22,9 @@ function layout(instruction)
       local chord={}
       for i=1, #instruction.chord do
         local scientificNote=instruction.chord[i]
-        chord[scientificNote]=true
+        if scientificNote then
+          chord[scientificNote]=true
+        end
       end
 
       local availablePositions={}
