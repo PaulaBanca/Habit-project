@@ -4,6 +4,7 @@ playlayout=M
 local math=math
 local display=display
 local system=system
+local NUM_KEYS = NUM_KEYS
 
 setfenv(1,M)
 
@@ -18,7 +19,14 @@ RADIUS=(math.min(130*display.contentScaleX,display.contentWidth/8)*1.7)*keyScale
 ELIPSE_XSCALE=3
 
 function layout(i)
-  local t=((math.pi-math.pi/2.25)*(i-1)/4)+math.pi+math.pi/3.5
+  local step = 2.25
+  local offset = 3.5
+  if NUM_KEYS == 3 then
+  	step = 1.8
+  	offset = 3
+  end
+
+  local t=((math.pi-math.pi/step)*(i-1)/NUM_KEYS)+math.pi+math.pi/offset
   return math.cos(t)*RADIUS*ELIPSE_XSCALE+CX,math.sin(t)*RADIUS+CY
 end
    

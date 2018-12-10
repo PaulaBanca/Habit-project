@@ -18,6 +18,7 @@ local sessionlogger=require "sessionlogger"
 local deadmansswitch=require "ui.deadmansswitch"
 local keysparks=require "ui.keysparks"
 local _=require "util.moses"
+local serpent = require ("serpent")
 local unpack=unpack
 local display=display
 local math=math
@@ -31,6 +32,7 @@ local tonumber=tonumber
 local Runtime=Runtime
 local os=os
 local pairs=pairs
+local NUM_KEYS=NUM_KEYS
 
 setfenv(1,scene)
 
@@ -69,6 +71,20 @@ local modeProgressionSequence={
   {chord={"none","none","d4","none"},forceLayout=true},
   {chord={"none","none","none","g4"},forceLayout=true},
 }
+
+if NUM_KEYS==3 then
+  table.remove(modeProgressionSequence, #modeProgressionSequence)
+  for i=1, #modeProgressionSequence do
+    local chord=modeProgressionSequence[i].chord
+    table.remove(chord,#chord)
+  end
+
+  table.remove(startInstructions, 4)
+  for i=1, #startInstructions do
+    local chord=startInstructions[i].chord
+    table.remove(chord,#chord)
+  end
+end
 
 local function switchSong(newTrack)
   local x,y=display.contentCenterX, scene.progress.iconY

@@ -8,6 +8,7 @@ local notes=require "notes"
 local math=math
 local timer=timer
 local print=print
+local NUM_KEYS=NUM_KEYS
 
 setfenv(1,M)
 
@@ -20,6 +21,9 @@ elseif display.pixelHeight>=1920 and system.getInfo("model")=="iPhone" then
   keyScale=1.25
 end
 
+if NUM_KEYS<4 then
+  keyScale = keyScale * 1.15
+end
 
 function createImages(whenDone)
   if ran then
@@ -33,7 +37,13 @@ function createImages(whenDone)
   c:scale(1,1.75)
 
   keyWidth,keyHeight=c.contentWidth,c.contentHeight
-  display.save(c, {filename="key.png",isFullResolution=true})
+  for i=1, 10 do
+    display.save(c, {filename="key.png",isFullResolution=true})
+    if system.getInfo("environment") ~= "simulator" then
+      break
+    end
+  end
+  
   c.strokeWidth=8
   c:setStrokeColor(0)
   display.save(c, {filename="key_pressed.png",isFullResolution=true})

@@ -6,6 +6,7 @@ local print=print
 local table=table
 local _=require "util.moses"
 local serpent=require "serpent"
+local NUM_KEYS = NUM_KEYS
 
 setfenv(1,M)
 
@@ -14,11 +15,12 @@ local badCombos={
   {true,false,true,true},
   {true,true,false,true},
 }
-local iters={
-  _.permutation({true,true,true,false}),
-  _.permutation({true,true,false,false}),
-  _.permutation({true,false,false,false})
-}
+
+local iters={}
+
+for i=1, NUM_KEYS do
+  iters[i] = _.permutation(_.append(_.rep(true, i),_.rep(false, NUM_KEYS-i)))
+end
 
 local allCombos={}
 for i=1,#iters do
@@ -26,8 +28,13 @@ for i=1,#iters do
     allCombos[#allCombos+1]=_.clone(nextPermutation)
   end
 end
+
+if NUM_KEYS<4 then
+  badCombos = {}
+end
+
 allCombos=_(allCombos):unique():difference(badCombos):value()
-local summary=_.rep(0,4)
+local summary=_.rep(0,NUM_KEYS)
 for i=1, #allCombos do
   local t=allCombos[i]
   for k=1,#t do
@@ -90,7 +97,7 @@ function create(recipe)
     return _.range(1,#v)
   end) 
   local tune={}
-  local summary=_.rep(0,4)
+  local summary=_.rep(0,NUM_KEYS)
   local hash=0
   local structure=generateTouchStructure(recipe)
   for i=1, recipe.length do
@@ -105,7 +112,7 @@ function create(recipe)
     end
     tune[i]=createStep(keys)
   end
-  for i=1,4 do
+  for i=1,NUM_KEYS do
     if summary[i]==0 then
       return create(recipe)
     end

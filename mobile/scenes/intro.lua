@@ -13,7 +13,7 @@ setfenv(1,scene)
 
 local instructions={
   {text="Welcome!\n\nThis App will help you to learn 2 sequences of finger presses",y=display.contentCenterY-40},
-  {text="You will tap out the sequences on circles like the ones below.\n\nPlace one finger on each circle and give it a go! Tap the coloured circles.\nIn the example below, tap the 3 coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function()
+  {text="You will tap out the sequences on circles like the ones below.\n\nPlace one finger on each circle and give it a go! Tap the coloured circles.\nIn the example below, tap all the coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function()
     local k=keys.create({
         onAllReleased=function() end,
         onMistake=function() end,
@@ -23,7 +23,7 @@ local instructions={
     scene.view:insert(k)
     k:toBack()
     k:enable()
-    local targetKeys=k:setup({chord={"a3","f4","c4"}},false,false,false,1)
+    local targetKeys=k:setup({chord={"a3",nil,"c4"}},false,false,false,1)
     local hint=chordbar.create(targetKeys)
     if hint then
       hint:translate(0,-k:getKeyHeight()/2)
