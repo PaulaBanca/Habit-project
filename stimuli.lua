@@ -14,7 +14,7 @@ local _=require "util.moses"
 
 setfenv(1,M)
 
-useNewShapes = false
+useNewShapes = true
 
 local seeds={}
 
