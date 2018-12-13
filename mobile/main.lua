@@ -19,7 +19,7 @@ end
 function start()
   local key=require "key"
   native.setActivityIndicator(true)
-  key.createImages(function() 
+  key.createImages(function()
     native.setActivityIndicator(false)
     local composer=require "composer"
     composer.gotoScene("scenes.setup")
