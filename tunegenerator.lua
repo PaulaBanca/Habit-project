@@ -18,8 +18,8 @@ local badCombos={
 
 local iters={}
 
-for i=1, NUM_KEYS do
-  iters[i] = _.permutation(_.append(_.rep(true, i),_.rep(false, NUM_KEYS-i)))
+for i=1, NUM_KEYS-1 do
+  iters[i] = _.permutation(_.append(_.rep(true, NUM_KEYS-i),_.rep(false,i)))
 end
 
 local allCombos={}
@@ -42,7 +42,7 @@ for i=1, #allCombos do
   end
 end
 
-local allCombosByFingers=_.groupBy(allCombos,function(i,value) 
+local allCombosByFingers=_.groupBy(allCombos,function(i,value)
   return _.count(value,true)
 end)
 
@@ -59,23 +59,23 @@ function createStep(keys)
     noteIndicies[i]=(noteIndicies[i-1]+1)%#notes+1
   end
   local lastPitch=math.random(#pitches)
-  local notes=_.map(noteIndicies,function(k,v)
+  local notes=_.map(noteIndicies,function(_,v)
     local pitch=pitches[lastPitch]
     local nextPitch=math.random(#pitches)
     lastPitch=nextPitch>lastPitch and nextPitch or lastPitch
-    return notes[v]..pitch 
+    return notes[v]..pitch
   end)
 
   local step={
-    chord=_.map(keys,function(k,v)
-      if not v then 
+    chord=_.map(keys,function(_,v)
+      if not v then
         return "none"
       end
       return table.remove(notes,1)
     end),
     forceLayout=true
   }
-  return step 
+  return step
 end
 
 function generateTouchStructure(recipe)
@@ -95,7 +95,7 @@ function create(recipe)
   recipe=_.clone(recipe)
   local optionsByFingers=_.map(allCombosByFingers,function(k,v)
     return _.range(1,#v)
-  end) 
+  end)
   local tune={}
   local summary=_.rep(0,NUM_KEYS)
   local hash=0
