@@ -26,7 +26,7 @@ function scene:show(event)
   end
   local width=display.contentWidth-80
 
-  local data=event.params.data
+  local data = event.params.data or {}
   local bubbles = bubblechoice.create({
     width = width,
     labels = {
