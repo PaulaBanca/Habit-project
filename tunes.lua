@@ -47,10 +47,18 @@ local function passesTest(tuneKeys)
   return true
 end
 
-local recipe={
-  length=6,
-  multipleTouches={2,2,2,3}
-}
+local recipe
+if NUM_KEYS >= 4 then
+  recipe={
+    length= 6,
+    multipleTouches={2,2,2,3}
+  }
+else
+  recipe={
+    length=6,
+    multipleTouches={2,2,2}
+  }
+end
 
 function generateTunes()
   while true do

@@ -34,6 +34,7 @@ if NUM_KEYS<4 then
 end
 
 allCombos=_(allCombos):unique():difference(badCombos):value()
+
 local summary=_.rep(0,NUM_KEYS)
 for i=1, #allCombos do
   local t=allCombos[i]
@@ -100,6 +101,7 @@ function create(recipe)
   local summary=_.rep(0,NUM_KEYS)
   local hash=0
   local structure=generateTouchStructure(recipe)
+
   for i=1, recipe.length do
     local touches=structure[i]
     local options=optionsByFingers[touches]
