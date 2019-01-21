@@ -30,10 +30,10 @@ function scene:show(event)
   local bubbles = bubblechoice.create({
     width = width,
     labels = {
-      "not enjoyable at all",
-      "not very enjoyable",
-      "fairly enjoyable",
-      "very enjoyable"
+      {label = "horrible", img = "img/disappointed-but-relieved-face_1f625.png"},
+      {label = "not so good", img="img/pensive-face_1f614.png"},
+      {label = "ok", img="img/slightly-smiling-face_1f642.png"},
+      {label = "fun", img="img/smiling-face-with-open-mouth_1f603.png"}
     },
     labelTextColour = {1},
     labelColour = {0.5},
@@ -62,7 +62,7 @@ function scene:show(event)
   self.view:insert(bubbles)
 
   local query=display.newText({
-    text="How much did you enjoy playing this sequence?",
+    text="How do you feel about playing this sequence?",
     fontSize=20,
     width=display.contentWidth/2,
     align="center"

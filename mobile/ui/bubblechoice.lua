@@ -17,19 +17,28 @@ function bubblechoice.create(params, onSelect)
 
 	for i=1, #options do
 		local x = left + buttonSize/2 + step * (i-1)
-		local button = display.newCircle(group, x, 0, buttonSize/2)
-		button:setFillColor(unpack(params.labelColour or {1}))
-		button:setStrokeColor(unpack(params.labelStrokeColour or {1}))
-		button.strokeWidth = params.labelStrokeWidth or 0
+		local customImg = type(options[i]) == "table"
+		local button
+		if customImg then
+			button = display.newImage(group, options[i].img, x, 0)
+			button.width = buttonSize
+			button.height = buttonSize
+			line.isVisible = false
+		else
+			button = display.newCircle(group, x, 0, buttonSize/2)
+			button:setFillColor(unpack(params.labelColour or {1}))
+			button:setStrokeColor(unpack(params.labelStrokeColour or {1}))
+			button.strokeWidth = params.labelStrokeWidth or 0
+		end
+		local text = customImg and options[i].label or options[i]
 
-		local text = options[i]
 		local label = display.newText({
 			parent = group,
 			text = text,
 			fontSize = params.labelFontSize or 10,
 			align = "center",
 			x = button.x,
-			y = button.y,
+			y = customImg and button.y + buttonSize/2 + 10 or button.y,
 			width = buttonSize - 10
 		})
 
