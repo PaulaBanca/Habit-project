@@ -62,7 +62,7 @@ function scene:show(event)
   self.view:insert(bubbles)
 
   local query=display.newText({
-    text="How do you feel about playing this sequence?",
+    text="How did you feel about playing this sequence?",
     fontSize=20,
     width=display.contentWidth/2,
     align="center"
