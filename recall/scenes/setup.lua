@@ -77,9 +77,6 @@ function scene:show(event)
   if event.phase=="did" then
     return
   end
-  if user.get("left handed")~=nil then
-    composer.gotoScene("scenes.intro")
-  end
 end
 scene:addEventListener('show')
 
