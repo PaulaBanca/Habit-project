@@ -8,7 +8,6 @@ local media=media
 local keys=require "keys"
 local chordbar=require "ui.chordbar"
 local jsonreader=require "jsonreader"
-local NUM_KEYS = NUM_KEYS
 
 setfenv(1,scene)
 
@@ -39,12 +38,12 @@ local instructions={
   {text="Level 3:\n\nThe circles do not play any sounds.\n\nAt this level you should know the sequence by heart. Try now!",y=display.contentCenterY-80,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=3,difficulty=3}},
   {text="Level 4:\n\nThe circles are blank. Give it a go!",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=4,difficulty=4}},
   {text="The App only works if you keep a spare finger touching the screen while playing.\n\nHere are some examples of how to hold your phone.",y=display.contentCenterY-120},
-  {img=("img/keys_%d/instructions1.png"):format(NUM_KEYS)},
-  {img=("img/keys_%d/instructions2.png"):format(NUM_KEYS)},
-  {img=("img/keys_%d/instructions3.png"):format(NUM_KEYS)},
-  {img=("img/keys_%d/instructions4.png"):format(NUM_KEYS)},
+  {img="img/instructions1.png"},
+  {img="img/instructions2.png"},
+  {img="img/instructions3.png"},
+  {img="img/instructions4.png"},
   {onShow=function()
-    media.playVideo(("img/keys_%d/instructions.mov"):format(NUM_KEYS),system.ResourceDirectory,false,function()
+    media.playVideo("img/IMG_3659.MOV",system.ResourceDirectory,false,function()
       for i=scene.view.numChildren,1,-1 do
         scene.view[i]:removeSelf()
       end
