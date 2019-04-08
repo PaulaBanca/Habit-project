@@ -275,9 +275,6 @@ function hasCompletedRound()
 end
 
 function completeRound()
-  if scene.keys:hasPendingInstruction() then
-    return
-  end
   if headless then
     return
   end
@@ -349,7 +346,7 @@ function completeTask()
 end
 
 function setupNextKeys()
-  if scene.keys:hasPendingInstruction() or headless then
+  if headless then
     return
   end
 

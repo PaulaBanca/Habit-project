@@ -235,14 +235,6 @@ function create(listenerFunctions,noLogging)
     return targetKeys
   end
 
-  function group:hasPendingInstruction()
-    for i=1, #keys do
-      if keys[i].highlighted then
-        return
-      end
-    end
-  end
-
   function group:clear(keepChanged)
     if not keepChanged then
       keylayout.reset()
