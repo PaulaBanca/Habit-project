@@ -36,7 +36,7 @@ local soundInstancesByPurpose={}
 local duckMusic={}
 local dontUseLastFreeChannel={}
 local x,y=80,80
-for k,v in ipairs(soundFiles) do
+for _,v in ipairs(soundFiles) do
   assert(v.purpose)
   if not soundInstancesByPurpose[v.purpose] then
     soundInstancesByPurpose[v.purpose]={}
@@ -53,8 +53,8 @@ for k,v in ipairs(soundFiles) do
 end
 
 function showDebugButtons()
-  for k,list in pairs(soundInstancesByPurpose) do
-    for ik,sound in ipairs(list) do
+  for _,list in pairs(soundInstancesByPurpose) do
+    for _,sound in ipairs(list) do
       local button=display.newRoundedRect(x,y,80,80,8)
       function button:touch(event)
         if self.disable then
