@@ -25,6 +25,7 @@ local timer=timer
 local table=table
 local print=print
 local NUM_KEYS=NUM_KEYS
+local DIM_SOUNDS=DIM_SOUNDS
 
 setfenv(1,scene)
 
@@ -219,6 +220,9 @@ function setupNextKeys()
   display.remove(scene.chordBar)
   scene.chordBar=nil
 
+  if DIM_SOUNDS then
+    sound.playSound("dims 1")
+  end
   local createChordBar=not noAid
   if createChordBar then
     local chordBar=chordbar.create(targetKeys)
@@ -373,7 +377,9 @@ function scene:createKeys()
         return
       end
       local setPresses=self.presses[getIndex()] or {}
-
+      if DIM_SOUNDS then
+        sound.playSound("dims 2")
+      end
       setPresses[data.keyIndex]=data.wasCorrect
       self.presses[getIndex()]=setPresses
       data.phase=self.phase

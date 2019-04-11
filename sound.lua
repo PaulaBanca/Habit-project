@@ -27,6 +27,8 @@ local soundFiles={
   {name="g.wav", purpose="g note"},
   {name="a.wav", purpose="a note"},
   {name="b.wav", purpose="b note"},
+  {name="2Plucks1.wav", purpose="dims 1"},
+  {name="2Plucks2.wav", purpose="dims 2"},
   {name="feed.wav", purpose="wrong"},
   {name="323493__activeobjectx__c-chord.wav", purpose="correct"},
   {name="246281__afleetingspeck__a-guitar-chord-hit-percussion.wav", purpose="mistakes"},
