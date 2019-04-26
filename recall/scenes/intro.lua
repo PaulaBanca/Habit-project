@@ -74,30 +74,6 @@ local instructions={
       iterations=FLAGS.QUICK_ROUNDS and 1
     },getTrackMT)
   },
-  {
-    phase='A2',
-    text="Let’s do it again. This time the re-start option is no longer available. Once you start playing the sequence you have to finish it in one go.",
-    y=5,
-    width=display.contentWidth*7/8,
-    fontSize=15,
-    img=function()
-      local icon=phasemanager.getCurrentStimulus()
-      if icon.contentHeight>display.contentHeight*3/4 then
-        local scale=icon.contentHeight/display.contentHeight*3/4
-        icon:scale(scale,scale)
-      end
-      return icon
-    end,
-    scene="scenes.play",
-    params=setmetatable({
-      requireStartButton=true,
-      phase="A2",
-      nextScene="scenes.intro",
-      noSwitch=true,
-      rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1
-    },getTrackMT)
-  },
   -- PHASE B
   {
     phase='B',
