@@ -173,7 +173,7 @@ function scene:show(event)
   end)
   local step=phaseInstructions[self.page or 1]
   if not step then
-    return composer.gotoScene("scenes.complete")
+    return
   end
 
   if step.onShow then
