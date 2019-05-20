@@ -3,8 +3,14 @@ require "effects.effects"
 display.setStatusBar(display.HiddenStatusBar)
 system.activate("multitouch")
 
+require ("languages")
+
 local logger=require "logger"
 local user=require "user"
+
+
+-- FLAGS = {}
+-- FLAGS.NO_SOUND = true
 
 function logSessionStart(type)
   logger.log("session",{
@@ -22,11 +28,12 @@ function start()
   key.createImages(function()
     native.setActivityIndicator(false)
     local composer=require "composer"
-    composer.gotoScene("scenes.setup")
+    composer.gotoScene("scenes.selectlang")
   end)
 end
 
 function login(force)
+
   user.setup(function(newUser)
     if newUser then
       logSessionStart("new user")
@@ -36,6 +43,8 @@ function login(force)
       local logger=require "logger"
       logger.startCatchUp()
       start()
+      local tunes = require ("tunes")
+      tunes.printKeys()
     end)
   end,force)
 end

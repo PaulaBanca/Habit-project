@@ -2,6 +2,7 @@ local M={}
 user=M
 
 local jsonreader=require "jsonreader"
+local i18n = require ("i18n.init")
 local system=system
 local display=display
 local native=native
@@ -19,7 +20,7 @@ local chars={[[ ]],[[!]],[[#]],[[$]],[[%]],[[&]],[[(]],[[)]],[[*]],[[+]],[[-]],[
 function generatePassword()
   math.randomseed(os.time()+system.getTimer())
   local password={}
-  for i=1, 50 do 
+  for i=1, 50 do
     password[i]=chars[math.random(#chars)]
   end
 
@@ -32,7 +33,7 @@ function setup(whenDone,force)
   end
 
   local instruction=display.newText({
-    text="Enter the User ID",
+    text=i18n("configuration.enter_user"),
     fontSize=48,
   })
   instruction:translate(display.contentCenterX, display.contentCenterY-100)
@@ -55,14 +56,17 @@ function setup(whenDone,force)
       end
 
       -- Show alert with two buttons
-      local alert = native.showAlert("Confirm", "Set User ID to " .. text .. ". All data will logged against this id", { "Cancel", "Okay" }, onComplete )
+      local alert = native.showAlert(
+        i18n("configuration.confirm"),
+        i18n("configuration.set_user", {userid = text}),
+        { i18n("buttons.cancel"), i18n("buttons.ok") }, onComplete )
 
       instruction:removeSelf()
       textField:removeSelf()
     end
   end
 
- 
+
   textField = native.newTextField(display.contentCenterX, display.contentCenterY-40, display.contentWidth-20, 50)
 
   textField:addEventListener("userInput", textListener)

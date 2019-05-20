@@ -1,6 +1,7 @@
 local composer=require "composer"
 local scene=composer.newScene()
 
+local i18n = require ("i18n.init")
 local user=require "user"
 local display=display
 local system=system
@@ -9,14 +10,29 @@ setfenv(1,scene)
 
 composer.loadScene("scenes.select")
 local options={
-  {label="Melody Setup",options={"A","B"},selectFunc=function(v)
-    local c=composer.getScene("scenes.select")
-    c:setup(v=="A" and 0 or 1)
-    user.store("melody setup",v)
-  end},
-  {label="Left Handed",options={"Yes","No"},selectFunc=function(v)
-    user.store("left handed",v=="Yes")
-  end},
+  {
+    label=i18n("configuration.melody"),
+    options={
+      i18n("configuration.melody_option1"),
+      i18n("configuration.melody_option2")
+    },
+    selectFunc=function(v)
+      local c=composer.getScene("scenes.select")
+      local setup = v==i18n("configuration.melody_option1") and 0 or 1
+      c:setup(setup)
+      user.store("melody setup",setup)
+    end
+  },
+  {
+    label= i18n("configuration.handedness"),
+    options = {
+      i18n("configuration.handedness_is_left"),
+      i18n("configuration.handedness_is_not_left"),
+    },
+    selectFunc=function(v)
+      user.store("left handed",v==i18n("configuration.handedness_is_left"))
+    end
+  },
 }
 
 function scene:create()
@@ -70,7 +86,7 @@ function scene:create()
 
   display.newText({
     parent=button,
-    text="Done",
+    text=i18n("buttons.done"),
     fontSize=20
   }):translate(bg.x, bg.y)
 
@@ -88,7 +104,7 @@ function scene:show(event)
   if event.phase=="will" then
     if user.get("melody setup") then
       local c=composer.getScene("scenes.select")
-      c:setup(user.get("melody setup")=="A" and 0 or 1)
+      c:setup(user.get("melody setup"))
       if system.getInfo("environment")=="simulator" then
         composer.gotoScene("scenes.debug")
       else

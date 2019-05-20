@@ -2,11 +2,7 @@ local composer=require "composer"
 local scene=composer.newScene()
 
 local display=display
-local table=table
-local system=system
-local keys=require "keys"
-local chordbar=require "ui.chordbar"
-local jsonreader=require "jsonreader"
+local i18n = require ("i18n.init")
 
 setfenv(1,scene)
 
@@ -32,9 +28,9 @@ function scene:show(event)
     parent=scene.view,
     x=bg.x,
     y=bg.y,
-    text="Next",
+    text=i18n("buttons.next"),
     align="center"
-  }) 
+  })
 
   local nextScene,nextParams=event.params.nextScene,event.params.nextParams
   bg:addEventListener("tap", function (event)

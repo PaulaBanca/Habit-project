@@ -6,6 +6,7 @@ local user=require "user"
 local stimuli=require "stimuli"
 local tunes=require "tunes"
 local button=require "ui.button"
+local i18n = require ("i18n.init")
 local tonumber=tonumber
 local display=display
 local native=native
@@ -29,7 +30,7 @@ function setup(whenDone,forceEnter)
   end
 
   local instruction=display.newText({
-    text="Enter the Seed",
+    text=i18n("configuration.randomseed"),
     fontSize=48,
   })
   instruction:translate(display.contentCenterX, display.contentCenterY-100)
@@ -62,11 +63,11 @@ function setup(whenDone,forceEnter)
               back:removeSelf()
               okay:removeSelf()
             end
-            back=button.create("Back","abort",function()
+            back=button.create(i18n("buttons.back"),"abort",function()
               close()
               setup(whenDone)
             end)
-            okay=button.create("Okay","use",function()
+            okay=button.create(i18n("buttons.ok"),"use",function()
               close()
               whenDone(true)
             end)
@@ -82,7 +83,7 @@ function setup(whenDone,forceEnter)
       textField:removeSelf()
 
       if not text or not tonumber(text) then
-        native.showAlert("Warning", "Seed must be an integer value!", {"Okay" }, function()
+        native.showAlert(i18n("configuration.warning"), i18n("configuration.bad_seed"), {i18n("buttons.ok") }, function()
           setup(whenDone,force)
         end)
 
@@ -90,7 +91,7 @@ function setup(whenDone,forceEnter)
       end
 
       -- Show alert with two buttons
-      local alert = native.showAlert("Confirm", "Set User Seed to " .. text .. ". This controlls the symbols and melodies the user will see", { "Cancel", "Okay" }, onComplete )
+      local alert = native.showAlert("configuration.confirm",i18n("configuration.set_seed",{seed = text}), { i18n("buttons.cancel"), i18n("buttons.ok")}, onComplete )
 
     end
   end

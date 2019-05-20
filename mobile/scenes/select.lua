@@ -6,6 +6,7 @@ local practicelogger=require "practicelogger"
 local daycounter=require "daycounter"
 local logger=require "logger"
 local sessionlogger=require "sessionlogger"
+local i18n = require ("i18n.init")
 local _=require "util.moses"
 local display=display
 local native=native
@@ -26,7 +27,7 @@ function scene:show(event)
   end
 
   local text=display.newText({
-    text="Pick a melody to practice",
+    text=i18n("practice_select.instruction"),
     fontSize=20,
     font=native.systemFont,
     parent=scene.view
@@ -63,7 +64,7 @@ function scene:show(event)
     end
     img:addEventListener("tap")
     local text=display.newText({
-      text="Practiced\n" ..practice .. " " .. (practice~=1 and "times" or "time"),
+      text=i18n("practice_select.practice_count",{count = practice}),
       fontSize=20,
       font=native.systemFont,
       parent=scene.view,

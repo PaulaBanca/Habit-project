@@ -3,6 +3,7 @@ local scene=composer.newScene()
 
 local stimuli=require "stimuli"
 local bubblechoice=require "ui.bubblechoice"
+local i18n = require ("i18n.init")
 local display=display
 
 setfenv(1, scene)
@@ -62,7 +63,7 @@ function scene:show(event)
   self.view:insert(bubbles)
 
   local query=display.newText({
-    text="How did you feel about playing this sequence?",
+    text=i18n("pleasure.question"),
     fontSize=20,
     width=display.contentWidth/2,
     align="center"

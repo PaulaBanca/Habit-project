@@ -8,12 +8,13 @@ local media=media
 local keys=require "keys"
 local chordbar=require "ui.chordbar"
 local jsonreader=require "jsonreader"
+local i18n = require ("i18n.init")
 
 setfenv(1,scene)
 
 local instructions={
-  {text="Welcome!\n\nThis App will help you to learn 2 sequences of finger presses",y=display.contentCenterY-40},
-  {text="You will tap out the sequences on circles like the ones below.\n\nPlace one finger on each circle and give it a go! Tap the coloured circles.\nIn the example below, tap all the coloured circles at once.",y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function()
+  {text=i18n("tutorial.welcome"),y=display.contentCenterY-40},
+  {text=i18n("tutorial.explanation"),y=5,width=display.contentWidth*7/8,fontSize=15,onShow=function()
     local k=keys.create({
         onAllReleased=function() end,
         onMistake=function() end,
@@ -30,14 +31,14 @@ local instructions={
       scene.view:insert(hint)
     end
   end},
-  {text="Let’s practice a simple sequence a few times.\n\nFollow the coloured circles.",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true}},
-  {text="Different levels of difficulty will help you memorizing the sequences.\n\nYou start with an easy level: colours and sounds will guide you.\n\nLater on, you will tap out the sequences with less and less help.",y=display.contentCenterY-140,width=display.contentWidth/2+80},
-  {text="We will now guide you through the different levels of difficulty.\n\nTry the same sequence at each level.",y=display.contentCenterY-120},
-  {text="Level 1:\n\nColoured circles show you where to tap",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=1,difficulty=1}},
-  {text="Level 2:\n\nThe circles are all grey, but still play sounds.\n\nYou need to remember the sequence!",y=display.contentCenterY-100,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=2,difficulty=2}},
-  {text="Level 3:\n\nThe circles do not play any sounds.\n\nAt this level you should know the sequence by heart. Try now!",y=display.contentCenterY-80,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=3,difficulty=3}},
-  {text="Level 4:\n\nThe circles are blank. Give it a go!",y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=4,difficulty=4}},
-  {text="The App only works if you keep a spare finger touching the screen while playing.\n\nHere are some examples of how to hold your phone.",y=display.contentCenterY-120},
+  {text=i18n("tutorial.practice"),y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true}},
+  {text=i18n("tutorial.levels"),y=display.contentCenterY-140,width=display.contentWidth/2+80},
+  {text=i18n("tutorial.level_practice"),y=display.contentCenterY-120},
+  {text=i18n("tutorial.level1"),y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=1,difficulty=1}},
+  {text=i18n("tutorial.level2"),y=display.contentCenterY-100,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=2,difficulty=2}},
+  {text=i18n("tutorial.level3"),y=display.contentCenterY-80,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=3,difficulty=3}},
+  {text=i18n("tutorial.level4"),y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=4,difficulty=4}},
+  {text=i18n("tutorial.deadmans_switch"),y=display.contentCenterY-120},
   {img="img/instructions1.png"},
   {img="img/instructions2.png"},
   {img="img/instructions3.png"},
@@ -50,8 +51,8 @@ local instructions={
       composer.gotoScene("scenes.intro",{params=16})
     end)
   end},
-  {text="Now, let’s play the same sequence as last time. Play it once at each of the different levels.\n\nDon’t forget to place a spare finger one the screen while playing!",y=display.contentCenterY-120,scene="scenes.play",params={intro=true,modeProgression=4,nextScene="scenes.intro"}},
-  {text="Now you are ready to start practising your sequences.\n\nYou have a month to master the sequences!\n\nGood luck!",y=display.contentCenterY-120},
+  {text=i18n("tutorial.full_practice"),y=display.contentCenterY-120,scene="scenes.play",params={intro=true,modeProgression=4,nextScene="scenes.intro"}},
+  {text=i18n("tutorial.tutorial_completed"),y=display.contentCenterY-120},
 }
 
 function scene:show(event)
@@ -110,7 +111,7 @@ function scene:show(event)
       parent=scene.view,
       x=bg.x,
       y=bg.y,
-      text="Next",
+      text=i18n("buttons.next"),
       align="center"
     })
 

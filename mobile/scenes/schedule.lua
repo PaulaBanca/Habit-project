@@ -6,6 +6,7 @@ local stimuli=require "stimuli"
 local daycounter=require "daycounter"
 local incompletetasks=require "incompletetasks"
 local user=require "user"
+local i18n = require ("i18n.init")
 local display=display
 local math=math
 local pairs=pairs
@@ -35,7 +36,7 @@ function scene:show(event)
     parent=scene.view,
     x=display.contentCenterX,
     y=scroll.y-scroll.height/2-5,
-    text="Practice Schedule",
+    text=i18n("schedule.title"),
     align="center",
     fontSize=20
   })
@@ -115,7 +116,7 @@ function scene:show(event)
       local day=display.newText({
         x=c.x,
         y=c.y,
-        text=(i~=today and i or "Today")..(i<today and "!" or ""),
+        text=(i~=today and i or i18n("schedule.today"))..(i<today and "!" or ""),
         align="center",
         fontSize=i~=today and 20 or 10
       })
@@ -152,7 +153,7 @@ function scene:show(event)
   if not practiceDate then
     local t=display.newText({
       parent=self.view,
-      text="Task Complete!",
+      text=i18n("schedule.completed"),
       x=display.contentCenterX,
       y=display.contentCenterY,
       fontSize=64

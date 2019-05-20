@@ -1,6 +1,7 @@
 local M={}
 deadmansswitch=M
 
+local i18n = require ("i18n.init")
 local display=display
 local next=next
 local assert=assert
@@ -24,7 +25,7 @@ function start(startFunc,noTouchesFunc)
   instructionGroup.isHitTestable=true
   local instruction=display.newText({
     parent=instructionGroup,
-    text="While playing hold a spare finger on the screen",
+    text=i18n("deadmans_switch.warning"),
     width=display.actualContentWidth-40,
     align="center",
     fontSize=24
@@ -41,7 +42,7 @@ function start(startFunc,noTouchesFunc)
     display.actualContentHeight)
   hitSensor.isHitTestable=true
   hitSensor.isVisible=false
- 
+
   instructionGroup:translate(display.contentCenterX, display.contentCenterY)
   local restingTouches={}
   local listener=function(event)

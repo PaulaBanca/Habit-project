@@ -17,6 +17,7 @@ local logger=require "logger"
 local sessionlogger=require "sessionlogger"
 local deadmansswitch=require "ui.deadmansswitch"
 local keysparks=require "ui.keysparks"
+local i18n = require ("i18n.init")
 local _=require "util.moses"
 local serpent = require ("serpent")
 local unpack=unpack
@@ -575,7 +576,7 @@ function scene:setUpKeyLayers()
 
     local text=display.newText({
       parent=group,
-      text="Level ",
+      text=i18n("game.level") .. " ",
       font="Chunkfive.otf",
       fontSize=32,
       x=num.x-num.width,

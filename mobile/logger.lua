@@ -6,6 +6,7 @@ local json=require "json"
 local serpent=require "serpent"
 local unsent=require "database.unsent"
 local _=require "util.moses"
+local i18n = require ("i18n.init")
 local print=print
 local assert=assert
 local tostring=tostring
@@ -125,7 +126,7 @@ function startCatchUp()
   end
   if not syncMessage then
     syncMessage=display.newText({
-      text="Saving do not close!",
+      text=i18n("logger.saving"),
       fontSize=15,
     })
     syncMessage.anchorX=0
@@ -136,7 +137,7 @@ function startCatchUp()
   end
 
   stop=false
-  syncMessage.text="Background Syncing..."
+  syncMessage.text=i18n("logger.syncing")
   syncMessage:setTextColor(1)
   local tables=unsent.getTableNames()
   local cur=1

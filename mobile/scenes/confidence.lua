@@ -8,7 +8,7 @@ local incompletetasks=require "incompletetasks"
 local practicelogger=require "practicelogger"
 local daycounter=require "daycounter"
 local user=require "user"
-
+local i18n = require ("i18n.init")
 local display=display
 local os=os
 local math=math
@@ -60,7 +60,7 @@ function gotoNextScene(track,day,resumed)
   local difficulty=math.ceil(practicelogger.getPractices(track)/3)
   logger.stopCatchUp()
   local scene,params="scenes.message",{
-    text="Play the following sequence five times as quickly as possible.",
+    text=i18n("confidence.instruction"),
     nextScene="scenes.play",
     nextParams={
       nextScene="scenes.schedule",
@@ -76,7 +76,7 @@ function gotoNextScene(track,day,resumed)
 
   if playSwitchTest(day) then
     local scene,params="scenes.message",{
-      text="Now the sequences will random switch. Try to play them as quickly as possible",
+      text=i18n("switch.instruction"),
       nextScene="scenes.play",
       nextParams={
         nextScene="scenes.schedule",
@@ -110,10 +110,10 @@ function scene:show(event)
   local bubbles = bubblechoice.create({
     width = width,
     labels = {
-      "not confident at all",
-      "not very confident",
-      "fairly confident",
-      "very confident"
+      i18n("confidence.label_no_confidence"),
+      i18n("confidence.label_not_confident"),
+      i18n("confidence.label_some_confidence"),
+      i18n("confidence.label_confident"),
     },
     labelTextColour = {1},
     labelColour = {0.5},
@@ -137,7 +137,7 @@ function scene:show(event)
   self.view:insert(bubbles)
 
   local query=display.newText({
-    text="How confident are you that you know this sequence by heart?",
+    text=i18n("confidence.question"),
     fontSize=20,
     width=display.contentWidth*3/4,
     align="center"
