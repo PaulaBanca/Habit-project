@@ -33,6 +33,10 @@ return {
     },
     pleasure = {
       question = "Hvordan havde du det med at lave denne sekvens?",
+      label_no_pleasure = "Det var frygteligt",
+      label_low_pleasure = "Det var ikke så rart",
+      label_some_pleasure = "Det var okay",
+      label_pleasurable = "Det var sjovt",
     },
     switch = {
       instruction = "Nu vil sekvenserne skifte tilfældigt. Prøv at lave dem, så hurtigt som muligt.",

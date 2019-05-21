@@ -33,6 +33,10 @@ return {
     },
     pleasure = {
       question = "How did you feel about playing this sequence?",
+      label_no_pleasure = "horrible",
+      label_low_pleasure = "not so good",
+      label_some_pleasure = "ok",
+      label_pleasurable = "fun",
     },
     switch = {
       instruction = "Now the sequences will random switch. Try to play them as quickly as possible",

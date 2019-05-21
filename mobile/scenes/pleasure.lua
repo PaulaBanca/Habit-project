@@ -31,10 +31,10 @@ function scene:show(event)
   local bubbles = bubblechoice.create({
     width = width,
     labels = {
-      {label = "horrible", img = "img/disappointed-but-relieved-face_1f625.png"},
-      {label = "not so good", img="img/pensive-face_1f614.png"},
-      {label = "ok", img="img/slightly-smiling-face_1f642.png"},
-      {label = "fun", img="img/smiling-face-with-open-mouth_1f603.png"}
+      {label = i18n("pleasure.label_no_pleasure"), img = "img/disappointed-but-relieved-face_1f625.png"},
+      {label = i18n("pleasure.label_low_pleasure"), img="img/pensive-face_1f614.png"},
+      {label = i18n("pleasure.label_some_pleasure"), img="img/slightly-smiling-face_1f642.png"},
+      {label = i18n("pleasure.label_pleasurable"), img="img/smiling-face-with-open-mouth_1f603.png"}
     },
     labelTextColour = {1},
     labelColour = {0.5},
