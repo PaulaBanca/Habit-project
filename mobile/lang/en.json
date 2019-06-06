@@ -65,7 +65,7 @@
       }
     },
     "configuration" : {
-      "melody" : "Select reward schedule for track 1",
+      "melody" : "Melody Option",
       "melody_option1" : "A",
       "melody_option2" : "B",
       "handedness" : "Left Handed",
