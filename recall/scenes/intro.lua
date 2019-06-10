@@ -5,6 +5,7 @@ local phasemanager=require "phasemanager"
 local events=require "events"
 local _=require "util.moses"
 local serpent=require "serpent"
+local i18n = require ("i18n.init")
 local display=display
 local type=type
 local math=math
@@ -28,7 +29,7 @@ local getTrackMT={
 local instructions={
   {
     phase='Intro',
-    text="Welcome back! We would like to see if you can remember any of the sequences you practiced some months ago",
+    text=i18n("instructions.welcome"),
     y=display.contentCenterY-40,
     onComplete=function()
       events.fire({type='phase finished'})
@@ -36,7 +37,7 @@ local instructions={
   },
   {
     phase='A',
-    text="Do you remember this pattern?",
+    text=i18n("instructions.pattern"),
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -51,7 +52,7 @@ local instructions={
   },
   {
     phase='A',
-    text="Try to play the sequence that goes with this pattern. Don’t worry if you make mistakes! There will be a re-start button available if you wish to start again.",
+    text=i18n("instructions.phase_a"),
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -77,7 +78,7 @@ local instructions={
   -- PHASE B
   {
     phase='B',
-    text="Let’s do this again but this time you get feedback on your mistakes after playing the sequence.",
+    text=i18n("instructions.phase_b"),
     y=display.contentCenterY-40,
     scene="scenes.play",
     params=setmetatable({
@@ -106,7 +107,7 @@ local instructions={
   {
 
     phase='C',
-    text="Now if you make a mistake you will need to start from the beginning. However the correct keys will be highlighted where you made the mistake to help you.",
+    text=i18n("instructions.phase_c"),
     y=5,
     width=display.contentWidth*7/8,
     fontSize=10,
@@ -123,7 +124,7 @@ local instructions={
   {
 
     phase='C2',
-    text="Now you will learn a new sequence. Use the feedback to memorise it.",
+    text=i18n("instructions.phase_c2"),
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -148,7 +149,7 @@ local instructions={
   {
 
     phase='Outro',
-    text="Well done",
+    text=i18n("instructions.completed"),
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -254,7 +255,7 @@ function scene:show(event)
       parent=self.view,
       x=bg.x,
       y=bg.y,
-      text="Next",
+      text=i18n("buttons.next"),
       align="center"
     })
 

@@ -4,16 +4,16 @@ FLAGS={
 }
 
 if system.getInfo('environment')=='device' then
-  for k,v in pairs(FLAGS) do
+  for k,_ in pairs(FLAGS) do
     FLAGS[k]=false
   end
 end
+require ("languages")
 
 require "constants"
 require "effects.effects"
 display.setStatusBar(display.HiddenStatusBar)
 system.activate("multitouch")
-
 
 local user=require "user"
 
@@ -23,7 +23,7 @@ function start()
   key.createImages(function()
     native.setActivityIndicator(false)
     local composer=require "composer"
-    composer.gotoScene("scenes.setup")
+    composer.gotoScene("scenes.selectlang")
   end)
 end
 

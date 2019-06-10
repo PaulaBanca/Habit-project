@@ -3,13 +3,20 @@ local scene=composer.newScene()
 
 local user=require "user"
 local display=display
+local i18n = require ("i18n.init")
 
 setfenv(1,scene)
 
 local options={
-  {label="Left Handed",options={"Yes","No"},selectFunc=function(v)
-    user.store("left handed",v=="Yes")
-  end},
+  {
+    label=i18n("configuration.handedness"),
+    options={
+      i18n("configuration.handedness_is_left"),
+    i18n("configuration.handedness_is_not_left")},
+    selectFunc=function(v)
+      user.store("left handed",v==i18n("handedness_is_left"))
+    end
+  },
 }
 
 function scene:create()
@@ -63,7 +70,7 @@ function scene:create()
 
   display.newText({
     parent=button,
-    text="Done",
+    text=i18n("buttons.done"),
     fontSize=20
   }):translate(bg.x, bg.y)
 
