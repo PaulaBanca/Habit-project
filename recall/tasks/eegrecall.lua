@@ -1,9 +1,10 @@
 local M = {}
-standardrecall = M
+eegrecall = M
 
 local i18n = require ("i18n.init")
 local phasemanager=require "phasemanager"
 local events=require "events"
+local _ = require ("util.moses")
 local setmetatable=setmetatable
 local rawget=rawget
 local display = display
@@ -11,6 +12,12 @@ local display = display
 local FLAGS=FLAGS
 
 setfenv(1, M)
+
+local skipSteps = _({
+  2,
+  3,
+  4
+}):shuffle():value()
 
 local getTrackMT={
   __index=function(t,k)
@@ -24,15 +31,12 @@ local getTrackMT={
 function init()
   phasemanager.setPhases({
     {phase='Intro'},
-    {track=1,phase='A',allowSkipForwards=true},
-    {track=1,phase='B',allowSkipForwards=true},
-    {track=1,phase='B2',allowSkipForwards=true},
-    {track=1,phase='C',allowSkipForwards=true},
-    {track=2,phase='A',allowSkipForwards=true},
-    {track=2,phase='B',allowSkipForwards=true},
-    {track=2,phase='B2',allowSkipForwards=true},
-    {track=2,phase='C',allowSkipForwards=true},
-    {track=6,phase='C2',allowSkipForwards=true},
+    {track=1,phase='A'},
+    {track=1,phase='B'},
+    {track=1,phase='C'},
+    {track=2,phase='A'},
+    {track=2,phase='B'},
+    {track=2,phase='C'},
     {phase='Outro'},
   })
 end
@@ -63,7 +67,7 @@ task = {
   },
   {
     phase='A',
-    text=i18n("instructions.phase_a"),
+    text=i18n("eeg.phase_a"),
     y=5,
     width=display.contentWidth*7/8,
     fontSize=15,
@@ -81,15 +85,19 @@ task = {
       phase="A1",
       nextScene="scenes.intro",
       noSwitch=true,
-      allowRestarts=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 50
     },getTrackMT)
   },
   -- PHASE B
   {
     phase='B',
-    text=i18n("instructions.phase_b"),
+    text=i18n("eeg.phase_b"),
+    y=display.contentCenterY-40,
+  },
+  {
+    phase='B',
+    text=i18n("eeg.skip", {step = skipSteps[1]}),
     y=display.contentCenterY-40,
     scene="scenes.play",
     params=setmetatable({
@@ -98,27 +106,54 @@ task = {
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 4 or 7
+      iterations=FLAGS.QUICK_ROUNDS and 4 or 25
     },getTrackMT)
   },
+  -- PHASE B
   {
-    phase='B2',
+    phase='B',
+    text=i18n("eeg.skip", {step = skipSteps[2]}),
+    y=display.contentCenterY-40,
+  },
+  {
+    phase='B',
+    text=i18n("eeg.phase_b"),
+    y=display.contentCenterY-40,
     scene="scenes.play",
-    seamless=true,
     params=setmetatable({
       requireStartButton=true,
-      phase="B2",
+      phase="B1",
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1 or 7
+      iterations=FLAGS.QUICK_ROUNDS and 4 or 25
+    },getTrackMT)
+  },
+  -- PHASE B
+  {
+    phase='B',
+    text=i18n("eeg.skip", {step = skipSteps[3]}),
+    y=display.contentCenterY-40,
+  },
+  {
+    phase='B',
+    text=i18n("eeg.phase_b"),
+    y=display.contentCenterY-40,
+    scene="scenes.play",
+    params=setmetatable({
+      requireStartButton=true,
+      phase="B1",
+      nextScene="scenes.intro",
+      noSwitch=true,
+      rounds=1,
+      iterations=FLAGS.QUICK_ROUNDS and 4 or 25
     },getTrackMT)
   },
   -- PHASE C
   {
 
     phase='C',
-    text=i18n("instructions.phase_c"),
+    text=i18n("eeg.phase_c"),
     y=5,
     width=display.contentWidth*7/8,
     fontSize=10,
@@ -129,32 +164,7 @@ task = {
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
-    },getTrackMT)
-  },
-  {
-
-    phase='C2',
-    text=i18n("instructions.phase_c2"),
-    y=5,
-    width=display.contentWidth*7/8,
-    fontSize=15,
-    scene="scenes.play",
-    img=function()
-      local icon=phasemanager.getCurrentStimulus()
-      if icon.contentHeight>display.contentHeight*3/4 then
-        local scale=icon.contentHeight/display.contentHeight*3/4
-        icon:scale(scale,scale)
-      end
-      return icon
-    end,
-    params=setmetatable({
-      phase="C2",
-      requireStartButton=true,
-      nextScene="scenes.intro",
-      noSwitch=true,
-      rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 50
     },getTrackMT)
   },
   {
@@ -169,3 +179,5 @@ task = {
 }
 
 return M
+
+

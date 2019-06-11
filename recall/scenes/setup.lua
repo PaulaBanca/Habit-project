@@ -4,10 +4,30 @@ local scene=composer.newScene()
 local user=require "user"
 local display=display
 local i18n = require ("i18n.init")
+local intro = require ("scenes.intro")
+local require = require
 
 setfenv(1,scene)
 
 local options={
+  {
+    label=i18n("configuration.task"),
+    options={
+      i18n("configuration.task_eeg"),
+      i18n("configuration.task_standard")
+    },
+    selectFunc=function(v)
+      local task
+      if v == i18n("configuration.task_eeg") then
+        task = "eegrecall"
+      else
+        task = "standardrecall"
+      end
+      local config = require ("tasks." .. task)
+      config.init()
+      intro.setTask(config.task)
+    end
+  },
   {
     label=i18n("configuration.handedness"),
     options={

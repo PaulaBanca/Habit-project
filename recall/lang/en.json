@@ -9,6 +9,12 @@
       "phase_c2" : "Now you will learn a new sequence. Use the feedback to memorise it.",
       "completed" : "Well done"
     },
+    "eeg" : {
+      "phase_a" : "Try to play the sequence that goes with this pattern. Don’t worry if you make mistakes!",
+      "phase_b" : "Well done! Now your task is to play the same sequence you have been playing, but now you have to skip one of the moves. You will be told which step to to skip; a complete and correct sequence will be composed by 5 move, instead of 6. Please keep playing it as fast as you can",
+      "phase_c" : "Your task now is to create new sequences with 6 steps like the ones you have practiced at home. Try to make up as many differnet sequences as you can, as quickly as possible. Don't worry if you repeat yourself now and again. Good luck!",
+      "skip" : "Skip step %{step}",
+    },
     "buttons" : {
       "next" : "Next",
       "done" : "Done",
@@ -17,6 +23,9 @@
       "cancel" : "Cancel"
     },
     "configuration" : {
+      "task" : "Select Task Variant",
+      "task_eeg" : "EEG",
+      "task_standard" : "Standard",
       "handedness" : "Left Handed",
       "handedness_is_left" : "Yes",
       "handedness_is_not_left" : "No",

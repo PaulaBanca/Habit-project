@@ -13,19 +13,11 @@ local print=print
 
 setfenv(1,M)
 
-local phases={
-  {phase='Intro'},
-  {track=1,phase='A',allowSkipForwards=true},
-  {track=1,phase='B',allowSkipForwards=true},
-  {track=1,phase='B2',allowSkipForwards=true},
-  {track=1,phase='C',allowSkipForwards=true},
-  {track=2,phase='A',allowSkipForwards=true},
-  {track=2,phase='B',allowSkipForwards=true},
-  {track=2,phase='B2',allowSkipForwards=true},
-  {track=2,phase='C',allowSkipForwards=true},
-  {track=6,phase='C2',allowSkipForwards=true},
-  {phase='Outro'},
-}
+local phases
+
+function setPhases(phs)
+  phases = phs
+end
 
 function getPhase()
   return phases[1].phase

@@ -6,7 +6,6 @@ local events=require "events"
 local _=require "util.moses"
 local serpent=require "serpent"
 local i18n = require ("i18n.init")
-local standardrecall = require ("tasks.standardrecall")
 local display=display
 local type=type
 local math=math
@@ -24,11 +23,16 @@ function scene:create()
 end
 scene:addEventListener('create')
 
+local instructions
+function setTask(_instructions)
+  instructions = _instructions
+end
+
 function scene:show(event)
   if event.phase=="did" then
     return
   end
-  local phaseInstructions=_.select(standardrecall,function(_,v)
+  local phaseInstructions=_.select(instructions,function(_,v)
     return v.phase==phasemanager.getPhase()
   end)
   local step=phaseInstructions[self.page or 1]
