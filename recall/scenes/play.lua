@@ -171,7 +171,7 @@ function completeTask()
         composer.hideOverlay()
       end
 
-      if scene.phase:sub(1,1)=='B' then
+      if scene.feedback then
         composer.showOverlay('scenes.feedbacksimple',{
           params={
             feedback=scene.presses,
@@ -328,7 +328,7 @@ function scene:createKeys()
         proceedToNextStep()
       end
       mistakeInLastTouches=false
-      if scene.phase:sub(1,1)=='B' and roundComplete then
+      if scene.feedback and roundComplete then
         composer.showOverlay('scenes.feedbacksimple',{
           params={
             feedback=scene.presses,
@@ -465,6 +465,7 @@ function scene:show(event)
   self.hasStartButton=params.requireStartButton
   self.loggingPhase=params.loggingPhase
   self.phase=params.phase
+  self.feedback = params.feedback
 
   self.allowRestarts=params.allowRestarts
 
