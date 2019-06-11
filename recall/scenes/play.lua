@@ -17,6 +17,7 @@ local progress=require "ui.progress"
 local _=require "util.moses"
 local events=require "events"
 local serpent=require "serpent"
+local user = require ("user")
 local display=display
 local transition=transition
 local easing=easing
@@ -435,7 +436,7 @@ function scene:itiScreen(onEnd)
     if self.stepProgresBar then
       self.stepProgresBar:toFront()
     end
-    self.startButtonTimer=timer.performWithDelay(1000, function()
+    self.startButtonTimer=timer.performWithDelay(user.get("iti time"), function()
       self.startButtonTimer=nil
       self.bg:toBack()
       onEnd()
