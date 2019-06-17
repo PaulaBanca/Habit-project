@@ -291,6 +291,7 @@ function scene:createKeys()
         self.presses[getIndex()]=self.presses[getIndex()] or {}
         self.highlight[getIndex()]=false
         self.stepProgresBar:mark(getIndex(),true)
+        self.stepProgresBar:toFront()
         if roundComplete then
           if data then
             data["practiceProgress"]="sequence completed"
@@ -298,7 +299,6 @@ function scene:createKeys()
 
           completeRound()
 
-          scene.stepProgresBar:toFront()
           transition.to(scene.stepProgresBar,{
             delay=100,
             time=200,
@@ -493,7 +493,7 @@ function scene:show(event)
     local barWidth=temp.contentWidth*2
     local barHeight=40
     display.remove(self.stepProgresBar)
-    self.stepProgresBar=progress.create(barWidth,barHeight,{6})
+    self.stepProgresBar=progress.create(barWidth,barHeight,{params.skip and 5 or 6})
     local x,y=display.contentCenterX,13
     self.stepProgresBar:translate(x, y+barHeight/2)
     self.view:insert(self.stepProgresBar)
@@ -501,6 +501,9 @@ function scene:show(event)
 
   self.phaseStartMillis=system.getTimer()
   switchSong(setTrack)
+  if params.skip then
+    table.remove(sequence, params.skip)
+  end
   restart(setupNextKeys)
   logger.setProgress('phase start')
   logger.setFeedbackPattern('n/a')
