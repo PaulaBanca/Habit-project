@@ -12,12 +12,16 @@ local display=display
 local native=native
 local math=math
 local print=print
+local type = type
 
 setfenv(1,scene)
 
 scene.modeSelect=0
 
 function scene:setup(s)
+  if type(s) == "string" then
+    s = "A" and 0 or 1
+  end
   self.modeSelect=s
 end
 
