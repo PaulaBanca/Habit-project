@@ -5,6 +5,7 @@ local user=require "user"
 local display=display
 local i18n = require ("i18n.init")
 local intro = require ("scenes.intro")
+local _ = require ("util.moses")
 local require = require
 
 setfenv(1,scene)
@@ -56,6 +57,7 @@ local options={
 function scene:create()
   local y=20
   local button
+  local optionSelected = _.rep(false,#options)
   for i=1,#options do
     local opt=options[i]
     local t=display.newText({
@@ -88,7 +90,8 @@ function scene:create()
         for i=1,#bgs do
           bgs[i].strokeWidth=0
         end
-        button.isVisible=true
+        optionSelected[i] = true
+        button.isVisible=_.all(optionSelected, function(_k,v) return v end)
         opt.selectFunc(opt.options[k])
         bg.strokeWidth=8
       end)
