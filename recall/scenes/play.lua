@@ -171,7 +171,7 @@ function completeTask()
         composer.hideOverlay()
       end
 
-      if scene.feedback then
+      if scene.sequenceFeedback then
         composer.showOverlay('scenes.feedbacksimple',{
           params={
             feedback=scene.presses,
@@ -197,18 +197,14 @@ function setupNextKeys()
 
   local index=getIndex()
   local nextIntruction=sequence[index]
-  local noAid,noFeedback,noHighlight=true,true,true
+  local noAid,noHighlight=true,true
 
-  if scene.phase=='B2' then
-    noFeedback=false
-  end
-  if scene.phase:sub(1,1)=='C' then
-    noFeedback=false
+  if scene.showHints then
     noAid=not scene.highlight[getIndex()]
     noHighlight=noAid
   end
 
-  local targetKeys=scene.keys:setup(nextIntruction,noAid,noFeedback,noHighlight,index,state.get("stepID"),true)
+  local targetKeys=scene.keys:setup(nextIntruction,noAid,not scene.keyFeedback,noHighlight,index,state.get("stepID"),true)
 
   do
     local pattern={}
@@ -328,7 +324,7 @@ function scene:createKeys()
         proceedToNextStep()
       end
       mistakeInLastTouches=false
-      if scene.feedback and roundComplete then
+      if scene.sequenceFeedback and roundComplete then
         composer.showOverlay('scenes.feedbacksimple',{
           params={
             feedback=scene.presses,
@@ -353,12 +349,12 @@ function scene:createKeys()
         data.mistakes=state.get("mistakes")
       end
 
-      if self.phase:sub(1,1)=='B' then
+      if self.keyFeedback then
         local setPresses=self.presses[getIndex()] or {}
         setPresses[data.keyIndex]=false
         self.presses[getIndex()]=setPresses
       end
-      if self.phase:sub(1,1)~='C' then
+      if not self.restartOnMistakes then
         return
       end
       scene.stepProgresBar:reset()
@@ -385,7 +381,7 @@ function scene:createKeys()
       self.presses[getIndex()]=setPresses
       data.phase=self.phase
       data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
-      data.hint=self.phase:sub(1,1)=='C' and self.highlight[getIndex()] or false
+      data.hint=self.showHints and self.highlight[getIndex()] or false
       data.mistakes=state.get("mistakes")
       logger.setRestartForced(false)
     end
@@ -453,19 +449,19 @@ function scene:show(event)
 
   rounds=params.rounds or 2
   maxLearningLength=params.iterations or 10
-  learningLength=maxLearningLength
   -- composer.showOverlay("scenes.dataviewer")
 
-  startModeProgression=params.modeProgression
   headless=params.headless
   self.onClose=params.onClose
-  rewardType=params.rewardType or "none"
   nextScene=params.nextScene or "scenes.score"
   isScheduledPractice=params.isScheduledPractice
   self.hasStartButton=params.requireStartButton
   self.loggingPhase=params.loggingPhase
   self.phase=params.phase
-  self.feedback = params.feedback
+  self.sequenceFeedback = params.sequenceFeedback
+  self.keyFeedback = params.keyFeedback
+  self.restartOnMistakes = params.restartOnMistakes
+  self.showHints = params.showHints
 
   self.allowRestarts=params.allowRestarts
 

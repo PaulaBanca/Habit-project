@@ -94,7 +94,7 @@ task = {
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
-      feedback = true,
+      sequenceFeedback = true,
       phase="B1",
       nextScene="scenes.intro",
       noSwitch=true,
@@ -108,7 +108,8 @@ task = {
     seamless=true,
     params=setmetatable({
       requireStartButton=true,
-      feedback = true,
+      sequenceFeedback = true,
+      keyFeedback = true,
       phase="B2",
       nextScene="scenes.intro",
       noSwitch=true,
@@ -130,8 +131,11 @@ task = {
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
+      keyFeedback = true,
+      restartOnMistakes = true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 15,
+      showHints = true,
     },getTrackMT)
   },
   {
@@ -155,8 +159,11 @@ task = {
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
+      keyFeedback = true,
+      restartOnMistakes = true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 15,
+      showHints = true,
     },getTrackMT)
   },
   {
