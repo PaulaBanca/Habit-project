@@ -32,10 +32,14 @@ function init()
   phasemanager.setPhases({
     {phase='Intro'},
     {track=1,phase='A'},
-    {track=1,phase='B'},
+    {track=1,phase='B1'},
+    {track=1,phase='B2'},
+    {track=1,phase='B3'},
     {track=1,phase='C'},
     {track=2,phase='A'},
-    {track=2,phase='B'},
+    {track=2,phase='B1'},
+    {track=2,phase='B2'},
+    {track=2,phase='B3'},
     {track=2,phase='C'},
     {phase='Outro'},
   })
@@ -82,7 +86,7 @@ task = {
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
-      phase="A1",
+      phase="A",
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
@@ -91,12 +95,12 @@ task = {
   },
   -- PHASE B
   {
-    phase='B',
+    phase='B1',
     text=i18n("eeg.phase_b"),
     y=display.contentCenterY-40,
   },
   {
-    phase='B',
+    phase='B1',
     text=i18n("eeg.skip", {step = skipSteps[1]}),
     y=display.contentCenterY-40,
     scene="scenes.play",
@@ -104,26 +108,27 @@ task = {
       requireStartButton=true,
       phase="B1",
       nextScene="scenes.intro",
+      skip = skipSteps[1],
       noSwitch=true,
       rounds=1,
       iterations=FLAGS.QUICK_ROUNDS and 4 or 25
     },getTrackMT)
   },
-  -- PHASE B
   {
-    phase='B',
+    phase='B2',
     text=i18n("eeg.skip", {step = skipSteps[2]}),
     y=display.contentCenterY-40,
   },
   {
-    phase='B',
+    phase='B2',
     text=i18n("eeg.phase_b"),
     y=display.contentCenterY-40,
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
-      phase="B1",
+      phase="B2",
       nextScene="scenes.intro",
+      skip = skipSteps[2],
       noSwitch=true,
       rounds=1,
       iterations=FLAGS.QUICK_ROUNDS and 4 or 25
@@ -131,19 +136,20 @@ task = {
   },
   -- PHASE B
   {
-    phase='B',
+    phase='B3',
     text=i18n("eeg.skip", {step = skipSteps[3]}),
     y=display.contentCenterY-40,
   },
   {
-    phase='B',
+    phase='B3',
     text=i18n("eeg.phase_b"),
     y=display.contentCenterY-40,
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
-      phase="B1",
+      phase="B3",
       nextScene="scenes.intro",
+      skip = skipSteps[3],
       noSwitch=true,
       rounds=1,
       iterations=FLAGS.QUICK_ROUNDS and 4 or 25
@@ -159,7 +165,7 @@ task = {
     fontSize=10,
     scene="scenes.play",
     params=setmetatable({
-      phase="C1",
+      phase="C",
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
