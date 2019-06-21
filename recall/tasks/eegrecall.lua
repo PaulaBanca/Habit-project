@@ -118,11 +118,6 @@ task = {
     phase='B2',
     text=i18n("eeg.skip", {step = skipSteps[2]}),
     y=display.contentCenterY-40,
-  },
-  {
-    phase='B2',
-    text=i18n("eeg.phase_b"),
-    y=display.contentCenterY-40,
     scene="scenes.play",
     params=setmetatable({
       requireStartButton=true,
@@ -138,11 +133,6 @@ task = {
   {
     phase='B3',
     text=i18n("eeg.skip", {step = skipSteps[3]}),
-    y=display.contentCenterY-40,
-  },
-  {
-    phase='B3',
-    text=i18n("eeg.phase_b"),
     y=display.contentCenterY-40,
     scene="scenes.play",
     params=setmetatable({
