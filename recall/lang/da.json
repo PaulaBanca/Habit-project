@@ -1,0 +1,20 @@
+{
+  "da" : {
+    "instructions" : {
+      "welcome" : "Velkommen tilbage! Vi vil gerne se, om du kan huske nogle af de sekvenser, som du øvede for et par måneder siden.",
+      "pattern" : "Kan du huske dette mønster?",
+      "phase_a" : "Prøv at lave den sekvens, som passer til dette mønster. Vær ikke nervøs for at lave fejl! Der vil være mulighed for at starte forfra, hvis du ønsker det.",
+      "phase_b" : "Lad os prøve det igen. Denne gang får du feedback på dine fejl, efter du har lavet sekvensen.",
+      "phase_c" : "Hvis du laver en fejl nu, vil du blive nødt til at starte forfra. Dog vil de korrekte taster lyse op, der hvor du lavede fejlen, for at hjælpe dig.",
+      "phase_c2" : "Nu skal du lære en ny sekvens. Brug din feedback til at huske den.",
+      "completed" : "Godt gået."
+    },
+    "buttons" : {
+      "next" : "Næste",
+      "done" : "Færdig",
+      "back" : "Tilbage",
+      "ok" : "OK",
+      "cancel" : "Afbryd"
+    }
+  }
+}
