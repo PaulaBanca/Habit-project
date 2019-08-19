@@ -11,6 +11,7 @@ local chordbar=require "ui.chordbar"
 local background=require "ui.background"
 local playstate=require "playstate"
 local logger=require "logger"
+local events = require ("events")
 local keysparks=require "ui.keysparks"
 local button=require "ui.button"
 local progress=require "ui.progress"
@@ -337,6 +338,7 @@ function scene:createKeys()
           }
         })
       elseif roundComplete then
+        self.presses = {}
         scene:itiScreen(setupNextKeys)
       else
         setupNextKeys()
@@ -349,11 +351,20 @@ function scene:createKeys()
         data.mistakes=state.get("mistakes")
       end
 
-      if self.keyFeedback then
-        local setPresses=self.presses[getIndex()] or {}
-        setPresses[data.keyIndex]=false
-        self.presses[getIndex()]=setPresses
-      end
+      local setPresses=self.presses[getIndex()] or {}
+      setPresses[data.keyIndex]=false
+      self.presses[getIndex()]=setPresses
+
+      -- composer.showOverlay('scenes.feedbackdebug',{
+      --   params={
+      --     feedback=scene.presses,
+      --     top = 20,
+      --     left = 20,
+      --     width = 200,
+      --     steps = 6
+      --   }
+      -- })
+
       if not self.restartOnMistakes then
         return
       end
@@ -373,12 +384,23 @@ function scene:createKeys()
       if not data then
         return
       end
+      events.fire({
+        type = "key pressed",
+        keysPressed = self.keys:getPressedKeys()
+      })
       local setPresses=self.presses[getIndex()] or {}
-      if DIM_SOUNDS then
-        sound.playSound("dims 2")
-      end
       setPresses[data.keyIndex]=data.wasCorrect
       self.presses[getIndex()]=setPresses
+
+      -- composer.showOverlay('scenes.feedbackdebug',{
+      --   params={
+      --     feedback=scene.presses,
+      --     top = 20,
+      --     left = 20,
+      --     width = 200,
+      --     steps = 6
+      --   }
+      -- })
       data.phase=self.phase
       data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
       data.hint=self.showHints and self.highlight[getIndex()] or false

@@ -295,6 +295,10 @@ function create(listenerFunctions,noLogging)
     logData=on
   end
 
+  function group:getPressedKeys()
+    return currentlyPressedKeys
+  end
+
   return group
 end
 
