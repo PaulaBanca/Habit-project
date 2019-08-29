@@ -91,7 +91,7 @@ function setup(whenDone,forceEnter)
       end
 
       -- Show alert with two buttons
-      local alert = native.showAlert("configuration.confirm",i18n("configuration.set_seed",{seed = text}), { i18n("buttons.cancel"), i18n("buttons.ok")}, onComplete )
+      local alert = native.showAlert(i18n("configuration.confirm"),i18n("configuration.set_seed",{seed = text}), { i18n("buttons.cancel"), i18n("buttons.ok")}, onComplete )
 
     end
   end
