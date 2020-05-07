@@ -67,7 +67,7 @@ function setup(whenDone,force)
   end
 
 
-  textField = native.newTextField(display.contentCenterX, display.contentCenterY-40, display.contentWidth-20, 50)
+  textField = native.newTextField(display.contentCenterX, display.contentCenterY-40, display.contentWidth-80, 50)
 
   textField:addEventListener("userInput", textListener)
 end

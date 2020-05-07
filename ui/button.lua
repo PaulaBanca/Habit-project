@@ -7,7 +7,10 @@ setfenv(1,M)
 
 local PADDING=10
 
-local BUTTONWIDTH=(display.contentWidth-PADDING*2)/2-PADDING-(PADDING/4)
+local _, leftInset, _, rightInset = display.getSafeAreaInsets()
+local safeWidth = display.actualContentWidth - ( leftInset + rightInset )
+
+local BUTTONWIDTH=(safeWidth-PADDING*2)/2-PADDING-(PADDING/4)
 local BUTTONHEIGHT=PADDING*6
 
 function create(text,type,func)

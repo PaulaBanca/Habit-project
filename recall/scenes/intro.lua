@@ -58,11 +58,12 @@ function scene:show(event)
   end
 
   local obj
+  local y = step.y or display.contentWidth
   if step.text then
     obj=display.newText({
       parent=self.view,
       x=display.contentCenterX,
-      y=step.y or display.contentCenterY,
+      y=y + 20,
       width=step.width or display.contentWidth/2,
       text=step.text,
       align="center",
@@ -78,18 +79,20 @@ function scene:show(event)
     )
     bg:setFillColor(0.2)
     obj:toFront()
+
+    y = bg.contentBounds.yMax + 20
   end
 
   if step.img then
     local img
     if type(step.img)=='string' then
-      img=display.newImage(self.view,step.img,display.contentCenterX,20)
+      img=display.newImage(self.view,step.img,display.contentCenterX,y)
     else
       img=step.img()
       self.view:insert(img)
       img:translate(
         obj.x or display.contentCenterX,
-        obj.y and (obj.y+obj.height + 10) or display.contentCenterY)
+        y)
     end
     img.anchorY=0
     if img.width>display.actualContentWidth-40 then

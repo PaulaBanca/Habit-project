@@ -13,6 +13,12 @@ local FLAGS=FLAGS
 
 setfenv(1, M)
 
+local safeWidth
+do
+  local _, leftInset, _, rightInset = display.getSafeAreaInsets()
+  safeWidth = display.actualContentWidth - ( leftInset + rightInset )
+end
+
 local skipSteps = _({
   2,
   3,
@@ -57,8 +63,8 @@ task = {
   {
     phase='A',
     text=i18n("instructions.pattern"),
-    y=5,
-    width=display.contentWidth*7/8,
+    y=20,
+    width=safeWidth-20,
     fontSize=15,
     img=function()
       local icon=phasemanager.getCurrentStimulus()
@@ -72,8 +78,8 @@ task = {
   {
     phase='A',
     text=i18n("eeg.phase_a"),
-    y=5,
-    width=display.contentWidth*7/8,
+    y=20,
+    width=safeWidth-20,
     fontSize=15,
     img=function()
       local icon=phasemanager.getCurrentStimulus()
@@ -97,7 +103,7 @@ task = {
   {
     phase='B1',
     text=i18n("eeg.phase_b"),
-    y=display.contentCenterY-40,
+    y=20,
   },
   {
     phase='B1',
@@ -150,8 +156,8 @@ task = {
 
     phase='C',
     text=i18n("eeg.phase_c"),
-    y=5,
-    width=display.contentWidth*7/8,
+    y=20,
+    width=safeWidth-20,
     fontSize=10,
     scene="scenes.play",
     params=setmetatable({
@@ -167,8 +173,8 @@ task = {
 
     phase='Outro',
     text=i18n("instructions.completed"),
-    y=5,
-    width=display.contentWidth*7/8,
+    y=20,
+    width=safeWidth-20,
     fontSize=15,
     noButton=true
   },
