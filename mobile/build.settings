@@ -14,7 +14,8 @@ settings={
       },
       ITSAppUsesNonExemptEncryption=false,
       UIStatusBarHidden = true,
-      UILaunchStoryboardName = "LaunchScreen"
+      UILaunchStoryboardName = "LaunchScreen",
+      UIFileSharingEnabled = true
     }
   },
   android =
@@ -23,5 +24,5 @@ settings={
       {
          "android.permission.INTERNET",
       },
-  }    
+  }
 }
