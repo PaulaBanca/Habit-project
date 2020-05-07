@@ -38,4 +38,4 @@ function login(force)
     end,true)
   end,force)
 end
-login()
+login(true)
