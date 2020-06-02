@@ -1,7 +1,7 @@
 {
   "en" : {
     "instructions" : {
-      "welcome" : "Welcome back! We would like to see if you can remember any of the sequences you practiced some months ago",
+      "welcome" : "Welcome back! We would like to see if you can remember any of the sequences you practiced",
       "pattern" : "Do you remember this pattern?",
       "phase_a" : "Try to play the sequence that goes with this pattern. Don’t worry if you make mistakes! There will be a re-start button available if you wish to start again.",
       "phase_b" : "Let’s do this again but this time you get feedback on your mistakes after playing the sequence.",
@@ -11,9 +11,9 @@
     },
     "eeg" : {
       "phase_a" : "Try to play the sequence that goes with this pattern. Don’t worry if you make mistakes!",
-      "phase_b" : "Well done! Now your task is to play the same sequence you have been playing, but now you have to skip one of the moves. You will be told which step to to skip; a complete and correct sequence will be composed by 5 move, instead of 6. Please keep playing it as fast as you can",
-      "phase_c" : "Your task now is to create new sequences with 6 steps like the ones you have practiced at home. Try to make up as many differnet sequences as you can, as quickly as possible. Don't worry if you repeat yourself now and again. Good luck!",
-      "skip" : "Skip step %{step}",
+      "phase_b" : "Well done! Now you need to skip one of the moves in the sequence. You will be told which move to to skip; a complete and correct sequence will be composed of 5 moves, instead of 6. Please keep playing it as fast as you can",
+      "phase_c" : "Your task now is to create new sequences with 6 moves like the ones you have practiced at home. Try to make up as many different sequences as you can, as quickly as possible. Don't worry if you repeat yourself now and again. Good luck!",
+      "skip" : "Skip move %{step}",
     },
     "buttons" : {
       "next" : "Next",
