@@ -95,8 +95,10 @@ task = {
       phase="A",
       nextScene="scenes.intro",
       noSwitch=true,
+      restartOnMistakes=true,
+      showHints=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1 or 50
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
     },getTrackMT)
   },
   -- PHASE B
@@ -117,7 +119,7 @@ task = {
       skip = skipSteps[1],
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 4 or 25
+      iterations=FLAGS.QUICK_ROUNDS and 4 or 20
     },getTrackMT)
   },
   {
@@ -132,7 +134,7 @@ task = {
       skip = skipSteps[2],
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 4 or 25
+      iterations=FLAGS.QUICK_ROUNDS and 4 or 20
     },getTrackMT)
   },
   -- PHASE B
@@ -148,7 +150,7 @@ task = {
       skip = skipSteps[3],
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 4 or 25
+      iterations=FLAGS.QUICK_ROUNDS and 4 or 20
     },getTrackMT)
   },
   -- PHASE C
@@ -166,7 +168,7 @@ task = {
       nextScene="scenes.intro",
       noSwitch=true,
       rounds=1,
-      iterations=FLAGS.QUICK_ROUNDS and 1 or 50
+      iterations=FLAGS.QUICK_ROUNDS and 1 or 15
     },getTrackMT)
   },
   {
