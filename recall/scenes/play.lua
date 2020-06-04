@@ -529,6 +529,7 @@ function scene:show(event)
   restart(setupNextKeys)
   logger.setProgress('phase start')
   logger.setFeedbackPattern('n/a')
+  logger.setMoveSuppressed(params.skip or "n/a")
 end
 
 function scene:hide(event)

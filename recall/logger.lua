@@ -25,6 +25,7 @@ local validKeys={
   restartForced="setRestartForced",
   correctKeyPattern="setCorrectKeys",
   feedbackPattern="setFeedbackPattern",
+  moveSuppressed="setMoveSuppressed"
 }
 
 local defaultValues={
