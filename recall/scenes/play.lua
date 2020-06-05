@@ -92,7 +92,7 @@ end
 local function restart(onReady)
   state.restart()
   scene.keys:clear()
-  scene.stepProgresBar:reset()
+  scene.stepProgressBar:reset()
   scene:setRestartButtonVisibility(false)
   logger.setProgress("restart")
 
@@ -291,8 +291,11 @@ function scene:createKeys()
       if not mistakeInLastTouches then
         self.presses[getIndex()]=self.presses[getIndex()] or {}
         self.highlight[getIndex()]=false
-        self.stepProgresBar:mark(getIndex(),true)
-        self.stepProgresBar:toFront()
+        if scene.progressCompleteAnimation then
+          transition.cancel(scene.progressCompleteAnimation)
+        end
+        self.stepProgressBar:mark(getIndex(),true)
+        self.stepProgressBar:toFront()
         if roundComplete then
           if data then
             data["practiceProgress"]="sequence completed"
@@ -300,16 +303,20 @@ function scene:createKeys()
 
           completeRound()
 
-          transition.to(scene.stepProgresBar,{
+          scene.stepProgressBar:setComplete(true)
+
+          local onEnd = function()
+            scene.progressCompleteAnimation = nil
+            scene.stepProgressBar:toBack()
+            scene.stepProgressBar.xScale=1
+          end
+          scene.progressCompleteAnimation = transition.to(scene.stepProgressBar,{
             delay=100,
             time=200,
             xScale=0,
             transition=easing.inOutQuart,
-            onComplete=function()
-              scene.stepProgresBar:reset()
-              scene.stepProgresBar:toBack()
-              scene.stepProgresBar.xScale=1
-            end
+            onComplete=onEnd,
+            onCancel=onEnd
           })
 
           if completeTask() then
@@ -368,7 +375,7 @@ function scene:createKeys()
       if not self.restartOnMistakes then
         return
       end
-      scene.stepProgresBar:reset()
+      scene.stepProgressBar:reset()
       logger.setRestartForced('mistake')
       logger.setProgress('restart')
       mistakeAnimation(self.redBackground)
@@ -451,8 +458,8 @@ end
 function scene:itiScreen(onEnd)
   if self.hasStartButton then
     self.bg:toFront()
-    if self.stepProgresBar then
-      self.stepProgresBar:toFront()
+    if self.stepProgressBar then
+      self.stepProgressBar:toFront()
     end
     self.startButtonTimer=timer.performWithDelay(user.get("iti time"), function()
       self.startButtonTimer=nil
@@ -514,11 +521,11 @@ function scene:show(event)
     temp:removeSelf()
     local barWidth=temp.contentWidth*2
     local barHeight=40
-    display.remove(self.stepProgresBar)
-    self.stepProgresBar=progress.create(barWidth,barHeight,{params.skip and 5 or 6})
+    display.remove(self.stepProgressBar)
+    self.stepProgressBar=progress.create(barWidth,barHeight,{params.skip and 5 or 6})
     local x,y=display.contentCenterX,13
-    self.stepProgresBar:translate(x, y+barHeight/2)
-    self.view:insert(self.stepProgresBar)
+    self.stepProgressBar:translate(x, y+barHeight/2)
+    self.view:insert(self.stepProgressBar)
   end
 
   self.phaseStartMillis=system.getTimer()

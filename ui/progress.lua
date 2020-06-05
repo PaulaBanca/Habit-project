@@ -12,7 +12,7 @@ function create(w,h,buckets)
   local group=display.newGroup()
 
   local bucketW=w/#buckets-PADDING*(#buckets-1)
- 
+
   local bx=-w/2
   for i=1, #buckets do
     local slots=buckets[i]
@@ -30,6 +30,10 @@ function create(w,h,buckets)
   end
 
   function group:mark(i,good)
+    if self.isComplete then
+      self:reset()
+      self.isComplete = false
+    end
     if good then
       self[i]:setStrokeColor(0,1,0)
       self[i]:setFillColor(0.5,1,0.5)
@@ -47,6 +51,10 @@ function create(w,h,buckets)
       self[i]:setFillColor(0.2)
       self[i]:setStrokeColor(0.3)
     end
+  end
+
+  function group:setComplete(done)
+    self.isComplete = done
   end
 
   return group
