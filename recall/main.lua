@@ -13,7 +13,10 @@ require ("languages")
 require "constants"
 require "effects.effects"
 display.setStatusBar(display.HiddenStatusBar)
+native.setProperty("prefersHomeIndicatorAutoHidden", true)
+
 system.activate("multitouch")
+
 
 local user=require "user"
 
