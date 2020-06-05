@@ -12,6 +12,7 @@ settings={
       NSAppTransportSecurity={
         NSAllowsArbitraryLoads=true,
       },
+      NSSpeechRecognitionUsageDescription = "We use speech recognition to convert speech to text when composing messages.",
       ITSAppUsesNonExemptEncryption=false,
       UIStatusBarHidden = true,
       UILaunchStoryboardName = "LaunchScreen",
