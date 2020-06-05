@@ -5,6 +5,7 @@ local display=display
 local table=table
 local system=system
 local media=media
+local math=math
 local keys=require "keys"
 local chordbar=require "ui.chordbar"
 local jsonreader=require "jsonreader"
@@ -106,7 +107,13 @@ function scene:show(event)
     end
   end
   if obj then
-    local bg=display.newRect(scene.view,display.contentCenterX, obj.y+obj.contentHeight+20,100 ,30)
+    local maxButtonY = display.safeScreenOriginY + display.safeActualContentHeight - 25
+    local bg=display.newRect(
+      scene.view,
+      display.contentCenterX,
+      math.min(obj.y+obj.contentHeight+20, maxButtonY),
+      100,
+      30)
     bg:setFillColor(83/255, 148/255, 250/255)
     display.newText({
       parent=scene.view,
