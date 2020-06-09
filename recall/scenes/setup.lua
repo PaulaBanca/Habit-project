@@ -38,19 +38,6 @@ local options={
     selectFunc=function(v)
       user.store("left handed",v==i18n("handedness_is_left"))
     end
-  },
-  {
-    label=i18n("configuration.iti_time"),
-    options = {
-      200,
-      250,
-      500,
-      750,
-      1000,
-    },
-    selectFunc=function(v)
-      user.store("iti time",v)
-    end
   }
 }
 

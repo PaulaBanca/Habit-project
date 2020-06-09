@@ -18,7 +18,6 @@ local progress=require "ui.progress"
 local _=require "util.moses"
 local events=require "events"
 local serpent=require "serpent"
-local user = require ("user")
 local display=display
 local transition=transition
 local easing=easing
@@ -42,6 +41,7 @@ local isScheduledPractice
 local trackList
 local stimulusScale=0.35
 local lastMistakeIndex
+local itiTime = 250
 
 local function switchSong(newTrack)
   local x,y=display.contentCenterX, 53
@@ -461,7 +461,7 @@ function scene:itiScreen(onEnd)
     if self.stepProgressBar then
       self.stepProgressBar:toFront()
     end
-    self.startButtonTimer=timer.performWithDelay(user.get("iti time"), function()
+    self.startButtonTimer=timer.performWithDelay(itiTime, function()
       self.startButtonTimer=nil
       self.bg:toBack()
       onEnd()
