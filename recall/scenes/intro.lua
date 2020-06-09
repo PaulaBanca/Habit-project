@@ -15,7 +15,11 @@ local print=print
 
 setfenv(1,scene)
 
+local instructions
+local cnf
 function scene:create()
+  cnf.init()
+  instructions = cnf.task
   events.addEventListener('phase change',function()
     self.page=1
   end)
@@ -23,9 +27,8 @@ function scene:create()
 end
 scene:addEventListener('create')
 
-local instructions
-function setTask(_instructions)
-  instructions = _instructions
+function setTask(config)
+  cnf = config
 end
 
 function scene:show(event)

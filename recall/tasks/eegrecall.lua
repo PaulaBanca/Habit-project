@@ -4,6 +4,7 @@ eegrecall = M
 local i18n = require ("i18n.init")
 local phasemanager=require "phasemanager"
 local events=require "events"
+local user = require ("user")
 local _ = require ("util.moses")
 local setmetatable=setmetatable
 local rawget=rawget
@@ -35,18 +36,14 @@ local getTrackMT={
 }
 
 function init()
+  local track = user.get("preferred")
   phasemanager.setPhases({
     {phase='Intro'},
-    {track=1,phase='A'},
-    {track=1,phase='B1'},
-    {track=1,phase='B2'},
-    {track=1,phase='B3'},
-    {track=1,phase='C'},
-    {track=2,phase='A'},
-    {track=2,phase='B1'},
-    {track=2,phase='B2'},
-    {track=2,phase='B3'},
-    {track=2,phase='C'},
+    {track=track,phase='A'},
+    {track=track,phase='B1'},
+    {track=track,phase='B2'},
+    {track=track,phase='B3'},
+    {track=3,phase='C'},
     {phase='Outro'},
   })
 end

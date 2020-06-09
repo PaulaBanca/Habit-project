@@ -26,8 +26,7 @@ local options={
         task = "standardrecall"
       end
       local config = require ("tasks." .. task)
-      config.init()
-      intro.setTask(config.task)
+      intro.setTask(config)
     end
   },
   {
@@ -131,7 +130,7 @@ function scene:create()
     fontSize=20
   }):translate(bg.x, bg.y)
   bg:addEventListener("tap", function()
-    composer.gotoScene("scenes.intro")
+    composer.gotoScene("scenes.selectpreferred")
   end)
 
   scroll:setIsLocked(bg.contentBounds.yMax < display.contentHeight,"vertical")
