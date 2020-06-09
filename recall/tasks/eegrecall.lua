@@ -152,7 +152,6 @@ task = {
   },
   -- PHASE C
   {
-
     phase='C',
     text=i18n("eeg.phase_c"),
     y=20,
@@ -164,6 +163,7 @@ task = {
       requireStartButton=true,
       nextScene="scenes.intro",
       noSwitch=true,
+      hideIcon=true,
       rounds=1,
       iterations=FLAGS.QUICK_ROUNDS and 1 or 15
     },getTrackMT)

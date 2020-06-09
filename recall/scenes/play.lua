@@ -530,6 +530,9 @@ function scene:show(event)
 
   self.phaseStartMillis=system.getTimer()
   switchSong(setTrack)
+  if params.hideIcon then
+     scene.img.isVisible = false
+  end
   if params.skip then
     table.remove(sequence, params.skip)
   end
