@@ -25,7 +25,12 @@ local validKeys={
   restartForced="setRestartForced",
   correctKeyPattern="setCorrectKeys",
   feedbackPattern="setFeedbackPattern",
-  moveSuppressed="setMoveSuppressed"
+  moveSuppressed="setMoveSuppressed",
+  matchesSuppressedMove="setMatchesSuppressedMove",
+  monitoredKeyPattern = "setMonitoredKeyPattern",
+  matchesPattern = "setMatchesPattern",
+  indexBeingSkipped = "setIndexBeingSkipped",
+  playedSuppressedMove = "setPlayedSuppressedMove"
 }
 
 local defaultValues={

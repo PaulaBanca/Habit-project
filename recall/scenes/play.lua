@@ -11,13 +11,17 @@ local chordbar=require "ui.chordbar"
 local background=require "ui.background"
 local playstate=require "playstate"
 local logger=require "logger"
-local events = require ("events")
 local keysparks=require "ui.keysparks"
 local button=require "ui.button"
 local progress=require "ui.progress"
 local _=require "util.moses"
 local events=require "events"
 local serpent=require "serpent"
+local skipmonitor = require "skipmonitor"
+local keypattern = require ("keypattern")
+local tunedetector = require ("tunedetector")
+local _ = require ("util.moses")
+local tonumber = tonumber
 local display=display
 local transition=transition
 local easing=easing
@@ -91,6 +95,7 @@ end
 
 local function restart(onReady)
   state.restart()
+  tunedetector.reset()
   scene.keys:clear()
   scene.stepProgressBar:reset()
   scene:setRestartButtonVisibility(false)
@@ -115,6 +120,27 @@ function hasCompletedRound()
   return index==#sequence and state.get("count")>0
 end
 
+function logTuneMatches(data, pressedKeys, released)
+  local matches
+  do
+    local _, t = tunedetector.matchAgainstTunes(pressedKeys, released)
+    matches = t
+  end
+  if not matches then
+    data.matchesPattern = "n/a"
+    return
+  end
+  local groupedMatches = _(matches):map(function(i,v)
+    return {sequence = i, step = v.step} end):groupBy(function(i, v) return v.step end):value()
+  local maxKey = _(groupedMatches):keys():max():value()
+  if maxKey < 2 then
+    data.matchesPattern = "n/a"
+    return
+  end
+
+  local stringed = _(groupedMatches[maxKey]):map(function(i, v) return ("s: %d m: %d"):format(v.sequence,v.step) end):value()
+  data.matchesPattern = table.concat(stringed, "| ")
+end
 
 function completeRound()
   if headless then
@@ -130,8 +156,10 @@ function completeRound()
   local rounds=state.get("rounds")
   if rounds==maxLearningLength then
     logger.setProgress("midpoint")
+  else
+    logger.setProgress("start sequence")
   end
-
+  tunedetector.reset()
   state.startTimer()
 
   state.increment("iterations")
@@ -276,15 +304,26 @@ end
 
 function scene:createKeys()
   local mistakeInLastTouches=false
+  local matchesSuppressed
+  local wasSuppressedPattern
   local group=display.newGroup()
   local ks=keys.create({
     onAllReleased=function(stepID,data)
       if stepID and stepID~=state.get("stepID") then
         return
       end
+
       self:setRestartButtonVisibility(self.allowRestarts)
       logger.setProgress('')
       if data then
+        local skipping = tonumber(data.indexBeingSkipped)
+        if skipping then
+          local matchesSkippingIndex = skipping == data.instructionIndex
+          local suppressed = not wasSuppressedPattern or wasSuppressedPattern == "partial"
+          local wasSuppressed = suppressed and matchesSkippingIndex
+          data["playedSuppressedMove"] = not matchesSkippingIndex and "n/a" or not wasSuppressed
+          matchesSuppressed = nil
+        end
         data.phase=self.phase
       end
       local roundComplete=hasCompletedRound()
@@ -377,7 +416,6 @@ function scene:createKeys()
       end
       scene.stepProgressBar:reset()
       logger.setRestartForced('mistake')
-      logger.setProgress('restart')
       mistakeAnimation(self.redBackground)
       restart(function() end)
 
@@ -386,6 +424,14 @@ function scene:createKeys()
     onKeyRelease=function (data)
       data.mistakes=state.get("mistakes")
       data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
+      logTuneMatches(data,self.keys:getPressedKeys(),true)
+
+      local skipping = tonumber(data.indexBeingSkipped)
+      if skipping then
+        matchesSuppressed = skipmonitor.checkKeysPressed(self.keys:getPressedKeys(), getIndex())
+        print (matchesSuppressed)
+        data.matchesSuppressedMove = matchesSuppressed
+      end
     end,
     onKeyPress=function(data)
       if not data then
@@ -395,9 +441,19 @@ function scene:createKeys()
         type = "key pressed",
         keysPressed = self.keys:getPressedKeys()
       })
+
+      local skipping = tonumber(data.indexBeingSkipped)
+      if skipping then
+        matchesSuppressed = skipmonitor.checkKeysPressed(self.keys:getPressedKeys(), getIndex())
+        data.matchesSuppressedMove = matchesSuppressed
+        wasSuppressedPattern = matchesSuppressed
+      end
+
       local setPresses=self.presses[getIndex()] or {}
       setPresses[data.keyIndex]=data.wasCorrect
       self.presses[getIndex()]=setPresses
+
+      logTuneMatches(data, self.keys:getPressedKeys(), false)
 
       -- composer.showOverlay('scenes.feedbackdebug',{
       --   params={
@@ -412,6 +468,7 @@ function scene:createKeys()
       data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
       data.hint=self.showHints and self.highlight[getIndex()] or false
       data.mistakes=state.get("mistakes")
+
       logger.setRestartForced(false)
     end
   },
@@ -534,7 +591,19 @@ function scene:show(event)
      scene.img.isVisible = false
   end
   if params.skip then
+    local monitoredKeyPattern = skipmonitor.monitor(sequence, params.skip)
+    logger.setMonitoredKeyPattern(keypattern.create(monitoredKeyPattern))
+    logger.setIndexBeingSkipped(params.skip)
+    logger.setPlayedSuppressedMove("n/a")
+    logger.setMatchesSuppressedMove("-")
     table.remove(sequence, params.skip)
+
+  else
+    logger.setMonitoredKeyPattern("n/a")
+    logger.setMatchesSuppressedMove("n/a")
+    logger.setIndexBeingSkipped('n/a')
+    logger.setPlayedSuppressedMove('n/a')
+    skipmonitor.reset()
   end
   restart(setupNextKeys)
   logger.setProgress('phase start')

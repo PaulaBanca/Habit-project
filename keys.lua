@@ -26,8 +26,6 @@ local NUM_KEYS=NUM_KEYS
 
 setfenv(1,M)
 
-local noChords=system.getInfo("environment")=="simulator"
-
 function create(listenerFunctions,noLogging)
   local group=display.newGroup()
   local keys={}
