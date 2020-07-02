@@ -33,6 +33,7 @@ local tonumber=tonumber
 local Runtime=Runtime
 local os=os
 local pairs=pairs
+local ipairs=ipairs
 local NUM_KEYS=NUM_KEYS
 
 setfenv(1,scene)
@@ -65,6 +66,12 @@ local startInstructions={
   {chord={"none","c4","e4","a4"},forceLayout=true},
   {chord={"f3","none","none","c4"},forceLayout=true},
 }
+
+if system.getInfo("environment")=="simulator" then
+  for _,v in ipairs(startInstructions) do
+    v.chord = {"c4", "none", "none", "none"}
+  end
+end
 
 local modeProgressionSequence={
   {chord={"c4","none","none","none"},forceLayout=true},
