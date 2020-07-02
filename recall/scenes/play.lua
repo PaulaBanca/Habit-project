@@ -99,7 +99,6 @@ local function restart(onReady)
   scene.keys:clear()
   scene.stepProgressBar:reset()
   scene:setRestartButtonVisibility(false)
-  logger.setProgress("restart")
 
   scene:itiScreen(onReady)
 end
@@ -415,7 +414,8 @@ function scene:createKeys()
         return
       end
       scene.stepProgressBar:reset()
-      logger.setRestartForced('mistake')
+      data["practiceProgress"] = "start sequence"
+      data["restartForced"] = 'mistake'
       mistakeAnimation(self.redBackground)
       restart(function() end)
 
