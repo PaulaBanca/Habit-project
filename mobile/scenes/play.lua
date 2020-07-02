@@ -528,8 +528,8 @@ function scene:createKeys()
         if rewardType~="none" then
           data.bank=tonumber(scene.bank:getScore())
         end
-       end
-     },isStart)
+      end
+    },isStart)
 
   group:insert(ks)
 
