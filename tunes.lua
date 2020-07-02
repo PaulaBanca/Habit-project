@@ -9,10 +9,12 @@ local type=type
 local table=table
 local NUM_KEYS=NUM_KEYS
 local print=print
+local system=system
 
 setfenv(1,M)
 
-local simpleSequences=false
+local simpleSequences=system.getInfo("environment")=="simulator"
+
 
 local config
 
