@@ -16,6 +16,8 @@ local network=network
 
 setfenv(1,M)
 
+local blockSyncing = true
+
 local additionalData={}
 local validKeys={
   modesDropped="setModesDropped",
@@ -121,6 +123,9 @@ end
 
 local syncMessage
 function startCatchUp()
+  if blockSyncing then
+    return
+  end
   if syncMessage then
     return
   end
