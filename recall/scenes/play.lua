@@ -431,14 +431,9 @@ function scene:createKeys()
       data.mistakes=state.get("mistakes")
       data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
       logTuneMatches(data,self.keys:getPressedKeys(),true)
-      local matches = intrusions.onKeyRelease(self.keys:getPressedKeys())
-      if matches then
-        data["intrudedStep"] = table.concat(_.map(matches, function (_,v) return v.step end), "| ")
-        data["intrudedSequence"] = table.concat(_.map(matches, function (_,v) return v.tune end), "| ")
-      else
-        data["intrudedStep"] = ""
-        data["intrudedSequence"] = ""
-      end
+      intrusions.onKeyRelease(self.keys:getPressedKeys())
+      data["intrudedStep"] = "-"
+      data["intrudedSequence"] = "-"
 
       local skipping = tonumber(data.moveSuppressed)
       if skipping then
