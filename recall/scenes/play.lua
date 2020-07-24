@@ -318,7 +318,7 @@ function scene:createKeys()
       self:setRestartButtonVisibility(self.allowRestarts)
       logger.setProgress('')
       if data then
-        local skipping = tonumber(data.indexBeingSkipped)
+        local skipping = tonumber(data.moveSuppressed)
         if skipping then
           local matchesSkippingIndex = skipping == data.instructionIndex
           local suppressed = not wasSuppressedPattern or wasSuppressedPattern == "partial"
@@ -437,7 +437,7 @@ function scene:createKeys()
         data["intrudedSequence"] = ""
       end
 
-      local skipping = tonumber(data.indexBeingSkipped)
+      local skipping = tonumber(data.moveSuppressed)
       if skipping then
         matchesSuppressed = skipmonitor.checkKeysPressed(self.keys:getPressedKeys(), getIndex())
         print (matchesSuppressed)
@@ -463,7 +463,7 @@ function scene:createKeys()
         keysPressed = self.keys:getPressedKeys()
       })
 
-      local skipping = tonumber(data.indexBeingSkipped)
+      local skipping = tonumber(data.moveSuppressed)
       if skipping then
         matchesSuppressed = skipmonitor.checkKeysPressed(self.keys:getPressedKeys(), getIndex())
         data.matchesSuppressedMove = matchesSuppressed
@@ -616,7 +616,6 @@ function scene:show(event)
   if params.skip then
     local monitoredKeyPattern = skipmonitor.monitor(sequence, params.skip)
     logger.setMonitoredKeyPattern(keypattern.create(monitoredKeyPattern))
-    logger.setIndexBeingSkipped(params.skip)
     logger.setPlayedSuppressedMove("n/a")
     logger.setMatchesSuppressedMove("-")
     table.remove(sequence, params.skip)
@@ -624,7 +623,6 @@ function scene:show(event)
   else
     logger.setMonitoredKeyPattern("n/a")
     logger.setMatchesSuppressedMove("n/a")
-    logger.setIndexBeingSkipped('n/a')
     logger.setPlayedSuppressedMove('n/a')
     skipmonitor.reset()
   end

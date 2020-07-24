@@ -29,7 +29,6 @@ local validKeys={
   matchesSuppressedMove="setMatchesSuppressedMove",
   monitoredKeyPattern = "setMonitoredKeyPattern",
   matchesPattern = "setMatchesPattern",
-  indexBeingSkipped = "setIndexBeingSkipped",
   playedSuppressedMove = "setPlayedSuppressedMove",
   mistakeDuringMove = "setMistakeDuringMove",
   intrudedSequence = "setIntrudedSequence",
