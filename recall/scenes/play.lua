@@ -20,6 +20,7 @@ local serpent=require "serpent"
 local skipmonitor = require "skipmonitor"
 local keypattern = require ("keypattern")
 local tunedetector = require ("tunedetector")
+local intrusions = require ("intrusions")
 local _ = require ("util.moses")
 local tonumber = tonumber
 local display=display
@@ -96,6 +97,7 @@ end
 local function restart(onReady)
   state.restart()
   tunedetector.reset()
+  intrusions.reset()
   scene.keys:clear()
   scene.stepProgressBar:reset()
   scene:setRestartButtonVisibility(false)
@@ -159,6 +161,7 @@ function completeRound()
     logger.setProgress("start sequence")
   end
   tunedetector.reset()
+  intrusions.reset()
   state.startTimer()
 
   state.increment("iterations")
@@ -425,6 +428,14 @@ function scene:createKeys()
       data.mistakes=state.get("mistakes")
       data.millisSincePhaseStart=system.getTimer()-self.phaseStartMillis
       logTuneMatches(data,self.keys:getPressedKeys(),true)
+      local matches = intrusions.onKeyRelease(self.keys:getPressedKeys())
+      if matches then
+        data["intrudedStep"] = table.concat(_.map(matches, function (_,v) return v.step end), "| ")
+        data["intrudedSequence"] = table.concat(_.map(matches, function (_,v) return v.tune end), "| ")
+      else
+        data["intrudedStep"] = ""
+        data["intrudedSequence"] = ""
+      end
 
       local skipping = tonumber(data.indexBeingSkipped)
       if skipping then
@@ -434,9 +445,19 @@ function scene:createKeys()
       end
     end,
     onKeyPress=function(data)
+      local matches = intrusions.onKeyPress(self.keys:getPressedKeys())
       if not data then
         return
       end
+
+      if matches then
+        data["intrudedStep"] = table.concat(_.map(matches, function (_,v) return v.step end), "| ")
+        data["intrudedSequence"] = table.concat(_.map(matches, function (_,v) return v.tune end), "| ")
+      else
+        data["intrudedStep"] = ""
+        data["intrudedSequence"] = ""
+      end
+
       events.fire({
         type = "key pressed",
         keysPressed = self.keys:getPressedKeys()
@@ -560,6 +581,8 @@ function scene:show(event)
   state.startTimer()
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(state.get("mistakes"))
+  logger.setIntrudedSequence("")
+  logger.setIntrudedStep("")
   logger.setRestartForced(false)
 
   logger.setProgress("start")

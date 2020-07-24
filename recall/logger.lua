@@ -30,7 +30,10 @@ local validKeys={
   monitoredKeyPattern = "setMonitoredKeyPattern",
   matchesPattern = "setMatchesPattern",
   indexBeingSkipped = "setIndexBeingSkipped",
-  playedSuppressedMove = "setPlayedSuppressedMove"
+  playedSuppressedMove = "setPlayedSuppressedMove",
+  mistakeDuringMove = "setMistakeDuringMove",
+  intrudedSequence = "setIntrudedSequence",
+  intrudedStep = "setIntrudedStep",
 }
 
 local defaultValues={

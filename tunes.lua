@@ -191,6 +191,10 @@ function getMaxSequenceLength()
   return len
 end
 
+function getTuneLength(i)
+  return #getTunes()[i]
+end
+
 local function matchesSong(song,sequence)
   local start=#sequence-#song
   for i=1, #song do
