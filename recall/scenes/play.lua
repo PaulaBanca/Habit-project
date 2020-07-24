@@ -225,6 +225,7 @@ function setupNextKeys()
   scene.keys:enable()
   state.increment("stepID")
   logger.setTotalMistakes(state.get("mistakes"))
+  logger.setMistakeDuringMove(false)
 
   local index=getIndex()
   local nextIntruction=sequence[index]
@@ -397,6 +398,8 @@ function scene:createKeys()
       if data then
         data.instructionIndex=getIndex()
         data.mistakes=state.get("mistakes")
+        data.mistakeDuringMove = true
+        logger.setMistakeDuringMove(true)
       end
 
       local setPresses=self.presses[getIndex()] or {}
@@ -584,6 +587,7 @@ function scene:show(event)
   logger.setIntrudedSequence("")
   logger.setIntrudedStep("")
   logger.setRestartForced(false)
+  logger.setMistakeDuringMove(false)
 
   logger.setProgress("start")
 
