@@ -319,7 +319,11 @@ function scene:createKeys()
       end
 
       self:setRestartButtonVisibility(self.allowRestarts)
-      logger.setProgress('')
+      if mistakeInLastTouches and self.restartOnMistakes then
+         logger.setProgress("start sequence")
+      else
+        logger.setProgress('')
+      end
       if data then
         local skipping = tonumber(data.moveSuppressed)
         if skipping then
@@ -426,7 +430,7 @@ function scene:createKeys()
         return
       end
       scene.stepProgressBar:reset()
-      data["practiceProgress"] = "start sequence"
+      logger.setProgress("start sequence")
       data["restartForced"] = 'mistake'
       mistakeAnimation(self.redBackground)
       restart(function() end)
