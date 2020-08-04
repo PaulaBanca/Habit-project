@@ -21,6 +21,7 @@ local skipmonitor = require "skipmonitor"
 local keypattern = require ("keypattern")
 local tunedetector = require ("tunedetector")
 local intrusions = require ("intrusions")
+local user=require "user"
 local _ = require ("util.moses")
 local tonumber = tonumber
 local display=display
@@ -577,6 +578,7 @@ function scene:show(event)
 
   state=playstate.create()
   state.startTimer()
+  logger.setParticipant(user.getID())
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(state.get("mistakes"))
   logger.setIntrudedSequence("")

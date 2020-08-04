@@ -18,6 +18,7 @@ setfenv(1,M)
 
 local additionalData={}
 local validKeys={
+  participant="setParticipant",
   iterations="setIterations",
   mistakes="setTotalMistakes",
   track="setTrack",
