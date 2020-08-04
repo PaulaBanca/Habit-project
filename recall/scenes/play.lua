@@ -113,6 +113,7 @@ local function madeMistake()
   end
   lastMistakeIndex=index
   scene.highlight[index]=true
+
   state.increment("mistakes")
   events.fire({type='mistake',total=state.get('mistakes')})
 end
@@ -403,6 +404,10 @@ function scene:createKeys()
         logger.setMistakeDuringMove(true)
       end
 
+      if self.phase == "A" then
+        state.clear("mistakes")
+      end
+
       local setPresses=self.presses[getIndex()] or {}
       setPresses[data.keyIndex]=false
       self.presses[getIndex()]=setPresses
@@ -439,7 +444,6 @@ function scene:createKeys()
       local skipping = tonumber(data.moveSuppressed)
       if skipping then
         matchesSuppressed = skipmonitor.checkKeysPressed(self.keys:getPressedKeys(), getIndex())
-        print (matchesSuppressed)
         data.matchesSuppressedMove = matchesSuppressed
       end
     end,
