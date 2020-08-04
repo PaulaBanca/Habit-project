@@ -163,7 +163,6 @@ function completeRound()
     logger.setProgress("start sequence")
   end
   tunedetector.reset()
-  intrusions.reset()
   state.startTimer()
 
   state.increment("iterations")
