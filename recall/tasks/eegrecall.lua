@@ -103,6 +103,7 @@ task = {
     phase='B1',
     text=i18n("eeg.phase_b"),
     y=20,
+    width = display.actualContentWidth - 100
   },
   {
     phase='B1',

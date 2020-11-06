@@ -12,7 +12,7 @@
     "eeg" : {
       "sequence": "Which sequence do you prefer?",
       "phase_a" : "Try to play the sequence that goes with this pattern. Don’t worry if you make mistakes!",
-      "phase_b" : "Well done! Now you need to skip one of the moves in the sequence. You will be told which move to to skip; a complete and correct sequence will be composed of 5 moves, instead of 6. Please keep playing it as fast as you can",
+      "phase_b" : "Well done! Now you need to skip one of the moves in the sequence. You will be told which move to skip; a complete and correct sequence will be composed of 5 moves, instead of 6. Please keep playing it as fast as you can.\n\nYou will not receive feedback if you make any mistakes",
       "phase_c" : "Your task now is to create new sequences of 6 moves, similar in complexity to the ones you have practiced at home but novel ones. Try to invent as many different sequences as you can, as quickly as possible. Don't worry if you repeat yourself now and again. The more sequences you create, the more successful you are! Do your best and don't think too much.",
       "skip" : "Skip move %{step}",
     },
