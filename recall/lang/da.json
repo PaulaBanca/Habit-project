@@ -10,9 +10,9 @@
       "completed" : "Godt gået."
     },
     "eeg" : {
-    "sequence": "Hvilken seksvens foretrækker du?",
+      "sequence": "Hvilken seksvens foretrækker du?",
       "phase_a" : "Prøv at lave den sekvens som passer til dette mønster. Bare tag det roligt, hvis du komme til at lave en fejl!",
-      "phase_b" : "Godt gået! Nu skal du springe et træk over i sekvensen. Du vil få besked om, hvilket træk du skal springe over. En komplet og korrekt sekvens vil bestå af fem træk fremfor seks træk. Prøv at fuldføre sekvensen så hurtigt, som du kan",
+      "phase_b" : "Godt gået! Nu skal du springe et træk over i sekvensen. Du vil få besked om, hvilket træk du skal springe over. En komplet og korrekt sekvens vil altså bestå af fem træk fremfor seks træk. Prøv at fuldføre sekvensen så hurtigt, som du kan.\n\nHvis du kommer til at lave en fejl, vil du ikke få besked om det.",
       "phase_c" : "Din opgave er nu selv at finde på en ny sekvens af seks træk. Den skal have samme kompleksitet, som den du har øvet derhjemme, men det skal være en ny sekvens. Prøv at lave så mange nye sekvenser du kan, så hurtigt som muligt. Bliv ikke nervøs, hvis du kommer til at gentage en sekvens fra tid til anden. Jo flere sekvenser du finder på, jo bedre klarer du dig! Gør dit bedste og tænk ikke for længe under opgaven. Held og lykke!",
       "skip" : "Spring trækket over %{step}"
     },
@@ -25,3 +25,4 @@
     }
   }
 }
+
