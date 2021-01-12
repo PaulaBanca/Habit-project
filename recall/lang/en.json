@@ -39,6 +39,14 @@
       "enter_user" : "Enter the User ID",
       "set_user" : "Set User ID to %{userid}. All data will logged against this id",
       "iti_time" : "Select the ITI interval."
+    },
+    "email": {
+      "title":"E-mail data?",
+      "message": "There is some data from the last time this app was run. Would you like to e-mail it to the person running the study? Don't worry, the data will not be overwritten or deleted whatever you do.",
+      "notsupported": {
+        "title": "Not supported",
+        "message": "E-mail not supported or setup on this device"
+      }
     }
   }
 }

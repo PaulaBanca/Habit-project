@@ -16,9 +16,30 @@ display.setStatusBar(display.HiddenStatusBar)
 native.setProperty("prefersHomeIndicatorAutoHidden", true)
 
 system.activate("multitouch")
-
-
 local user=require "user"
+
+local events = require ("events")
+events.addEventListener("lang set", function()
+  local detectdata = require ("detectdata")
+  if detectdata.hasDataFiles() then
+    local function onComplete( event )
+      if event.action ~= "clicked" then
+          return
+      end
+      if event.index == 2 then
+        local emailcsv = require ("emailcsv")
+        emailcsv.send(user.getID())
+      end
+    end
+
+    local i18n = require ("i18n.init")
+    native.showAlert(i18n("email.title"), i18n("email.message"),{
+      i18n("buttons.cancel"),
+      i18n("buttons.ok")},
+      onComplete)
+  end
+end)
+
 
 function start()
   local key=require "key"

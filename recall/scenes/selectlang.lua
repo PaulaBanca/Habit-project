@@ -4,6 +4,7 @@ local scene=composer.newScene()
 local i18n = require ("i18n.init")
 local languages = require ("languages")
 local user=require "user"
+local events = require ("events")
 local display=display
 local system=system
 local ipairs = ipairs
@@ -87,6 +88,8 @@ function scene:create()
     :translate(bg.x, bg.y)
 
   bg:addEventListener("tap", function()
+    events.fire({type="lang set"})
+
     composer.gotoScene("scenes.setup")
   end)
 end
@@ -98,6 +101,7 @@ function scene:show(event)
 
       i18n.setLocale(user.get("language"))
       composer.gotoScene("scenes.setup")
+      events.fire({type="lang set"})
 
       return
     end

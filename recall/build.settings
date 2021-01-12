@@ -6,7 +6,6 @@ settings={
   iphone={
     xcassets="Images.xcassets",
     plist={
-      ITSAppUsesNonExemptEncryption=false,
       NSPhotoLibraryUsageDescription="Not Used",
       NSCameraUsageDescription="Not Used",
       NSAppTransportSecurity={
@@ -24,6 +23,11 @@ settings={
       usesPermissions =
       {
          "android.permission.INTERNET",
+      },
+  },
+  plugins = {
+      ["plugin.zip"] = {
+          publisherId = "com.coronalabs",
       },
   }
 }
