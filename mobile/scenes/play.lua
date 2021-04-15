@@ -20,6 +20,7 @@ local keysparks=require "ui.keysparks"
 local i18n = require ("i18n.init")
 local _=require "util.moses"
 local serpent = require ("serpent")
+local incompletetasks = require ("incompletetasks")
 local unpack=unpack
 local display=display
 local math=math
@@ -343,6 +344,7 @@ function completeTask()
       sessionlogger.logPracticeCompleted()
     end
     timer.performWithDelay(600, function()
+      incompletetasks.lastCompleted()
       composer.gotoScene(nextScene,{params={
         score=rewardType~="none" and tonumber(scene.points.text),
         track=track}

@@ -7,6 +7,7 @@ require ("languages")
 
 local logger=require "logger"
 local user=require "user"
+local incompletetasks=require "incompletetasks"
 
 
 -- FLAGS = {}
@@ -63,6 +64,9 @@ Runtime:addEventListener("system", function(event)
     end
     sessionlogger.reset()
     logSessionStart(event.type)
+    timer.performWithDelay(100, function()
+      incompletetasks.getNext()
+    end)
   end
   if event.type=="applicationSuspend" or event.type=="applicationExit" then
     sessionlogger.logSessionEnd(event.type)

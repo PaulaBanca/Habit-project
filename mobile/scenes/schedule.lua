@@ -4,7 +4,6 @@ local scene=composer.newScene()
 local widget=require "widget"
 local stimuli=require "stimuli"
 local daycounter=require "daycounter"
-local incompletetasks=require "incompletetasks"
 local user=require "user"
 local i18n = require ("i18n.init")
 local display=display
@@ -16,10 +15,6 @@ setfenv(1,scene)
 
 function scene:show(event)
   if event.phase=="did" then
-    return
-  end
-  incompletetasks.lastCompleted()
-  if incompletetasks.getNext() then
     return
   end
 
