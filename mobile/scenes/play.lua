@@ -44,13 +44,15 @@ local maxLearningLength=10
 local rounds=2
 local learningLength=maxLearningLength
 local track=1
-local modes={"learning","recall","blind","invisible"}
+local modes={"learning","recall","blind"}
 local modeIndex=1
 local isStart=false
 local startModeProgression=false
 local headless=false
 local rewardType="none"
 local mistakesPerMode=_.rep(0,#modes)
+local targetModeIndex
+local roundModes
 local modesDropped=0
 local state
 local nextScene
@@ -251,9 +253,13 @@ local function changeModeUp()
   state.clear("mistakes")
   logger.setLives(3-state.get("mistakes"))
 
-  modeIndex=modeIndex+1
-  if modeIndex>#modes then
-    modeIndex=#modes
+  if modesDropped > 0 then
+    modeIndex=modeIndex+1
+    if modeIndex>#modes then
+      modeIndex=#modes
+    end
+  else
+    modeIndex = targetModeIndex
   end
 
   if modesDropped==0 then
@@ -299,6 +305,7 @@ function completeRound()
       mistakesPerMode=_.rep(0,#modes)
       logger.setTotalMistakes(mistakesPerMode[modeIndex])
       logger.setProgress("midpoint")
+      targetModeIndex = table.remove(roundModes, 1) or targetModeIndex
     end
     if rounds<=maxLearningLength*2 then
       scene.progress:mark(rounds,state.get("mistakes")==0)
@@ -800,7 +807,9 @@ function scene:show(event)
   if headless then
     rewardType="none"
   end
-  modeIndex=math.max(1,math.min(#modes,event.params and event.params.difficulty or 1))
+  roundModes=event.params and event.params.iterationDifficulties or {1}
+  modeIndex = table.remove(roundModes, 1)
+  targetModeIndex = modeIndex
   if headless then
     modeIndex=3
   else

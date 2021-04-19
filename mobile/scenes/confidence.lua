@@ -9,6 +9,8 @@ local practicelogger=require "practicelogger"
 local daycounter=require "daycounter"
 local user=require "user"
 local i18n = require ("i18n.init")
+local difficulty = require ("difficulty")
+
 local display=display
 local os=os
 local math=math
@@ -57,7 +59,7 @@ function gotoNextScene(track,day,resumed)
     incompletetasks.removeLast("scenes.pleasure")
   end
 
-  local difficulty=math.ceil(practicelogger.getPractices(track)/3)
+
   logger.stopCatchUp()
   local scene,params="scenes.message",{
     text=i18n("confidence.instruction"),
@@ -67,7 +69,7 @@ function gotoNextScene(track,day,resumed)
       track=track,
       iterations=5,
       rounds=1,
-      difficulty=difficulty,
+      iterationDifficulties=difficulty.get(),
       mode="timed",
       noQuit=true,
     }
@@ -83,7 +85,7 @@ function gotoNextScene(track,day,resumed)
         track="random",
         iterations=10,
         rounds=1,
-        difficulty=difficulty,
+        iterationDifficulties=difficulty.get(),
         mode="switch",
         noQuit=true,
       }

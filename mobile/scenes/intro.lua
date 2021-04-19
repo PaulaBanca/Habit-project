@@ -39,7 +39,6 @@ local instructions={
   {text=i18n("tutorial.level1"),y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=1,difficulty=1}},
   {text=i18n("tutorial.level2"),y=display.contentCenterY-100,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=2,difficulty=2}},
   {text=i18n("tutorial.level3"),y=display.contentCenterY-80,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=3,difficulty=3}},
-  {text=i18n("tutorial.level4"),y=display.contentCenterY-40,scene="scenes.play",params={intro=true,nextScene="scenes.intro",noSwitch=true,modeProgression=4,difficulty=4}},
   {text=i18n("tutorial.deadmans_switch"),y=display.contentCenterY-120},
   {img=("img/keys_%d/instructions1.png"):format(NUM_KEYS)},
   {img=("img/keys_%d/instructions2.png"):format(NUM_KEYS)},

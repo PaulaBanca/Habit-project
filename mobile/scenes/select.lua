@@ -8,6 +8,7 @@ local logger=require "logger"
 local sessionlogger=require "sessionlogger"
 local i18n = require ("i18n.init")
 local _=require "util.moses"
+local difficulty = require ("difficulty")
 local display=display
 local native=native
 local math=math
@@ -57,7 +58,7 @@ function scene:show(event)
       sessionlogger.logPracticeStarted()
       composer.gotoScene("scenes.play",{params={
         track=track,
-        difficulty=math.ceil(practice/3),
+        iterationDifficulties=difficulty.get(),
         rewardType=noReward and "none" or
             ((track+self.modeSelect)%2+1==1 and "timed" or "random"),
         isScheduledPractice=true,
