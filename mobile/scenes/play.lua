@@ -21,6 +21,7 @@ local i18n = require ("i18n.init")
 local _=require "util.moses"
 local serpent = require ("serpent")
 local incompletetasks = require ("incompletetasks")
+local averagetimes = require ("database.averagetimes")
 local unpack=unpack
 local display=display
 local math=math
@@ -190,7 +191,9 @@ local function restart()
 end
 
 local countMistakes
+local mistakeThisRound
 local function madeMistake()
+  mistakeThisRound = true
   local time=system.getTimer()
   if time-lastMistakeTime>500 then
     state.increment("mistakes")
@@ -296,7 +299,7 @@ function completeRound()
   if not hasCompletedRound() then
     return
   end
-
+  mistakeThisRound = false
   roundCompleteAnimation()
   if not isStart and modesDropped==0 then
     state.increment("rounds")
@@ -480,6 +483,13 @@ function scene:createKeys()
           if data then
             data["practiceProgress"]="sequence completed"
           end
+          averagetimes.log({
+            startMillis = data["appMillis"] - data["timeIntoSequence"],
+            endMillis = data["appMillis"],
+            track = tonumber(data["track"]),
+            userid = data["userid"],
+            mistake = mistakeThisRound and 1 or 0
+          })
           completeRound()
           if completeTask() then
             return
