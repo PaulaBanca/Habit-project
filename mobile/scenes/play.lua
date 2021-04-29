@@ -374,7 +374,7 @@ function setupNextKeys()
   state.increment("stepID")
   local index=getIndex()
   local nextIntruction=sequence[index]
-  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>2,modeIndex>3,index,state.get("stepID"))
+  local targetKeys=scene.keys:setup(nextIntruction,modeIndex>1,modeIndex>1,modeIndex>1,index,state.get("stepID"))
 
   if scene.hint then
     scene.hint:removeSelf()
