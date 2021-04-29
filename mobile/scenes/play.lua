@@ -505,6 +505,7 @@ function scene:createKeys()
           end
         end
         if isStart and getIndex()==#sequence then
+          targetModeIndex = table.remove(roundModes, 1) or targetModeIndex
           local done=modeIndex==startModeProgression
           changeModeUp()
           sequence=startModeProgression and modeProgressionSequence or startInstructions
