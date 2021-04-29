@@ -65,7 +65,7 @@ local instructions={
     }
   },
   {
-    text=i18n("tutorial.level3"),
+    text=i18n("tutorial.level4"),
     y=display.contentCenterY-80,
     scene="scenes.play",
     params={
@@ -96,8 +96,10 @@ local instructions={
     params={
       intro=true,
       modeProgression=2,
-      iterationDifficulties = {2},
-      nextScene="scenes.intro"
+      iterationDifficulties = {1,2},
+      nextScene="scenes.intro",
+      maxLearningLength = 1,
+      rounds = 1
     }
   },
   {text=i18n("tutorial.tutorial_completed"),y=display.contentCenterY-120},
