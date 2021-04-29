@@ -173,7 +173,7 @@ local function dropModeDown()
   if scene.points then
     scene.points.isVisible=false
   end
-  learningLength=3
+  learningLength=1
   modesDropped=modesDropped+1
   logger.setModesDropped(modesDropped)
   logger.setModeIndex(modeIndex)
