@@ -45,7 +45,7 @@ local maxLearningLength=10
 local rounds=2
 local learningLength=maxLearningLength
 local track=1
-local modes={"learning","recall","blind"}
+local modes={"learning","blind"}
 local modeIndex=1
 local isStart=false
 local startModeProgression=false
@@ -480,16 +480,19 @@ function scene:createKeys()
         end
         bankPoints()
         if hasCompletedRound() then
+          -- if not trainingMode and mistakeThisRound then
+          --   mistakeAnimation(self.redBackground)
+          -- end
           if data then
             data["practiceProgress"]="sequence completed"
+            averagetimes.log({
+              startMillis = data["appMillis"] - data["timeIntoSequence"],
+              endMillis = data["appMillis"],
+              track = tonumber(data["track"]),
+              userid = data["userid"],
+              mistake = mistakeThisRound and 1 or 0
+            })
           end
-          averagetimes.log({
-            startMillis = data["appMillis"] - data["timeIntoSequence"],
-            endMillis = data["appMillis"],
-            track = tonumber(data["track"]),
-            userid = data["userid"],
-            mistake = mistakeThisRound and 1 or 0
-          })
           completeRound()
           if completeTask() then
             return
