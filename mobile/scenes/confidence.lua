@@ -61,20 +61,6 @@ function gotoNextScene(track,day,resumed)
 
 
   logger.stopCatchUp()
-  local scene,params="scenes.message",{
-    text=i18n("confidence.instruction"),
-    nextScene="scenes.play",
-    nextParams={
-      nextScene="scenes.schedule",
-      track=track,
-      iterations=5,
-      rounds=1,
-      iterationDifficulties=difficulty.get(),
-      mode="timed",
-      noQuit=true,
-    }
-  }
-  incompletetasks.push(scene,params)
 
   if playSwitchTest(day) then
     local scene,params="scenes.message",{
