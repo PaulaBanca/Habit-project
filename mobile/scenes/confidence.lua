@@ -85,7 +85,7 @@ function gotoNextScene(track,day,resumed)
         track="random",
         iterations=10,
         rounds=1,
-        iterationDifficulties=difficulty.get(),
+        iterationDifficulties=difficulty.get(1),
         mode="switch",
         noQuit=true,
       }

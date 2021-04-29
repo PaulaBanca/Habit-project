@@ -1,26 +1,27 @@
 local M = {}
 difficulty = M
+local practicelogger=require "practicelogger"
 local daycounter=require "daycounter"
 local setmetatable=setmetatable
 local _ = require ("util.moses")
+local print = print
 
 setfenv(1, M)
 
 local dayDifficulties = {
-  {1,1},
-  {1,2},
-  {2,2}
+  {{1,1},{2,2}}
 }
 
 setmetatable(dayDifficulties, {
   __index = function()
-    return {3,3}
+    return {{2,2}, {2,2}}
   end
 })
 
-function get()
+function get(track)
+	local practice=practicelogger.getPractices(track) + 1
 	local day=daycounter.getPracticeDay()
-	return _.clone(dayDifficulties[day])
+	return _.clone(dayDifficulties[day][practice])
 end
 
 return M
