@@ -16,7 +16,7 @@ local network=network
 
 setfenv(1,M)
 
-local blockSyncing = true
+local blockSyncing = false
 
 local additionalData={}
 local validKeys={

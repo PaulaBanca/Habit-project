@@ -1,2 +1,2 @@
-NUM_KEYS=4
+NUM_KEYS=3
 DIM_SOUNDS=false
