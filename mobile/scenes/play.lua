@@ -576,12 +576,9 @@ function scene:setUpKeyLayers()
     group.anchorChildren=true
     local strokeWidth=8
     local bg=display.newRect(group,0,0,display.actualContentWidth-strokeWidth,display.actualContentHeight-strokeWidth)
-    local colour={0.5,0.5,0.5}
-    if i>#colour then
-      colour={0,0,0.5}
-    else
-      colour[i]=0
-    end
+    local colour={0.15,0.15,0.15}
+    colour[track + 1] = 0.5  - 0.1 * i
+
     bg:setFillColor(unpack(colour))
     bg.strokeWidth=8
     bg:setStrokeColor(1)
