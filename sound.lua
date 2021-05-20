@@ -27,6 +27,7 @@ local soundFiles={
   {name="g.wav", purpose="g note"},
   {name="a.wav", purpose="a note"},
   {name="b.wav", purpose="b note"},
+  {name="PUZZLE_Success_Xylophone_2_Three_Note_Dry_stereo.wav", purpose="reward"},
   {name="2Plucks1.wav", purpose="dims 1"},
   {name="2Plucks2.wav", purpose="dims 2"},
   {name="feed.wav", purpose="wrong"},

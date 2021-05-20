@@ -21,7 +21,10 @@ local i18n = require ("i18n.init")
 local _=require "util.moses"
 local serpent = require ("serpent")
 local incompletetasks = require ("incompletetasks")
+local averagetimes = require ("database.averagetimes")
+local vr = require ("util.variableratioreward")
 local unpack=unpack
+local easing = easing
 local display=display
 local math=math
 local print=print
@@ -57,6 +60,7 @@ local nextScene
 local isScheduledPractice
 local trackList
 local stimulusScale=0.35
+local mistakesMadeThisRound = 0
 
 local startInstructions={
   {chord={"c4","none","none","none"},forceLayout=true},
@@ -114,19 +118,19 @@ local function switchSong(newTrack)
 end
 
 local function roundCompleteAnimation()
-  local p=display.newEmitter(particles.load("sequenceright"))
-  p.blendMode="add"
-  scene.view:insert(p)
-  p:translate(display.contentCenterX, display.contentCenterY)
   sound.playSound("correct")
+  -- local p=display.newEmitter(particles.load("sequenceright"))
+  -- p.blendMode="add"
+  -- scene.view:insert(p)
+  -- p:translate(display.contentCenterX, display.contentCenterY)
 
-  local t=transition.to(p, {time=2000,alpha=0,onComplete=function()
-    p:removeSelf()
-  end})
-  function p:finalize()
-    transition.cancel(t)
-  end
-  p:addEventListener("finalize")
+  -- local t=transition.to(p, {time=2000,alpha=0,onComplete=function()
+  --   p:removeSelf()
+  -- end})
+  -- function p:finalize()
+  --   transition.cancel(t)
+  -- end
+  -- p:addEventListener("finalize")
 end
 
 local function keyChangeAnimation()
@@ -181,7 +185,7 @@ local function dropModeDown()
 end
 
 local function restart()
-  resetBank()
+  --resetBank()
 
   state.restart()
   scene.keys:clear()
@@ -190,6 +194,7 @@ end
 local countMistakes
 local function madeMistake()
   local time=system.getTimer()
+  mistakesMadeThisRound = mistakesMadeThisRound + 1
   if time-lastMistakeTime>500 then
     state.increment("mistakes")
     logger.setLives(3-state.get("mistakes"))
@@ -206,39 +211,25 @@ local function processBank()
   if rewardType=="none" then
     return
   end
-  local earned=tonumber(scene.bank:getScore())
-  if rewardType=="random" and math.random(100)>37 then
-    earned=0
+
+  if not vr.trialHasReward() then
+    return
   end
 
-  logger.setScore(tonumber(scene.points.text)+earned)
-  local group=display.newGroup()
-  scene.view:insert(group)
-  group.x=scene.img.x
-  group.y=display.contentHeight
-  group:scale(4,4)
-  local t=display.newText({
-    parent=group,
-    text=earned,
-    fontSize=30,
-    align="center",
-    font="Chunkfive.otf",
-  })
-  t:setFillColor(0.478,0.918,0)
+  local p=display.newEmitter(particles.load("reward"))
+  scene.view:insert(p)
+  p:translate(display.contentCenterX, display.contentCenterY)
+  sound.playSound("reward")
+  timer.performWithDelay(1000, function()
+    display.remove(p)
+  end)
 
-  local bg=display.newRect(group,0,0,t.width+20,t.height+20)
-  bg:toBack()
-  bg.strokeWidth=4
-  bg:setFillColor(0.4)
-
-  scene.bank:setScore(0)
-  scene.bank.isVisible=false
-
-  transition.to(group,{xScale=1,yScale=1,x=scene.points.x,y=scene.points.y,anchorX=scene.points.anchorX,anchorY=scene.points.anchorY,onComplete=function(obj)
-    obj:removeSelf()
-    if scene.points then
-      scene.points.text=tonumber(scene.points.text)+earned
-    end
+  local c = display.newImage("img/coin.png")
+  scene.view:insert(c)
+  c:translate(display.contentCenterX, display.contentCenterY)
+  c:scale(0.0001, 0.0001)
+  transition.to(c, {xScale = 1, yScale = 1, transition = easing.outElastic, onComplete = function()
+    transition.to(c, {y = -c.height, onComplete=display.remove, easing.outQuart})
   end})
 end
 
@@ -290,9 +281,13 @@ function completeRound()
   if not hasCompletedRound() then
     return
   end
-
+  mistakesMadeThisRound = 0
+  if updateMistakeDisplay then
+   updateMistakeDisplay(mistakesMadeThisRound)
+  end
+  mistakeThisRound = false
   roundCompleteAnimation()
-  if not isStart and modesDropped==0 then
+  if modesDropped==0 then
     state.increment("rounds")
     local rounds=state.get("rounds")
     if rounds==maxLearningLength then
@@ -346,7 +341,7 @@ function completeTask()
     timer.performWithDelay(600, function()
       incompletetasks.lastCompleted()
       composer.gotoScene(nextScene,{params={
-        score=rewardType~="none" and tonumber(scene.points.text),
+        score= 0, --rewardType~="none" and tonumber(scene.points.text),
         track=track}
       })
       composer.hideOverlay()
@@ -400,6 +395,44 @@ function bankPoints()
   scene.calcReward=nil
   if amount>0 then
     scene.bank:setScore(tonumber(scene.bank:getScore())+amount)
+  end
+end
+
+
+function showMistakes()
+  if updateMistakeDisplay then
+    return
+  end
+  local group = display.newGroup()
+  scene.view:insert(group)
+  local t=display.newText({
+    parent=group,
+    text="Mistakes:",
+    fontSize=30,
+    align="center",
+    font="Chunkfive.otf",
+  })
+  t.anchorX = 1
+  t.x = -5
+  t:setFillColor(0.478,0.918,0)
+
+  t=display.newText({
+    parent=group,
+    text=0,
+    fontSize=30,
+    align="center",
+    font="Chunkfive.otf",
+  })
+  t.anchorX = 0
+  t.x = 5
+  t:setFillColor(0.478,0.918,0)
+  group.anchorChildren = true
+  group.anchorX = 0
+  group.anchorY = 0
+  group:translate(5,5)
+
+  function updateMistakeDisplay(num)
+    t.text = num
   end
 end
 
@@ -460,9 +493,9 @@ function scene:createKeys()
       logger.setProgress(nil)
       if data then
         data.mistakes=mistakesPerMode[modeIndex]
-        if rewardType~="none" then
-          data.bank=tonumber(scene.bank:getScore())
-        end
+        -- if rewardType~="none" then
+          -- data.bank=tonumber(scene.bank:getScore())
+        -- end
       end
       if not mistakeInLastTouches then
         if getIndex()==1 then
@@ -508,9 +541,10 @@ function scene:createKeys()
       if data then
         data.mistakes=mistakesPerMode[modeIndex]
         data.lives=3-state.get("mistakes")
-        if rewardType~="none" then
-          data.bank=tonumber(scene.bank:getScore())
-        end
+        -- if rewardType~="none" then
+        --   data.bank=tonumber(scene.bank:getScore())
+        -- end
+        data.bank = 0
       end
 
       local modesDropped=shouldDropModeDown()
@@ -527,9 +561,10 @@ function scene:createKeys()
         data.mistakes=mistakesPerMode[modeIndex]
         data.lives=3-state.get("mistakes")
 
-        if rewardType~="none" then
-          data.bank=tonumber(scene.bank:getScore())
-        end
+        -- if rewardType~="none" then
+        --   data.bank=tonumber(scene.bank:getScore())
+        -- end
+        data.bank = 0
       end
     },isStart)
 
@@ -555,12 +590,12 @@ function scene:setUpKeyLayers()
     group.anchorChildren=true
     local strokeWidth=8
     local bg=display.newRect(group,0,0,display.actualContentWidth-strokeWidth,display.actualContentHeight-strokeWidth)
-    local colour={0.5,0.5,0.5}
-    if i>#colour then
-      colour={0,0,0.5}
-    else
-      colour[i]=0
+    local colour={0.25 * (i-1),0.125,0.125}
+
+    for c = 1, #colour do
+      colour[c] = (colour[c] + (c == (track + 1) and 1 or 0)) /2
     end
+
     bg:setFillColor(unpack(colour))
     bg.strokeWidth=8
     bg:setStrokeColor(1)
@@ -820,9 +855,12 @@ function scene:show(event)
     trackList=nil
   end
 
+  vr.setup(20, 6)
+
   state=playstate.create()
   state.startTimer()
   modesDropped=0
+  mistakesMadeThisRound = 0
   logger.setScore(0)
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(mistakesPerMode[modeIndex])
@@ -894,9 +932,9 @@ function scene:show(event)
     logger.setTrack(-1)
   else
     switchSong(setTrack)
-    if rewardType~="none" then
-      self:setUpPoints()
-    end
+    -- if rewardType~="none" then
+      -- self:setUpPoints()
+    -- end
   end
 
   restart()
@@ -937,6 +975,7 @@ function scene:hide(event)
     self.bank=nil
     self.progress=nil
     self.hint=nil
+    updateMistakeDisplay = nil
   end
 end
 
