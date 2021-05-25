@@ -9,7 +9,6 @@ local keys=require "keys"
 local playlayout=require "playlayout"
 local practicelogger=require "practicelogger"
 local chordbar=require "ui.chordbar"
-local countdownpoints=require "util.countdownpoints"
 local background=require "ui.background"
 local playstate=require "playstate"
 local daycounter=require "daycounter"
@@ -104,7 +103,7 @@ if NUM_KEYS==3 then
 end
 
 local function switchSong(newTrack)
-  local x,y=display.contentCenterX, scene.progress.iconY
+  local x,y=display.contentCenterX, 0
   if scene.img then
     scene.img:removeSelf()
   end
@@ -153,10 +152,6 @@ local function dropModeDown()
   lastMistakeTime=system.getTimer()
   state:pushState()
   modeIndex=modeIndex-1
-  scene.progress.isVisible=false
-  if scene.points then
-    scene.points.isVisible=false
-  end
   learningLength=1
   modesDropped=modesDropped+1
   logger.setModesDropped(modesDropped)
@@ -256,10 +251,6 @@ local function changeModeUp()
   end
   modesDropped=modesDropped-1
   if modesDropped<=0 then
-    scene.progress.isVisible=not isStart
-    if scene.points then
-      scene.points.isVisible=scene.progress.isVisible
-    end
     modesDropped=0
   end
   learningLength=modesDropped==0 and maxLearningLength or 3
@@ -291,9 +282,6 @@ function completeRound()
       logger.setTotalMistakes(mistakesPerMode[modeIndex])
       logger.setProgress("midpoint")
       targetModeIndex = table.remove(roundModes, 1) or targetModeIndex
-    end
-    if rounds<=maxLearningLength*2 then
-      scene.progress:mark(rounds,state.get("mistakes")==0)
     end
     collectReward()
   end
@@ -675,62 +663,6 @@ function scene:setUpKeyLayers()
   end
 end
 
-function scene:createProgressBar(totalRounds,barWidth,barHeight,strokeWidth)
-  if self.progress then
-    self.progress:removeSelf()
-  end
-  self.progress=display.newGroup()
-  self.view:insert(self.progress)
-
-  local x,y=display.contentCenterX,13
-  self.progress.iconY=y+barHeight-strokeWidth
-
-  local bg=display.newRect(self.progress,x,y,barWidth-strokeWidth,barHeight-strokeWidth)
-  bg:setFillColor(0)
-  bg:setStrokeColor(1)
-  bg.strokeWidth=strokeWidth
-  bg.anchorY=0
-  local bg=display.newRect(self.progress,x,y+strokeWidth,barWidth-strokeWidth*2-2,barHeight-strokeWidth*4)
-  bg:setFillColor(0)
-  bg.strokeWidth=strokeWidth
-  bg.anchorY=0
-
-  local innerX=x-barWidth/2+bg.strokeWidth
-  local innerY=bg.strokeWidth/2+y
-  local innerWidth=barWidth-bg.strokeWidth*2
-  for i=0,rounds-1 do
-    local bar=display.newRect(self.progress,innerX+i*innerWidth/rounds,innerY,innerWidth/rounds,barHeight-bg.strokeWidth*2)
-    bar:setFillColor(0.2*i)
-    bar.anchorX=0
-    bar.anchorY=0
-  end
-
-  local bar=display.newRect(self.progress,innerX,innerY,innerWidth,barHeight-bg.strokeWidth*2)
-  bar:setFillColor(0,1,0)
-  bar.anchorX=0
-  bar.anchorY=0
-  bar.isVisible=false
-
-  self.progress.pointsY=bar.y+bar.height/2+4
-  function self.progress:mark(i)
-    bar.isVisible=true
-    bar.xScale=i/totalRounds
-  end
-
-  for i=1, totalRounds do
-    local line=display.newLine(self.progress, innerX+i*innerWidth/totalRounds, bar.y, innerX+i*innerWidth/totalRounds, bar.y+bar.height-bar.strokeWidth*3)
-    line.strokeWidth=1
-    line:setStrokeColor(0)
-    line.alpha=0.4
-  end
-
-  for i=1,rounds-1 do
-    local line=display.newLine(self.progress, innerX+i*innerWidth/rounds, bar.y, innerX+i*innerWidth/rounds, bar.y+bar.height-bar.strokeWidth*3)
-    line.strokeWidth=3
-    line:setStrokeColor(0.4)
-  end
-end
-
 function scene:show(event)
   if event.phase~="did" then
     return
@@ -836,16 +768,6 @@ function scene:show(event)
   self.deadSensor=deadSensor
   self.view:insert(deadMansSwitchGroup)
   self.deadMansSwitchGroup=deadMansSwitchGroup
-  do
-    local totalRounds=maxLearningLength*rounds
-    local temp=stimuli.getStimulus(1)
-    temp:scale(stimulusScale,stimulusScale)
-    local barWidth=temp.contentWidth*2
-    temp:removeSelf()
-    local barHeight=40
-    self:createProgressBar(totalRounds,barWidth,barHeight,2)
-    self.progress.isVisible=not isStart
-  end
 
   if isStart then
     if startModeProgression then
@@ -889,11 +811,9 @@ function scene:hide(event)
     self.keyLayers=nil
     self.keys=nil
     self.img=nil
-    self.points=nil
     self.deadMansSwitchGroup=nil
     self.deadSensor=nil
     self.calcReward=nil
-    self.progress=nil
     self.hint=nil
   end
 end
