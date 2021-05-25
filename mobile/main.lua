@@ -9,6 +9,11 @@ local logger=require "logger"
 local user=require "user"
 local incompletetasks=require "incompletetasks"
 
+math.gaussian = function(mean, variance)
+    return  math.sqrt(-2 * variance * math.log(math.random())) *
+            math.cos(2 * math.pi * math.random()) + mean
+end
+
 
 -- FLAGS = {}
 -- FLAGS.NO_SOUND = true

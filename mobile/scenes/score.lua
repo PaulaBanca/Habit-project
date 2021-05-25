@@ -12,11 +12,88 @@ local display=display
 local system=system
 local native=native
 local tonumber=tonumber
+local Runtime=Runtime
 local math=math
+local timer=timer
 
 setfenv(1,scene)
 
 local path=system.pathForFile("score.json",system.DocumentsDirectory)
+
+function scene:isTouchingCoin(c)
+  for k = #self.coins, 1, -1 do
+    local dx = c.x - self.coins[k].x
+    local dy = c.y - self.coins[k].y
+
+    if dx * dx + dy * dy < (c.contentWidth/2) ^ 2 then
+      return true
+    end
+  end
+  return false
+end
+
+function scene:isOutsideOfBowl(c)
+  local dx = c.x - display.contentCenterX
+  local dy = c.y - display.contentCenterY
+
+  local elipseWidth = self.coinBounds.xMax - self.coinBounds.xMin
+  local elipseHeight = self.coinBounds.yMax - self.coinBounds.yMin
+  return (dx * dx)/((elipseWidth/2 - c.contentWidth/2 - 8)^2) +
+        (dy * dy)/((elipseHeight/2 - c.contentHeight/2 - 8)^2) > 1
+end
+
+function scene:addCoin(animate)
+  local c = display.newImage(self.view, "img/coin.png")
+  c:scale(0.5,0.5)
+  if animate then
+    c:translate(
+      display.contentCenterX + math.random(c.contentWidth * 4) - c.contentWidth * 2,
+        - c.height
+    )
+    local v = 0
+
+    local fallAnimation
+    fallAnimation = function(event)
+      c.y = c.y + v
+      v = v + 1
+      if self:isTouchingCoin(c) or c.y > display.contentCenterY and self:isOutsideOfBowl(c) then
+         while self:isOutsideOfBowl(c) do
+          local dx = c.x - display.contentCenterX
+          local dy = c.y - display.contentCenterY
+          c.x = c.x + (dx > 0 and -1 or 1)
+
+          c.y = c.y + (dy > 0 and -1 or 1)
+        end
+        Runtime:removeEventListener("enterFrame", fallAnimation)
+      end
+    end
+    Runtime:addEventListener("enterFrame", fallAnimation)
+
+    c:addEventListener("finalize", function()
+      Runtime:removeEventListener("enterFrame", fallAnimation)
+    end)
+    return
+  else
+    c:translate(display.contentCenterX, self.coinBounds.yMax - c.contentHeight/2)
+  end
+  repeat
+    local touching = self:isTouchingCoin(c)
+
+    if touching then
+      c:translate((math.random() > 0.5 and -c.contentWidth or c.contentWidth) * math.random(),-2)
+    end
+  until not touching
+
+  self.coins[#self.coins + 1] = c
+
+  while self:isOutsideOfBowl(c) do
+    local dx = c.x - display.contentCenterX
+    local dy = c.y - display.contentCenterY
+    c.x = c.x + (dx > 0 and -1 or 1)
+
+    c.y = c.y + (dy > 0 and -1 or 1)
+  end
+end
 
 function scene:show(event)
   if event.phase=="did" then
@@ -24,54 +101,40 @@ function scene:show(event)
   end
 
   if event.params.score then
-    local text=display.newText({
-      text=i18n("score.current_score", {score = event.params.score}),
-      fontSize=20,
-      font=native.systemFont,
-      parent=scene.view
-    })
-    text.x=display.contentCenterX
-    text.y=display.contentCenterY*0.5
+    local back = display.newImage(
+      self.view,
+      "img/pot_back.png")
 
-    local track=event.params.track
-    local img=stimuli.getStimulus(track)
-    scene.view:insert(img)
-    img.x=display.contentCenterX
-    img.y=display.contentCenterY
-    img:scale(0.5,0.5)
+    local front = display.newImage(
+      self.view,
+      "img/pot_front.png")
 
-    local prev=jsonreader.load(path)
-    local newScore=not prev or not prev[track]
-    if prev and prev[track] then
-      local prevtext=display.newText({
-        text=i18n("score.previous_best", {score = prev[track].score}),
-        fontSize=20,
-        font=native.systemFont,
-        parent=scene.view
-      })
-      prevtext.anchorY=0
-      prevtext:translate(img.x, img.y+img.contentHeight/2)
+    back:translate(display.contentCenterX, display.contentCenterY)
+    front:translate(display.contentCenterX, display.contentCenterY)
 
-      if prev[track].score<tonumber(event.params.score) then
-        local winner=display.newText({
-          text=i18n("score.new_highscore"),
-          fontSize=25,
-          font=native.systemFont,
-          parent=scene.view,
-          width=display.contentWidth/2,
-          align="center"
-        })
-        winner.x=img.x
-        winner.anchorY=1
-        winner.y=text.y-text.height/2
-        newScore=true
-      end
+    local bounds = front.contentBounds
+    self.coinBounds = bounds
+    self.coins = {}
+
+    local rewards = user.get("rewards_earned") or {0,0}
+    local track = event.params.track
+    for i = 1, rewards[track] do
+       self:addCoin()
+     end
+
+    for i = 1, event.params.score do
+      timer.performWithDelay(400 * i, function()
+        self:addCoin(true)
+        front:toFront()
+      end)
     end
-    if newScore then
-      prev=prev or {}
-      prev[track]={score=tonumber(event.params.score)}
-      jsonreader.store(path,prev)
-    end
+
+    rewards[track] = rewards[track] + event.params.score
+    user.store("rewards_earned", rewards)
+
+    front.alpha = 0.5
+    front:toFront()
+
   else
      local text=display.newText({
       text=i18n("score.well_done"),
