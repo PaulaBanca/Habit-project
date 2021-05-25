@@ -24,6 +24,17 @@ local options={
     end
   },
   {
+    label=i18n("configuration.reward"),
+    options={
+      i18n("configuration.reward_option1"),
+      i18n("configuration.reward_option2")
+    },
+    selectFunc=function(v)
+      local setup = v==i18n("configuration.reward_option1") and 1 or 2
+      user.store("reward extinguish",setup)
+    end
+  },
+  {
     label= i18n("configuration.handedness"),
     options = {
       i18n("configuration.handedness_is_left"),

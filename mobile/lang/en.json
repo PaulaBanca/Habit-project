@@ -59,6 +59,7 @@
     },
     "practice_select" : {
       "instruction" : "Pick a melody to practice",
+      "blocked": "Please practice the other melody twice first",
       "practice_count" : {
         "one" : "Practiced\nonce",
         "other" : "Practiced\n%{count} times",
@@ -68,6 +69,9 @@
       "melody" : "Melody Option",
       "melody_option1" : "A",
       "melody_option2" : "B",
+      "reward": "Reward Counter Balance",
+      "reward_option1": "Extinguish Track 1",
+      "reward_option2": "Extinguish Track 2",
       "handedness" : "Left Handed",
       "handedness_is_left" : "Yes",
       "handedness_is_not_left" : "No",

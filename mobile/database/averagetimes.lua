@@ -24,9 +24,11 @@ database.runSQLQuery(createTableCmd)
 
 local preparedCompletion=database.prepare([[INSERT INTO completion (startMillis,endMillis,track,userid,mistake) VALUES (:startMillis,:endMillis,:track,:userid,:mistake);]])
 
+local preparedCount = {}
 local preparedAvg = {}
 for i = 1, 2 do
   preparedAvg[i] = database.prepare(([[SELECT avg(dt) FROM (SELECT endMillis - startMillis AS dt FROM completion WHERE track = %d ORDER BY ID DESC limit 20);]]):format(i))
+  preparedCount[i] = database.prepare(([[SELECT COUNT(*) FROM completion WHERE track = %d]]):format(i))
 end
 
 local function preparedHandler(stmt,t)
@@ -44,6 +46,14 @@ function getAveragesForTrack(track, callback)
   local stmt = preparedAvg[track]
   stmt:reset()
   database.stepSelect(stmt, function(t) callback(t["avg(dt)"]) end)
+end
+
+function getNumAverages(track, callback)
+  local stmt = preparedCount[track]
+  stmt:reset()
+  database.stepSelect(stmt, function(t)
+    callback(t["COUNT(*)"])
+  end)
 end
 
 return M
