@@ -206,7 +206,11 @@ local function collectReward()
     display.remove(reward)
   end)
 
-  local coin = display.newImage(scene.view, "img/coin.png")
+  local coins = {
+    "img/coin_purple.png",
+    "img/coin_orange.png",
+  }
+  local coin = display.newImage(scene.view, coins[track])
   coin:scale(2,2)
   coin:translate(display.contentCenterX, display.contentCenterY)
 
