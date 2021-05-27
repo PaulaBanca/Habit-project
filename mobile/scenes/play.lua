@@ -43,6 +43,7 @@ local NUM_KEYS=NUM_KEYS
 setfenv(1,scene)
 
 local numRewardsEarned = 0
+local targetRewards = 0
 local sequence
 local maxLearningLength=10
 local rounds=2
@@ -307,32 +308,31 @@ function proceedToNextStep()
 end
 
 function hasCompletedTask()
-  return modesDropped==0 and state.get("rounds")==maxLearningLength*rounds
+  print (numRewardsEarned, targetRewards)
+  return numRewardsEarned == targetRewards
 end
 
 function completeTask()
   if not hasCompletedTask() then
     return
   end
-  if state.get("rounds")==maxLearningLength*rounds then
-    scene.keys:removeSelf()
-    if isScheduledPractice then
-      practicelogger.logPractice(track)
-      practicelogger.resetAttempts(track)
+  scene.keys:removeSelf()
+  if isScheduledPractice then
+    practicelogger.logPractice(track)
+    practicelogger.resetAttempts(track)
 
-      daycounter.completedPractice(track)
-      sessionlogger.logPracticeCompleted()
-    end
-    timer.performWithDelay(600, function()
-      incompletetasks.lastCompleted()
-      composer.gotoScene(nextScene,{params={
-        score=numRewardsEarned,
-        track=track}
-      })
-      composer.hideOverlay()
-    end)
-    return true
+    daycounter.completedPractice(track)
+    sessionlogger.logPracticeCompleted()
   end
+  timer.performWithDelay(1000, function()
+    incompletetasks.lastCompleted()
+    composer.gotoScene(nextScene,{params={
+      score=numRewardsEarned,
+      track=track}
+    })
+    composer.hideOverlay()
+  end)
+  return true
 end
 
 function setupNextKeys()
@@ -375,10 +375,11 @@ function setUpReward(numRewards)
       end
     end)
     averagetimes.getAveragesForTrack(trackToUse, function(avg)
-      print ("avg timee", avg)
       variableintervalreward.setup(avg * 20, numRewards)
     end)
   end
+
+  targetRewards = numRewards
 end
 
 function scene:create(event)
@@ -782,7 +783,7 @@ function scene:show(event)
 
   restart()
   setupNextKeys()
-  setUpReward(math.gaussian(5, 0.5))
+  setUpReward(math.floor(math.gaussian(5, 0.5) + 0.5))
 
   logger.setIntro(isStart or false)
 
