@@ -2,13 +2,11 @@ local composer=require "composer"
 local scene=composer.newScene()
 
 local widget=require "widget"
-local stimuli=require "stimuli"
 local daycounter=require "daycounter"
 local user=require "user"
 local i18n = require ("i18n.init")
 local display=display
 local math=math
-local pairs=pairs
 local print=print
 
 setfenv(1,scene)
@@ -58,76 +56,42 @@ function scene:show(event)
   local today=dates+1
   local practiceDate
   for i=1, datePoints do
-    local track=daycounter.getPracticed(i)
-    local complete
     local x=i*step
-    if track then
-      local count=0
-      for k,v in pairs(track) do
-        local off=(k-1)*2-1
-        local countedPractices=math.min(2,v)
-        count=count+countedPractices
-        local img=stimuli.getStimulus(k)
-        img:scale(0.15,0.15)
-        local container=display.newContainer(img.contentWidth/2,img.contentHeight/((2+countedPractices)%2+1))
-        container.anchorY=0
-        container.anchorChildren=true
-        container:translate(x-container.width/2*off, scroll.height/2-img.contentHeight/2)
-        img.x=container.width/2*off
-        img.y=countedPractices==2 and 0 or img.contentHeight/4
-        container:insert(img)
-        scroll:insert(container)
 
-        if countedPractices<2 then
-          local line=display.newLine(x-container.width*off,scroll.height/2,x,scroll.height/2)
-          line.strokeWidth=4
-          scroll:insert(line)
-        end
+    local c=display.newCircle(self.view,x,scroll.height/2, 16)
+    scroll:insert(c)
+    c.strokeWidth=2
+    if i~=today then
+      c:setFillColor(0.6, 0.2)
+      c:setStrokeColor(0.6, 0.5)
+      if i>today then
+        c.alpha=2*(datePoints==10 and 1 or 0.3)/(i-today)
       end
-      local line=display.newLine(x,14,x,scroll.height-14)
-      line.strokeWidth=4
-      scroll:insert(line)
-      complete=count==4
+      if i<today then
+       c:setFillColor(230/255, 180/255, 41/255)
+     end
+
     else
-      local c=display.newCircle(self.view,x,scroll.height/2, 16)
-      scroll:insert(c)
-      c.strokeWidth=2
-      if i~=today then
-        c:setFillColor(0.6, 0.2)
-        c:setStrokeColor(0.6, 0.5)
-        if i>today then
-          c.alpha=2*(datePoints==10 and 1 or 0.3)/(i-today)
-        end
-        if i<today then
-         c:setFillColor(250/255, 41/255, 41/255)
-       end
-
-      else
-        c:setFillColor(0.6, 0.2)
-        c:setStrokeColor(1)
-        c.strokeWidth=4
-      end
-
-      local day=display.newText({
-        x=c.x,
-        y=c.y,
-        text=(i~=today and i or i18n("schedule.today"))..(i<today and "!" or ""),
-        align="center",
-        fontSize=i~=today and 20 or 10
-      })
-      day.alpha=c.alpha
-      scroll:insert(day)
+      c:setFillColor(0.6, 0.2)
+      c:setStrokeColor(1)
+      c.strokeWidth=4
     end
-    local inComplete=not track or track and not complete
-    if not practiceDate and inComplete or i==today then
+
+    local day=display.newText({
+      x=c.x,
+      y=c.y,
+      text=(i~=today and i or i18n("schedule.today")),
+      align="center",
+      fontSize=i~=today and 20 or 10
+    })
+    day.alpha=c.alpha
+    scroll:insert(day)
+
+    if i==today then
       local t=display.newCircle(self.view,x,scroll.height/2, 30)
       scroll:insert(t)
       if not practiceDate then
-        if complete then
-        t:setFillColor(250/255, 220/255, 41/255,0.9)
-        else
-          t:setFillColor(83/255, 148/255, 250/255)
-        end
+        t:setFillColor(83/255, 148/255, 250/255)
         local day=i
         t:addEventListener("tap", function()
           daycounter.setPracticeDay(day)
