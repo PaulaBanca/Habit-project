@@ -77,3 +77,4 @@ Runtime:addEventListener("system", function(event)
     sessionlogger.logSessionEnd(event.type)
   end
 end)
+
