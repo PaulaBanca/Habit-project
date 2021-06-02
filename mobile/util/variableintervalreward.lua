@@ -14,7 +14,8 @@ function setup(totalTime, rewards)
 	local avg = (totalTime * 0.9) / rewards
 	local t = 0
 	for i = 1, rewards do
-		t = t + math.gaussian(avg, 500)
+		local interval = math.gaussian(avg, 500)
+		t = t + math.min(interval, avg * 2)
 		rewardTimes[i] = t
 	end
 end
