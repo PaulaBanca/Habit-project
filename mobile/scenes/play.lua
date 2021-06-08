@@ -340,7 +340,7 @@ function completeTask()
     composer.gotoScene(nextScene,{params={
         score=numRewardsEarned,
         extinguished = hideRewards,
-        full = user.get("reward extinguish") == track,
+        full = hideRewards and user.get("reward extinguish") == track,
         track=track
       }
     })
