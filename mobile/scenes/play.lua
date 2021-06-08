@@ -112,6 +112,8 @@ local function switchSong(newTrack)
     scene.img:removeSelf()
   end
   track=newTrack or (track%2)+1
+  scene:setUpKeyLayers()
+  scene.keyLayers:switchTo(modeIndex,true)
   local songs=tunes.getTunes()
   sequence=songs[track]
   local index=tunes.getStimulus(sequence)
@@ -164,6 +166,7 @@ local function dropModeDown()
   logger.setTotalMistakes(mistakesPerMode[modeIndex])
   scene.keys:disable()
   keyChangeAnimation()
+  scene.cross:toFront()
 end
 
 local function restart()
@@ -717,11 +720,6 @@ function scene:show(event)
     logger.setModeIndex(modeIndex)
   end
 
-  self:setUpKeyLayers()
-  self.cross:toFront()
-  self.cross.isVisible=not isStart and not event.params.noQuit
-  self.keyLayers:switchTo(modeIndex,true)
-
   local setTrack=event.params and event.params.track
   if setTrack=="random" then
     trackList=_.shuffle(_.append(_.rep(1,maxLearningLength/2),_.rep(2,maxLearningLength/2)))
@@ -799,6 +797,8 @@ function scene:show(event)
   restart()
   setupNextKeys()
   setUpReward(math.floor(math.gaussian(5, 0.5) + 0.5))
+  self.cross:toFront()
+  self.cross.isVisible=not isStart and not event.params.noQuit
 
   logger.setIntro(isStart or false)
 
