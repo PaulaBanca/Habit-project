@@ -22,7 +22,7 @@ function scene:show(event)
   })
   text.anchorY=0
 
-  local bg=display.newRect(scene.view,display.contentCenterX, text.y+text.height+20,100 ,30)
+  local bg=display.newRect(scene.view,display.contentCenterX, text.y+text.height+50,120 ,60)
   bg:setFillColor(83/255, 148/255, 250/255)
   display.newText({
     parent=scene.view,
