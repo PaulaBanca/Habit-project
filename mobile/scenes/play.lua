@@ -23,6 +23,7 @@ local incompletetasks = require ("incompletetasks")
 local averagetimes = require ("database.averagetimes")
 local variableratioreward = require ("util.variableratioreward")
 local variableintervalreward = require ("util.variableintervalreward")
+local user = require "user"
 local coins=require("mobileconstants").coins
 local easing = easing
 local unpack=unpack
@@ -229,7 +230,6 @@ local function collectReward()
   coin:addEventListener("finalize")
 
   sound.playSound("reward")
-
 end
 
 local function shouldChangeModeUp()
@@ -334,11 +334,15 @@ function completeTask()
     daycounter.completedPractice(track)
     sessionlogger.logPracticeCompleted()
   end
+
   timer.performWithDelay(1000, function()
     incompletetasks.lastCompleted()
     composer.gotoScene(nextScene,{params={
-      score=numRewardsEarned,
-      track=track}
+        score=numRewardsEarned,
+        extinguished = hideRewards,
+        full = user.get("reward extinguish") == track,
+        track=track
+      }
     })
     composer.hideOverlay()
   end)
