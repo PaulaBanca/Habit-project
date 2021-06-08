@@ -79,7 +79,10 @@ function gotoNextScene(track,day,resumed)
     incompletetasks.push(scene,params)
   end
 
-  incompletetasks.getNext()
+  if incompletetasks.getNext() then
+    return
+  end
+  composer.gotoScene("scenes.schedule")
 end
 
 function scene:purge()

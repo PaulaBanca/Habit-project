@@ -236,7 +236,6 @@ function scene:show(event)
           }
         }
       end
-      print ("coins " .. #positions[track])
 
       physics.addBody(display.newCircle(self.view,0,0,1), "static", unpack(shapes))
 
