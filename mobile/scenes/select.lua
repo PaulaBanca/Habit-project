@@ -20,6 +20,7 @@ local type = type
 setfenv(1,scene)
 
 scene.modeSelect=0
+local rewardExtinguish = 20
 
 function scene:setup(s)
   if type(s) == "string" then
@@ -42,6 +43,7 @@ function scene:show(event)
   text.x=display.contentCenterX
   text.y=display.contentCenterY*0.5
   local order=_.shuffle({1,2})
+  local noReward=daycounter.getPracticeDay() >= (user.get("extinguish") or rewardExtinguish)
   for i=1, #order do
     local track=order[i]
     local rewardType = (track+self.modeSelect)%2+1==1 and "ratio" or "interval"
@@ -74,9 +76,6 @@ function scene:show(event)
       no.strokeWidth = 4
       no:setStrokeColor(1, 0, 0)
     else
-
-      local noReward=daycounter.getPracticeDay()>20 and user.get("reward extinguish") == track
-
       local practice=practicelogger.getPractices(track)
       label = i18n("practice_select.practice_count",{count = practice})
       img.tap=function()
@@ -89,7 +88,8 @@ function scene:show(event)
         composer.gotoScene("scenes.play",{params={
           track=track,
           iterationDifficulties=difficulty.get(track),
-          rewardType=noReward and "none" or rewardType,
+          rewardType=rewardType,
+          hideRewards=noReward,
           isScheduledPractice=true,
           practice=practice,
           mode="practice",

@@ -66,6 +66,7 @@ local isScheduledPractice
 local trackList
 local stimulusScale=0.35
 local practiceStart
+local hideRewards
 
 local startInstructions={
   {chord={"c4","none","none","none"},forceLayout=true},
@@ -198,6 +199,11 @@ local function collectReward()
   end
 
   numRewardsEarned = numRewardsEarned + 1
+
+  if hideRewards then
+    return
+  end
+
   local reward = display.newEmitter(particles.load("reward"))
   reward:scale(2,2)
   scene.view:insert(reward)
@@ -684,6 +690,7 @@ function scene:show(event)
   isStart=event.params and event.params.intro
   startModeProgression=event.params and event.params.modeProgression
   headless=event.params and event.params.headless
+  hideRewards = event.params and event.params.hideRewards
   self.onClose=event.params and event.params.onClose
   rewardType=event.params and event.params.rewardType or "none"
   nextScene=event.params and event.params.nextScene or "scenes.score"
