@@ -309,8 +309,11 @@ function proceedToNextStep()
 end
 
 function hasCompletedTask()
-  print (numRewardsEarned, targetRewards)
-  return numRewardsEarned == targetRewards
+  if rewardType ~= "none" then
+    return numRewardsEarned == targetRewards
+  end
+
+  return modesDropped==0 and state.get("rounds")==maxLearningLength*rounds
 end
 
 function completeTask()
