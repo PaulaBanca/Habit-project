@@ -106,7 +106,7 @@ local instructions={
 }
 
 function scene:show(event)
-  if event.phase=="did" then
+  if event.phase=="will" then
     return
   end
   local path=system.pathForFile("intro.json",system.DocumentsDirectory)

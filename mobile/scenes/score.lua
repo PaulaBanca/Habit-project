@@ -8,6 +8,7 @@ local practicelogger=require "practicelogger"
 local incompletetasks=require "incompletetasks"
 local i18n = require ("i18n.init")
 local user=require "user"
+local coins=require("mobileconstants").coins
 local display=display
 local system=system
 local native=native
@@ -42,8 +43,8 @@ function scene:isOutsideOfBowl(c)
         (dy * dy)/((elipseHeight/2 - c.contentHeight/2 - 8)^2) > 1
 end
 
-function scene:addCoin(animate)
-  local c = display.newImage(self.view, "img/coin.png")
+function scene:addCoin(animate,track)
+  local c = display.newImage(self.view, coins[track])
   c:scale(0.5,0.5)
   if animate then
     c:translate(
@@ -119,12 +120,12 @@ function scene:show(event)
     local rewards = user.get("rewards_earned") or {0,0}
     local track = event.params.track
     for i = 1, rewards[track] do
-       self:addCoin()
+       self:addCoin(false, track)
      end
 
     for i = 1, event.params.score do
       timer.performWithDelay(400 * i, function()
-        self:addCoin(true)
+        self:addCoin(true, track)
         front:toFront()
       end)
     end

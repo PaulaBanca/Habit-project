@@ -23,6 +23,7 @@ local incompletetasks = require ("incompletetasks")
 local averagetimes = require ("database.averagetimes")
 local variableratioreward = require ("util.variableratioreward")
 local variableintervalreward = require ("util.variableintervalreward")
+local coins=require("mobileconstants").coins
 local easing = easing
 local unpack=unpack
 local display=display
@@ -206,10 +207,6 @@ local function collectReward()
     display.remove(reward)
   end)
 
-  local coins = {
-    "img/coin_purple.png",
-    "img/coin_orange.png",
-  }
   local coin = display.newImage(scene.view, coins[track])
   coin:scale(2,2)
   coin:translate(display.contentCenterX, display.contentCenterY)
