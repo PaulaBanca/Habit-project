@@ -34,7 +34,13 @@ local validKeys={
   mode="setMode",
   lives="setLives",
   deadmanSwitchRelease="setDeadmansSwitchID",
-  practiceProgress="setProgress"
+  practiceProgress="setProgress",
+  viAverage="setVIAverage",
+  rewardTarget="setTotalRewards",
+  rewardsEarnt="setRewardsEarned",
+  rewardsExtinguished="setRewardsExtinguished",
+  scheduleType="setScheduleType",
+  scheduleParameter="setScheduleParameter"
 }
 
 function set(key,value)

@@ -203,6 +203,7 @@ local function collectReward()
   end
 
   numRewardsEarned = numRewardsEarned + 1
+  logger.setRewardsEarned(numRewardsEarned)
 
   if hideRewards then
     return
@@ -382,18 +383,26 @@ function setupNextKeys()
 end
 
 function setUpReward(numRewards)
-  if rewardType=="ratio" then
-    variableratioreward.setup(20, numRewards)
-  elseif rewardType=="interval" then
-    local trackToUse = track
-    averagetimes.getNumAverages(trackToUse, function(num)
-      if num < 20 then
-        trackToUse = trackToUse % 2 + 1
-      end
-    end)
-    averagetimes.getAveragesForTrack(trackToUse, function(avg)
+  logger.setTotalRewards(numRewards)
+
+  local trackToUse = track
+  averagetimes.getNumAverages(trackToUse, function(num)
+    if num < 20 then
+      trackToUse = trackToUse % 2 + 1
+    end
+  end)
+  averagetimes.getAveragesForTrack(trackToUse, function(avg)
+    print (trackToUse, avg)
+    logger.setVIAverage(avg)
+    if rewardType=="interval" then
+      logger.setScheduleParameter(avg * 20)
       variableintervalreward.setup(avg * 20, numRewards)
-    end)
+    end
+  end)
+
+  if rewardType=="ratio" then
+    logger.setScheduleParameter(20)
+    variableratioreward.setup(20, numRewards)
   end
 
   targetRewards = numRewards
@@ -731,6 +740,9 @@ function scene:show(event)
   state=playstate.create()
   state.startTimer()
   modesDropped=0
+  logger.setRewardsEarned(numRewardsEarned)
+  logger.setScheduleType(rewardType)
+  logger.setRewardsExtinguished(hideRewards)
   logger.setScore(0)
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(mistakesPerMode[modeIndex])

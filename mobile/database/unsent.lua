@@ -43,6 +43,12 @@ CREATE TABLE IF NOT EXISTS touch (
   mistakes INTEGER NOT NULL,
   deadmanSwitchRelease INTEGER,
   practiceProgress TEXT,
+  viAverage INTEGER,
+  rewardTarget INTEGER,
+  rewardsEarnt INTEGER,
+  rewardsExtinguished TEXT,
+  scheduleType TEXT,
+  scheduleParameter INTEGER,
   FOREIGN KEY(deadmanSwitchRelease) REFERENCES switchreleases(ID)
 );
 ]]
@@ -98,7 +104,7 @@ local preparedQuestionnaire=database.prepare([[INSERT INTO questionnaires (confi
 
 local preparedSwitchRelease=database.prepare([[INSERT INTO switchreleases (releaseDuration,practice,track,date,pressedTime,releaseTime,appMillis,userid) VALUES (:releaseDuration,:practice,:track,:date,:pressedTime,:releaseTime,:appMillis,:userid);]])
 
-local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease,mode,practiceProgress,lives) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease,:mode,:practiceProgress,:lives);]])
+local preparedInsert=database.prepare([[INSERT INTO touch (touchPhase,x,y,date,time,appMillis,delay,wasCorrect,complete,track,instructionIndex,modesDropped,iterations,modeIndex,key,bank,score,practices,isPractice,attempt,userid,timeIntoSequence,intro,mistakes,deadmanSwitchRelease,mode,practiceProgress,lives,viAverage,rewardTarget,rewardsEarnt,rewardsExtinguished,scheduleType,scheduleParameter) VALUES (:touchPhase,:x,:y,:date,:time,:appMillis,:delay,:wasCorrect,:complete,:track,:instructionIndex,:modesDropped,:iterations,:modeIndex,:keyIndex,:bank,:score,:practices,:isPractice,:attempt,:userid,:timeIntoSequence,:intro,:mistakes,:deadmanSwitchRelease,:mode,:practiceProgress,:lives,:viAverage,:rewardTarget,:rewardsEarnt,:rewardsExtinguished,:scheduleType,:scheduleParameter);]])
 
 local preparedSession=database.prepare([[INSERT INTO sessions (type,practicesStarted,practicesCompleted,date,time,appMillis,userid) VALUES (:type,:practicesStarted,:practicesCompleted,:date,:time,:appMillis,:userid);]])
 
@@ -139,6 +145,8 @@ readTableNamesFromDatabase()
 nullValues["touch"]["delay"]=-1
 nullValues["touch"]["wasCorrect"]=false
 nullValues["touch"]["mistakes"]=0
+nullValues["touch"]["viAverage"]=-1
+nullValues["touch"]["scheduleParameter"]=-1
 
 local function fillInNulls(tablename,t)
   for k,v in pairs(nullValues[tablename]) do
