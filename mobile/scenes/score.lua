@@ -147,19 +147,19 @@ function scene:show(event)
       self.view,
       "img/pot_back.png")
 
-    local ewh = back.contentWidth/2
-    local ehh = back.contentHeight/2
+    local ewh = back.contentWidth/2 - 4
+    local ehh = back.contentHeight/2 - 4
     local chain = {}
     local ci = 1
     for i = 1, 20 * 2, 2 do
       local t = (i/2 * math.pi * 2) / 20
       if i <= 28 or i > 31 then
         chain[ci  ] = math.cos(t) * ewh
-        chain[ci+1] = math.sin(t) * ehh
+        chain[ci+1] = math.sin(t) * ehh - 4
         ci = ci + 2
       elseif i == 29 then
         local topx = math.cos(t) * ewh
-        local topy = math.sin(t) * ehh
+        local topy = math.sin(t) * ehh - 4
         chain[ci  ] = topx - 400
         chain[ci+1] = topy - 100
         ci = ci + 2
