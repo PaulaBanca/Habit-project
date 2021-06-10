@@ -802,6 +802,8 @@ function scene:show(event)
       sequence=startInstructions
     end
     logger.setTrack(-1)
+    self:setUpKeyLayers()
+    self.keyLayers:switchTo(modeIndex,true)
   else
     switchSong(setTrack)
   end
