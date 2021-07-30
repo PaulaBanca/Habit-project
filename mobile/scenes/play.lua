@@ -752,10 +752,6 @@ function scene:show(event)
   logger.setModesDropped(modesDropped)
   logger.setProgress("start")
 
-  if system.getInfo("environment")~="simulator" then
-    self.keys:disable()
-  end
-
   local practice=event.params and event.params.practice
   logger.setDeadmansSwitchID(nil)
   local releaseTimeMillis,releaseTime
@@ -806,6 +802,10 @@ function scene:show(event)
     self.keyLayers:switchTo(modeIndex,true)
   else
     switchSong(setTrack)
+  end
+
+  if system.getInfo("environment")~="simulator" then
+    self.keys:disable()
   end
 
   restart()
