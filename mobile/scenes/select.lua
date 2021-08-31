@@ -44,6 +44,17 @@ function scene:show(event)
   text.y=display.contentCenterY*0.5
   local order=_.shuffle({1,2})
   local noReward=daycounter.getPracticeDay() >= (user.get("extinguish") or rewardExtinguish)
+
+  if noReward and not user.get("no reward explained") then
+    composer.gotoScene("scenes.message",{
+      params={
+        text = i18n("practice_select.reward_extinguished"),
+        nextScene = "scenes.select"
+      }
+    })
+    user.store("no reward explained", true)
+    return
+  end
   for i=1, #order do
     local track=order[i]
     local rewardType = (track+self.modeSelect)%2+1==1 and "ratio" or "interval"
