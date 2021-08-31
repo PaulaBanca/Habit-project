@@ -196,44 +196,63 @@ local function collectReward()
     return
   end
 
-  if rewardType=="ratio" and not variableratioreward.trialHasReward() then
-    return
-  elseif rewardType=="interval" and not variableintervalreward.trialHasReward(system.getTimer() - practiceStart) then
-    return
-  end
+  local rewardFunc = {
+    ratio = function() return variableratioreward.trialHasReward() end,
+    interval = function()
+      local timeIntoPractice = system.getTimer() - practiceStart
+      return variableintervalreward.trialHasReward(timeIntoPractice)
+    end
+  }
 
-  numRewardsEarned = numRewardsEarned + 1
-  logger.setRewardsEarned(numRewardsEarned)
+  local earnedCoin = rewardFunc[rewardType]()
+  if earnedCoin then
+    numRewardsEarned = numRewardsEarned + 1
+    logger.setRewardsEarned(numRewardsEarned)
+  end
 
   if hideRewards then
     return
   end
 
-  local reward = display.newEmitter(particles.load("reward"))
-  reward:scale(2,2)
-  scene.view:insert(reward)
-  reward:translate(display.contentCenterX, display.contentCenterY)
+  local rewardGraphic
+  if earnedCoin then
+    local reward = display.newEmitter(particles.load("reward"))
+    reward:scale(2,2)
+    scene.view:insert(reward)
+    reward:translate(display.contentCenterX, display.contentCenterY)
 
-  timer.performWithDelay(1000, function()
-    display.remove(reward)
-  end)
+    timer.performWithDelay(1000, function()
+      display.remove(reward)
+    end)
 
-  local coin = display.newImage(scene.view, coins[track])
-  coin:scale(2,2)
-  coin:translate(display.contentCenterX, display.contentCenterY)
+    local coin = display.newImage(scene.view, coins[track])
+    coin:scale(2,2)
+    rewardGraphic = coin
 
-  local t = transition.to(coin, {
-    y = -coin.height/2,
-    transition = easing.inQuad,
-    onComplete = display.remove
-  })
-
-  function coin.finalize()
-    transition.cancel(t)
+    sound.playSound("reward")
+  else
+    local group = display.newGroup()
+    local bg = display.newCircle(group, 0, 0 , 60)
+    bg.strokeWidth = 8
+    bg:setFillColor(0.4)
+    bg:setStrokeColor(0.5)
+    display.newImage(group, "img/0.png")
+    rewardGraphic = group
   end
-  coin:addEventListener("finalize")
 
-  sound.playSound("reward")
+  rewardGraphic:translate(display.contentCenterX, display.contentCenterY)
+
+    local t = transition.to(rewardGraphic, {
+      y = -rewardGraphic.height/2,
+      transition = easing.inQuad,
+      onComplete = display.remove
+    })
+
+    function rewardGraphic.finalize()
+      transition.cancel(t)
+    end
+    rewardGraphic:addEventListener("finalize")
+
 end
 
 local function shouldChangeModeUp()
