@@ -9,6 +9,8 @@ local print=print
 local pairs=pairs
 local timer=timer
 local native=native
+local table = table
+local assert = assert
 
 setfenv(1,M)
 
@@ -141,6 +143,15 @@ local function readTableNamesFromDatabase()
 end
 
 readTableNamesFromDatabase()
+
+local blacklist = {rewards = true}
+
+for i = #tableNames, 1, -1 do
+  local name=tableNames[i]
+  if blacklist[name] then
+    assert(name == table.remove(tableNames, i))
+  end
+end
 
 nullValues["touch"]["delay"]=-1
 nullValues["touch"]["wasCorrect"]=false

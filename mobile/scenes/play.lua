@@ -22,7 +22,8 @@ local serpent = require ("serpent")
 local incompletetasks = require ("incompletetasks")
 local averagetimes = require ("database.averagetimes")
 local variableratioreward = require ("util.variableratioreward")
-local variableintervalreward = require ("util.variableintervalreward")
+local replayreward = require ("util.replayreward")
+local rewardtimes = require("database.rewardtimes")
 local user = require "user"
 local coins=require("mobileconstants").coins
 local easing = easing
@@ -68,6 +69,7 @@ local trackList
 local stimulusScale=0.35
 local practiceStart
 local hideRewards
+local practice
 
 local startInstructions={
   {chord={"c4","none","none","none"},forceLayout=true},
@@ -196,18 +198,27 @@ local function collectReward()
     return
   end
 
+  local timeIntoPractice = system.getTimer() - practiceStart
   local rewardFunc = {
     ratio = function() return variableratioreward.trialHasReward() end,
     interval = function()
-      local timeIntoPractice = system.getTimer() - practiceStart
-      return variableintervalreward.trialHasReward(timeIntoPractice)
+      return replayreward.trialHasReward(timeIntoPractice)
     end
   }
 
   local earnedCoin = rewardFunc[rewardType]()
   if earnedCoin then
+    if rewardType == "interval" then
+      logger.setScheduleParameter(replayreward.nextReward())
+    end
     numRewardsEarned = numRewardsEarned + 1
     logger.setRewardsEarned(numRewardsEarned)
+    print(rewardtimes.log({
+      track = track,
+      userid = user.getID(),
+      rewardTime = timeIntoPractice,
+      practice = practice
+    }))
   end
 
   if hideRewards then
@@ -402,29 +413,24 @@ function setupNextKeys()
 end
 
 function setUpReward(numRewards)
-  logger.setTotalRewards(numRewards)
+  if rewardType == "interval" then
+    local otherTrack = (track + 2) % 2 + 1
+    rewardtimes.getRewardTimesForTrack(otherTrack, practice, function(t)
+      replayreward.setup(t)
+      logger.setScheduleParameter(replayreward.nextReward())
+      numRewards = #t
+      targetRewards = numRewards
+      logger.setTotalRewards(numRewards)
 
-  local trackToUse = track
-  averagetimes.getNumAverages(trackToUse, function(num)
-    if num < 20 then
-      trackToUse = trackToUse % 2 + 1
-    end
-  end)
-  averagetimes.getAveragesForTrack(trackToUse, function(avg)
-    print (trackToUse, avg)
-    logger.setVIAverage(avg)
-    if rewardType=="interval" then
-      logger.setScheduleParameter(avg * 20)
-      variableintervalreward.setup(avg * 20, numRewards)
-    end
-  end)
+    end)
+  end
 
   if rewardType=="ratio" then
     logger.setScheduleParameter(20)
     variableratioreward.setup(20, numRewards)
+    targetRewards = numRewards
+    logger.setTotalRewards(numRewards)
   end
-
-  targetRewards = numRewards
 end
 
 function scene:create(event)
@@ -771,7 +777,7 @@ function scene:show(event)
   logger.setModesDropped(modesDropped)
   logger.setProgress("start")
 
-  local practice=event.params and event.params.practice
+  practice=event.params and event.params.practice
   logger.setDeadmansSwitchID(nil)
   local releaseTimeMillis,releaseTime
   local deadSensor,deadMansSwitchGroup=deadmansswitch.start(function()
