@@ -59,15 +59,11 @@ function scene:show(event)
     local track=order[i]
     local rewardType = (track+self.modeSelect)%2+1==1 and "ratio" or "interval"
     local isDisabled = false
-    if rewardType == "interval" then
-      averagetimes.getNumAverages(track, function(num)
-        if num < 20 then
-          averagetimes.getNumAverages((track % 2) + 1, function(num)
-            isDisabled = num < 20
-          end)
-        end
-      end)
+    if not noReward then
+      local lastRewardType = user.get("reward of last completed practice") or "interval"
+      isDisabled = lastRewardType == rewardType
     end
+
     local img=stimuli.getStimulus(track)
     scene.view:insert(img)
     img.x=display.contentCenterX-(img.contentWidth/2)*(i*2-3)

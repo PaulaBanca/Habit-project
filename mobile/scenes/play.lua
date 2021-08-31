@@ -357,7 +357,7 @@ function completeTask()
     daycounter.completedPractice(track)
     sessionlogger.logPracticeCompleted()
   end
-
+  user.store("reward of last completed practice", rewardType)
   timer.performWithDelay(1000, function()
     incompletetasks.lastCompleted()
     composer.gotoScene(nextScene,{params={

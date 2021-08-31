@@ -59,7 +59,7 @@
     },
     "practice_select" : {
       "instruction" : "Pick a melody to practice",
-      "blocked": "Please practice the other melody twice first",
+      "blocked": "Please practice the other melody first",
       "reward_extinguished": "From now on all rewards will be hidden",
       "practice_count" : {
         "one" : "Practiced\nonce",
