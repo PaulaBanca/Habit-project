@@ -26,7 +26,7 @@ function trialHasReward(time)
 end
 
 function nextReward()
-	return rewardTimes[0]
+	return rewardTimes[1]
 end
 
 return M
