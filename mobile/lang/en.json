@@ -61,6 +61,7 @@
       "instruction" : "Pick a melody to practice",
       "blocked": "Please practice the other melody first",
       "reward_extinguished": "From now on all rewards will be hidden",
+      "overpracticed": "You have done all the practices for today",
       "practice_count" : {
         "one" : "Practiced\nonce",
         "other" : "Practiced\n%{count} times",

@@ -55,6 +55,8 @@ function scene:show(event)
     user.store("no reward explained", true)
     return
   end
+
+  local practices = daycounter.getPracticed(daycounter.getPracticeDay()) or {0,0}
   for i=1, #order do
     local track=order[i]
     local rewardType = (track+self.modeSelect)%2+1==1 and "ratio" or "interval"
@@ -64,6 +66,8 @@ function scene:show(event)
       isDisabled = lastRewardType == rewardType
     end
 
+    isDisabled = isDisabled or (practices[track] or 0) >= 2
+
     local img=stimuli.getStimulus(track)
     scene.view:insert(img)
     img.x=display.contentCenterX-(img.contentWidth/2)*(i*2-3)
@@ -72,7 +76,7 @@ function scene:show(event)
     img.alpha = isDisabled and 0.3 or 1
     local label
     if isDisabled then
-      label = i18n("practice_select.blocked")
+      label = i18n(practices[track] >= 2 and "practice_select.overpracticed" or "practice_select.blocked")
 
       local no = display.newLine(
         self.view,
