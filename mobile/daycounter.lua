@@ -80,4 +80,13 @@ function getPracticed(day)
   return data.practices[day]
 end
 
+function hasCompletedPractice(track, day)
+  return getLastCompletedPractice(track, day) > 0
+end
+
+function getLastCompletedPractice(track, day)
+  local dayPractices=data.practices[day]
+  return (dayPractices and dayPractices[track]) or 0
+end
+
 return M

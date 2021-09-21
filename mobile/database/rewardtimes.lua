@@ -16,18 +16,19 @@ CREATE TABLE IF NOT EXISTS rewards (
   rewardTime INTEGER NOT NULL,
   track INTEGER NOT NULL,
   userid TEXT NOT NULL,
-  practice INTEGER NOT NULL
+  practice INTEGER NOT NULL,
+  day INTEGER NOT NULL
 );
 ]]
 
 database.runSQLQuery(createTableCmd)
 
-local preparedInsert=database.prepare([[INSERT INTO rewards (rewardTime,track,userid,practice) VALUES (:rewardTime,:track,:userid,:practice);]])
+local preparedInsert=database.prepare([[INSERT INTO rewards (rewardTime,track,userid,practice,day) VALUES (:rewardTime,:track,:userid,:practice,:day);]])
 
 local preparedCount = {}
 local preparedAvg = {}
 for i = 1, 2 do
-  preparedAvg[i] = database.prepare(([[SELECT rewardTime FROM rewards WHERE track = %d and practice = :practice ORDER BY ID ASC;]]):format(i))
+  preparedAvg[i] = database.prepare(([[SELECT rewardTime FROM rewards WHERE track = %d AND practice = :practice AND day = :day ORDER BY ID ASC;]]):format(i))
     preparedCount[i] = database.prepare(([[SELECT COUNT(*) FROM rewards]]):format(i))
 
 end
@@ -44,11 +45,12 @@ function log(t)
   return database.lastRowID()
 end
 
-function getRewardTimesForTrack(track, practice, callback)
+function getRewardTimesForTrack(track, day, practice, callback)
   local stmt = preparedAvg[track]
   stmt:reset()
   local code = stmt:bind_names({
-    practice = practice
+    practice = practice,
+    day = day
   })
   print(sqlite3constants.getLookupCode(code))
   local times = {}

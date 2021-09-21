@@ -42,6 +42,7 @@ local os=os
 local pairs=pairs
 local ipairs=ipairs
 local NUM_KEYS=NUM_KEYS
+local assert=assert
 
 setfenv(1,scene)
 
@@ -213,12 +214,14 @@ local function collectReward()
     end
     numRewardsEarned = numRewardsEarned + 1
     logger.setRewardsEarned(numRewardsEarned)
-    print(rewardtimes.log({
+    local day = daycounter.getPracticeDay()
+    rewardtimes.log({
       track = track,
       userid = user.getID(),
       rewardTime = timeIntoPractice,
-      practice = practice
-    }))
+      practice = daycounter.getLastCompletedPractice(track, day) + 1,
+      day = day,
+    })
   end
 
   if hideRewards then
@@ -415,13 +418,21 @@ end
 function setUpReward(numRewards)
   if rewardType == "interval" then
     local otherTrack = (track + 2) % 2 + 1
-    rewardtimes.getRewardTimesForTrack(otherTrack, practice, function(t)
+    local copyFromDay = daycounter.getPracticeDay()
+    while not daycounter.hasCompletedPractice(otherTrack, copyFromDay) do
+      copyFromDay = copyFromDay - 1
+      assert(copyFromDay >= 1, "setting up replay reward, could not go back far enough")
+    end
+
+    local copyFromPactice = daycounter.getLastCompletedPractice(otherTrack, copyFromDay)
+    rewardtimes.getRewardTimesForTrack(otherTrack, copyFromDay, copyFromPactice, function(t)
+      assert(t and #t > 0, "Setting up replay reward, no rewards to copy")
+
       replayreward.setup(t)
       logger.setScheduleParameter(replayreward.nextReward())
       numRewards = #t
       targetRewards = numRewards
       logger.setTotalRewards(numRewards)
-
     end)
   end
 
