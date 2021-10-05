@@ -437,7 +437,7 @@ function setUpReward(numRewards)
   end
 
   if rewardType=="ratio" then
-    logger.setScheduleParameter(20)
+    logger.setScheduleParameter(-1)
     variableratioreward.setup(20, numRewards)
     targetRewards = numRewards
     logger.setTotalRewards(numRewards)
@@ -779,7 +779,7 @@ function scene:show(event)
   logger.setRewardsEarned(numRewardsEarned)
   logger.setScheduleType(rewardType)
   logger.setRewardsExtinguished(hideRewards)
-  logger.setScore(0)
+  logger.setScore(user.get("reward extinguish"))
   logger.setIterations(state.get("iterations"))
   logger.setTotalMistakes(mistakesPerMode[modeIndex])
   logger.setLives(3-state.get("mistakes"))
