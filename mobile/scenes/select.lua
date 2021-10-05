@@ -46,9 +46,9 @@ function scene:show(event)
   local noReward=daycounter.getPracticeDay() >= (user.get("extinguish") or rewardExtinguish)
 
   if noReward and not user.get("no reward explained") then
-    composer.gotoScene("scenes.message",{
+    composer.gotoScene("scenes.rewardextinguished",{
       params={
-        text = i18n("practice_select.reward_extinguished"),
+        track = user.get("reward extinguish"),
         nextScene = "scenes.select"
       }
     })

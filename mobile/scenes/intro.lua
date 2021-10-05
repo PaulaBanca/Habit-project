@@ -51,7 +51,6 @@ local instructions={
   {
     text=i18n("tutorial.level_practice"),
     y=display.contentCenterY-120},
-
   {
     text=i18n("tutorial.level1"),
     y=display.contentCenterY-40,
@@ -101,6 +100,14 @@ local instructions={
       maxLearningLength = 1,
       rounds = 1
     }
+  },
+  {
+    text=i18n("tutorial.devaluation1"),
+    y=display.contentCenterY-120
+  },
+  {
+    text=i18n("tutorial.devaluation2"),
+    y=display.contentCenterY-120
   },
   {text=i18n("tutorial.tutorial_completed"),y=display.contentCenterY-120},
 }
