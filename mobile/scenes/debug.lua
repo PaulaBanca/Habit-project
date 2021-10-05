@@ -8,7 +8,6 @@ local user = require ("user")
 setfenv(1,scene)
 
 local options={
-  {label="Melody Length",options={6,5,4,3},default=1,selectFunc=function(v) tunes.setMaxLength(v) end},
   {label="Exstinguish after day",options={20,10,2,1},default=20,selectFunc=function(v)
     user.store("extinguish",v)
    end},

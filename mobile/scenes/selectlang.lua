@@ -87,11 +87,7 @@ function scene:create()
     :translate(bg.x, bg.y)
 
   bg:addEventListener("tap", function()
-    if system.getInfo("environment")=="simulator" then
-      composer.gotoScene("scenes.debug")
-    else
-      composer.gotoScene("scenes.setup")
-    end
+    composer.gotoScene("scenes.setup")
   end)
 end
 scene:addEventListener("create")
@@ -101,11 +97,7 @@ function scene:show(event)
     if user.get("language") then
 
       i18n.setLocale(user.get("language"))
-      if system.getInfo("environment")=="simulator" then
-        composer.gotoScene("scenes.debug")
-      else
-        composer.gotoScene("scenes.setup")
-      end
+      composer.gotoScene("scenes.intro")
 
       return
     end

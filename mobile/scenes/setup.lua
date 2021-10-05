@@ -118,11 +118,7 @@ function scene:create()
   }):translate(bg.x, bg.y)
 
   bg:addEventListener("tap", function()
-    if system.getInfo("environment")=="simulator" then
-      composer.gotoScene("scenes.debug")
-    else
-      composer.gotoScene("scenes.intro")
-    end
+    composer.gotoScene("scenes.debug")
   end)
 
   scroll:setIsLocked(bg.contentBounds.yMax < display.contentHeight,"vertical")
@@ -134,11 +130,7 @@ function scene:show(event)
     if user.get("melody setup") then
       local c=composer.getScene("scenes.select")
       c:setup(user.get("melody setup"))
-      if system.getInfo("environment")=="simulator" then
-        composer.gotoScene("scenes.debug")
-      else
-        composer.gotoScene("scenes.intro")
-      end
+      composer.gotoScene("scenes.intro")
 
       return
     end
