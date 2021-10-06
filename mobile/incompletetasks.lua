@@ -6,6 +6,7 @@ local jsonreader=require "jsonreader"
 local system=system
 local table=table
 local assert=assert
+local _=require "util.moses"
 
 setfenv(1,M)
 
@@ -17,7 +18,7 @@ function getNext()
   if #data==0 then
     return false
   end
-  local dest=data[1]
+  local dest=_.clone(data[1])
   lastDest=dest
   composer.gotoScene(dest.scene,{params=dest.params})
   return true
