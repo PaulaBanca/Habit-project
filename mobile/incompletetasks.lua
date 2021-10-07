@@ -19,15 +19,15 @@ function getNext()
     return false
   end
   local dest=_.clone(data[1])
-  lastDest=dest
+  lastDest=_.clone(dest)
   composer.gotoScene(dest.scene,{params=dest.params})
   return true
 end
 
 function lastCompleted()
   for i=1,#data do
-    if lastDest==data[i] then
-      assert(table.remove(data, i)==lastDest)
+    if _. isEqual(lastDest,data[i]) then
+      assert(_. isEqual(table.remove(data, i),lastDest))
       jsonreader.store(path,data)
       lastDest=nil
       return
