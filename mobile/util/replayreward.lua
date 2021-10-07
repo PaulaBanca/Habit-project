@@ -8,25 +8,35 @@ local math = math
 
 setfenv(1, M)
 
-local rewardTimes = {}
+local intervals = {}
+local lastReward
 
 function setup(rt)
-	rewardTimes = rt
+	intervals[1] = rt[1]
+	local last = rt[1]
+
+	for i = 2, #rt do
+		intervals[i] = rt[i] - last
+		last = rt[i]
+	end
+
+	lastReward = 0
 end
 
 function trialHasReward(time)
-	if #rewardTimes == 0 then
+	if #intervals == 0 then
 		return
 	end
-	if time < rewardTimes[1] then
+	if time < lastReward + intervals[1] then
 		return
 	end
-	table.remove(rewardTimes, 1)
+	lastReward = time
+	table.remove(intervals, 1)
 	return true
 end
 
 function nextReward()
-	return rewardTimes[1]
+	return #intervals > 0 and (lastReward + intervals[1]) or -1
 end
 
 return M
